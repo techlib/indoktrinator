@@ -1,0 +1,2 @@
+include indoktrinator/templates/*.html
+include indoktrinator/static/*/*

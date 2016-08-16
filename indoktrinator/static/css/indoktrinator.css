@@ -1,0 +1,14 @@
+/* remove double border at paginator */
+.table>tbody+tbody {
+    border-top-width: 1px !important;
+}
+
+.array-row {
+    margin-bottom: 4px
+}
+
+.list-view-pf-view.playlist .list-group-item .list-view-pf-main-info {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+

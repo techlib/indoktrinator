@@ -1,0 +1,373 @@
+= Indoktrinátor
+Jan Dvořák <jan.dvorak@techlib.cz>
+:numbered:
+:icons: font
+:lang: cs
+:note-caption: Poznámka
+:warning-caption: Pozor
+:toc-title: Obsah
+:toc: left
+
+== Úvod
+
+Indoktrinátor je svobodná platforma pro řízení informačních zobrazovačů.
+
+Uživatelem platformy Indoktrinátor je zejména netechnický personál veřejných institucí, například knihoven, nemocnic a škol. Tyto instituce si přejí zobrazovat na televizních obrazovkách ve svých budovách rozličné informace, ale často si nemohou dovolit personál dostatečně kvalifikovaný na to, aby přizpůsobil obsah vyspělému řešení pro vysílání.
+
+Indoktrinátor nabízí alternativu, kterou je možné nasadit, udržovat a řídit velmi levně. Bohužel za cenu neschopnosti nabídnout vlastnosti profesionálního odbavovacího řešení a pod-sekundové přesnosti synchronizace zobrazovačů.
+
+[plantuml,align="center"]
+....
+@startuml
+:Správce obsahu: -l- (Sestavuje řádný program)
+:Správce obsahu: -r- (Sestavuje mimořádné vstupy)
+:Správce obsahu: -d- (Vkládá obsah do úložiště)
+@enduml
+....
+
+Systém je tvořen dvěma oddělenými aplikacemi. Jde o serverovou aplikace `indoktrinator`, která umožňuje přípravu rozvrhů a koordinaci platformy jako celku. Dále pak o klientskou aplikaci `telescreen`, která řídí konkrétní zobrazovač.
+
+
+== Uživatelské scénáře
+
+=== Týdenní program
+
+Slečna Věra byla mimo jiné najata i jako správkyně obsahu vnitřního vysílání. Její první povinností je připravit pravidelný týdenní program pro zobrazovače poblíž hlavního vchodu. Vedení má následující požadavky:
+
+- První polovina zobrazovačů má poskytovat obecné informace o organizaci.
+- Druhá polovina má zobrazovat pouze vstupy od partnerů.
+- Veškeré zobrazovače mají mezi 19 a 20 hodinou čas od času zobrazit informaci o blížící se zavírací době.
+
+Věra tedy postupuje následovně:
+
+- Nejprve si připraví adresáře na souborovém úložišti. Obrázkové prezentace seskupí do oddělených adresářů a protože je nutné specifikovat trvání jednotlivých obrázků, vytvoří i soubory `index.m3u8`, `index.m3u`, nebo `index.txt`, ve kterých dle platné syntaxe formátu https://en.wikipedia.org/wiki/M3U[M3U8] určí jejich pořadí a trvání.
+
+- Následně si otevře webové rozhraní aplikace Indoktrinátor a duplikuje automaticky sestavený playlist s obecnými informacemi. Do kopie vloží několik klipů upozorňujících na blížící se zavírací dobu.
+
+- Dále Věra vytvoří týdenní program, do kterého vloží původní playlist k přehrání mezi 8 a 19 hodinou, naváže upravenou verzí mezi 19 a 20 hodinou a zbytek dne ponechá bez obsahu. Zobrazovač bez obsahu se sám uspí.
+
+- Pro prezentace partnerů Věra sestaví týdenní rozvrh obdobně jako v předchozím případě, jen se neobtěžuje vytvářením zvláštního playlistu a naprogramuje partnerské vstupy na celou otevírací dobu.
+
+- Nakonec Věra přiřadí oběma programům správné zobrazovače a jde zkontrolovat, zda-li systém pracuje správně.
+
+
+=== Mimořádné vstupy
+
+Paní Hvězdnicovitá je zodpovědná za hostování konferencí a další pronájmy. Je neustále plně vytížená. Zrovna teď potřebuje například nahrát do systému prezentace pro zítřejší akci.
+
+- Zkopíruje tedy soubory od klientů z USB disku do síťového úložiště. Jako vždy zvolí název adresáře podle názvu akce, tentokrát tedy `Expo 2020`.
+
+- Otevře si webové rozhraní aplikace Indoktrinátor a vytvoří mimořádný vstup s jediným, automaticky vytvořeným playlistem `Expo 2020`. Nastaví datum a čas začátku na nejbližší úterý od 8 hodin ráno a konec na 19h, kdy by už snad měli být všichni hosté pryč.
+
+- Práci dokončí výběrem dvou zobrazovačů v předsálí.
+
+V průběhu příprav paní Hvězdnicovitou klient požádá o změnu pořadí některých videí. Zřejmě má pocit, že takto nevyzní naplno jejich převratné poselství. Paní Hvězdnicovitá tedy:
+
+- Přejmenuje soubory na síťovém úložišti tak, aby každý začínal číslem určujícím jeho pořadí. Ostatně, jiní klienti mají dost rozumu a soubory tak dodávají rovnou.
+
+- Systém vezme změnu v playlistu ihned na vědomí.
+
+
+=== Integrace s vyvolávacím systémem
+
+Za sedmero horami, v úplně jiné instituci je potřeba integrovat Indoktrinátor s "lístečkovým" vyvolávacím systémem. Není zde zapotřebí žádné sofistikované nastavení vysílání, stačí se naladit na Internetové vysílání místní televizní stanice, ale je potřeba zobrazit postranní panel s aktuální frontou.
+
+Vyvolávací systém naštěstí umí zobrazit frontu jako webovou stránku a tak není nic snazšího, než aktivovat v denním programu funkci postranního panelu a nastavit stránku, která se v něm má zobrazit. Telescreen se postará o zbytek a při najetí daného programu automaticky načte do panelu i zvolenou stránku.
+
+
+== Telescreen
+
+Aplikace Telescreen komunikuje jak s Indoktrinátorem, tak i s připojeným zobrazovačem. Jejím hlavním účelem je:
+
+Prezentace obsahu::
+
+Obsah musí být dekódován a ve správný čas prezentován. Pokud to program vyžaduje, kromě prostého videa přes celou obrazovku může být zapotřebí například zobrazit postranní panel s webovým obsahem.
+
+Komunikace se zobrazovačem::
+
+Zobrazovač je nutné při delší nečinnosti uspat a před zahájením přehrávání opět probudit. Je žádoucí poskytovat Indoktrinátoru zpět informaci o aktuálním stavu zobrazovače a reagovat na jednorázové příkazy, například na změny hlasitosti.
+
+NOTE: V budoucnu může být zapotřebí implementovat místní řízení pomocí dálkového ovladače televize. V takovém případě bude Telescreen komunikovat s Indoktrinátorem a zobrazovat interaktivní menu. Aktuálně tato funkcionalita není požadována.
+
+Aplikace Telescreen je napsaná v programovacím jazyce https://www.python.org/[Python 3] a běží na běžném Linuxovém systému, ideálně na aktuální verzi https://getfedora.org/[Fedory].
+
+
+=== Komunikace s Indoktrinátorem
+
+[plantuml,align="center"]
+....
+@startuml
+left to right direction
+
+package "Indoktrinátor" {
+  [Plánovač] -- 0MQ
+  [Úložiště] -- HTTP
+}
+
+[Telescreen]
+
+0MQ  <--- [Telescreen]
+HTTP <--- [Telescreen]
+@enduml
+....
+
+Řízení, tedy změny rozvrhu a jednorázové instrukce putují po protokolu http://zeromq.org/[0MQ]. Telescreen si zde zvolí náhodnou identitu a připojí se na `ROUTER` pojmenovaný `leader`. V komunikaci pak uvede unikátní identifikátor systému, na kterém se nachází (ze souboru `/etc/machine-id`).
+
+Obsah, tedy samotná videa a obrázky putují po protokolu HTTP. Telescreen si je stahuje z webového serveru aplikace Indoktrinátor na základě URL získaných přes 0MQ.
+
+
+=== Komunikace se Zobrazovačem
+
+[plantuml,align="center"]
+....
+@startuml
+left to right direction
+
+[Telescreen]
+
+node "Zobrazovač" {
+  () CEC
+  () HDMI
+  CEC  -- [Ovládání]
+  HDMI -- [Obsah]
+}
+
+[Telescreen] <--- CEC
+[Telescreen] <--- HDMI
+@enduml
+....
+
+Telescreen řídí zobrazovač (televizor) pomocí protokolu https://en.wikipedia.org/wiki/HDMI#CEC[CEC], který je součástí protokolu HDMI. S jeho pomocí zejména:
+
+- zobrazovač uspává při delší absenci programu;
+- znovu probouzí při opětovném zahájení přehrávání;
+- předává jednorázové pokyny obsluhy.
+
+Samotný obsah se přenáší na běžný HDMI výstup, odkud ho zobrazovač přebírá a prezentuje. Podporováno je jak video, tak i audio.
+
+
+== Indoktrinátor
+
+Aplikace Indoktrinátor slouží k centrální koordinaci prezentačního systému. Je také rozhraním, skrz které uživatel prezentační systém ovládá. Ten tak činí pomocí síťového úložiště souborů a webového rozhraní plánovače.
+
+[plantuml,align="center"]
+....
+@startuml
+left to right direction
+
+package "Indoktrinátor" {
+  () HTTP
+  () CIFS
+  HTTP -- [Plánovač]
+  CIFS -- [Úložiště]
+}
+
+node "PC" {
+  [Webový prohlížeč] ---> HTTP
+  [Souborový systém] ---> CIFS
+}
+
+actor :Správce obsahu:
+
+:Správce obsahu: --- [Webový prohlížeč]
+:Správce obsahu: --- [Souborový systém]
+@enduml
+....
+
+Aplikace Indoktrinátor je napsaná v programu jazyce Python 3 a běží na běžném Linuxovém systému, ideálně na aktuální verzi https://www.centos.org/[CentOS]. Indoktrinátor by však měl být schopen běhu i na systému Fedora. To pro případy, kdy není žádoucí zavádět centrální server, ale pro dané účely postačí jeden z přehrávačů.
+
+
+=== Úložiště
+
+Na serveru, na kterém běží samotná řídící aplikace se nachází i souborové úložiště. To je aplikací pomocí technologie https://en.wikipedia.org/wiki/Inotify[inotify] v reálném čase monitorováno a veškeré změny jsou ihned přenášeny do databáze, aby s nimi mohl pracovat plánovač a uživatelé.
+
+[plantuml,align="center"]
+....
+@startuml
+left to right direction
+
+package "Indoktrinátor" {
+  database "DB"
+  database "FS"
+  DB - SQL
+
+  [Plánovač] -d-> SQL
+  [Úložiště] -u-> SQL
+  [Úložiště] -l-> FS
+}
+@enduml
+....
+
+Úložiště je zpřístupněno uživatelům pomocí protokolu https://en.wikipedia.org/wiki/Server_Message_Block[CIFS] a instancím aplikace Telescreen pomocí protokolu HTTP.
+
+
+==== Analýza souborů
+
+V případě zjištění přítomnosti nového souboru dojde k zjištění jeho druhu, detekci délky, pořízení náhledu a následnému vložení informace o klipu do databáze. Shodná operace proběhne i v případě změny souboru.
+
+[plantuml,align="center"]
+....
+@startuml
+
+start
+:Soubor vytvořen<
+:Analyzovat metadata;
+
+if (Jde o multimediální soubor?) then (Ano)
+  if (Jde o video?) then (Ano)
+    :Určit přesnou délku;
+  else (Ne)
+    :Použít implicitní délku;
+  endif
+
+  :Pořídit náhled;
+  :Vytvořit klip>
+  stop
+else
+  end
+endif
+
+@enduml
+....
+
+Pokud se soubor pouze přesunul, není potřeba vykonávat veškeré výpočetně náročné operace spojené s jeho analýzou. V takovém případě se pouze aktualizuje informace o tom, do kterého playlistu náleží.
+
+[plantuml,align="center"]
+....
+@startuml
+
+start
+:Soubor přesunut<
+
+if (Jde o soubor klipu?) then (Ano)
+  :Aktualizovat klip>
+  stop
+else (Ne)
+  end
+endif
+
+@enduml
+....
+
+V případě, že je soubor smazán, je odpovídající klip odstraněn z databáze.
+
+[plantuml,align="center"]
+....
+@startuml
+
+start
+:Soubor odstraněn<
+
+if (Jde o soubor klipu?) then (Ano)
+  :Smazat klip>
+  stop
+else (Ne)
+  end
+endif
+
+@enduml
+....
+
+Z pohledu procesů výše jsou za obsahově shodné považovány soubory, které se nachází na stejném souborovém systému a mají stejné číslo uzlu i velikost.
+
+
+=== Plánovač
+
+Plánovač umožňuje uživateli spravovat playlisty, řádné programy i mimořádné vstupy. Pracuje výhradně s databází, ze které čerpá mimo jiné i veškeré informace o klipech v úložišti.
+
+Plánovač tedy pracuje s následujícími typy objektů:
+
+Klip:: Multimediální soubor s danou délkou a typem.
+Playlist:: Skupina klipů s daným pořadím.
+Segment:: Playlist k přehrání v určitý čas idealizovaného týdne.
+Řádný program:: Skupina segmentů pro idealizovaný týden.
+Mimořádný vstup:: Playlist k přehrání v určitý kalendářní čas.
+Přehrávač:: Unikátní zařízení, na kterém běží aplikace Telescreen.
+
+
+==== Změny v playlistech
+
+Změny v úložišti se automaticky reflektují v databázi. Na základě těchto změn pak nutně musí docházet k přepočítání a propagaci plánů na přehrávače. Informaci o změně v souborovém úložišti získá jako první inotify monitor. Ten jí zapíše do databáze, na což následně reaguje plánovač aktualizací přehrávacích plánů. Aktualizované plány jsou nakonec distribuovány přehrávačům.
+
+[plantuml,align="center"]
+....
+@startuml
+
+start
+:Klip změněn<
+:Aktualizovat řádné programy;
+:Aktualizovat mimořádné vstupy;
+:Upozornit Telescreeny>
+stop
+
+@enduml
+....
+
+Změnou se zde rozumí jak vytvoření, tak i úprava nebo smazání klipu. V každém případě musí dojít k přepočítání programů na základě aktuální celkové podoby databáze.
+
+
+==== Automatické playlisty
+
+Automatické playlisty se obvykle tvoří na základě organizace souborů v úložišti. Uživatel je nemůže z webového rozhraní vůbec modifikovat. Platí zde, že klipy v playlistu odpovídají souborům adresáře nejvyšší úrovně a to včetně souborů v podadresářích, seřazené dle celé cesty.
+
+Určení délky přehrávání obrázku::
+
+Pokud soubor obrázku ve svém názvu obsahuje skupinu znaků ve formátu `(42s)` nebo `[42s]`, použije se uvedený počet sekund jako délka jeho přehrání. V opačném případě se použije implicitní hodnota 10 sekund.
+
+
+==== Playlisty ve formátu M3U
+
+Pokud se v libovolném adresáři nachází soubor s názvem `index.m3u8`, `index.m3u`, nebo `index.txt`, obsah tohoto souboru kompletně nahradí automatickou detekci v tomto adresáři a jeho podadresářích. Touto technikou je možné například upravit pořadí a délku trvání přehrávaných obrázků, zavést opakování a odkázat se na Internetové vysílání.
+
+
+==== Ostatní playlisty
+
+Ostatní playlisty je možné dle libosti připravovat ve webovém rozhraní plánovače. K jejich vytvoření je možné použít výhradně klipy z automatických playlistů. Je možné zavést opakování, nebo použít klipy z vícero automatických playlistů zároveň, není však možné upravovat vlastnosti klipu jako takového.
+
+
+==== Běžné programy
+
+Běžné programy se sestavují pro idealizovaný týden, který je složen ze 7 dní od pondělí do neděle. Každý den má přesně 24 hodin, tedy 86400 sekund. V průběhu dne může být přehrán libovolný počet segmentů, které na sebe nemusí navazovat. Žádný segment nesmí přesáhnout rámec daného dne. Každý segment je tvořen právě jedním playlistem.
+
+Kromě segmentů obsahuje program i informaci o aktivním rozložení panelů s webovým obsahem. Platná jsou následující rozvržení obrazovky:
+
+Plná obrazovka::
+
+Panely jsou skryté, viditelné je pouze video ve formátu 16:9.
+
+Postranní panel::
+
+Video plocha je redukována z poměru 16:9 na 4:3 a na pravé straně uvolnění místo je doplněno panelem s webovým obsahem.
+
+Postranní panel a informační pruh::
+
+Video plocha je redukována z poměru 16:9 na 4:3. Na spodní hraně obrazovky je dále vyhrazen pruh o výšce 1/12 celkové výšky a na pravé straně uvolněné místo je doplněno panelem. Jak pruh, tak i panel zobrazují určený webový obsah.
+
+
+==== Cílová zařízení
+
+Přehrávač může mít přidělen až jeden běžný program, kterým se řídí. Program určitému zařízení přiřazuje správce obsahu ve webovém rozhraní plánovače.
+
+
+==== Mimořádné vstupy
+
+Mimořádné vstupy jsou podobné segmentům, nevztahují se ovšem k idealizovanému týdnu, ale ke skutečnému kalendáři. Správce obsahu vytvoří z playlistu mimořádný vstup a určí od kdy do kdy se má přehrávat. Stejně jako běžný segment je mimořádný vstup vázán na konkrétní program.
+
+Není dovoleno, aby se mimořádné vstupy navzájem překrývaly.
+
+Po čas přehrávání mimořádného vstupu se zastaví přehrávání běžného programu. Po jeho skončení pokračuje přehrávání běžného programu klipem následujícím přerušený klip aktivního segmentu.
+
+
+==== Sestavení plánu
+
+Plán je seznam klipů, které se mají přehrát v daných časových úsecích. Časový úsek pro přehrání video klipu není delší, než jeho skutečné trvání. U obrázků může být časový úsek libovolný.
+
+Sestavování plánu pro daný den je deterministické. Nejprve se sestaví úplné plány segmentů běžného programu a mimořádných vstupů. Tyto plány se následně sjednotí s tím, že mimořádné vstupy mohou přerušit klip běžného programu v polovině. Pokud k tomu dojde, je zbytek segmentu zkrácen a zařazen až za mimořádný vstup.
+
+Prostor mezi jednotlivými segmenty je vyplněn prázdnými klipy.
+
+
+==== Změny programu
+
+Pokud dojde ke změně klipu, playlistu, segmentu nebo příslušnosti zařízení k programu a je vytvořen nový plán přehrávání, je potřeba definovat, jak bude vypadat přechod od stávajícího plánu na plán nový. Běžně proces vypadá tak, že se nový plán odešle dotčeným přehrávačům, které při další značce začátku klipu přeruší stávající přehrávání a začnou přehrávat klip nový.
+

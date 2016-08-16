@@ -1,0 +1,9 @@
+Twisted
+Werkzeug
+Flask
+SQLAlchemy
+SQLSoup
+psycopg2
+txpostgres
+ldap3
+requests

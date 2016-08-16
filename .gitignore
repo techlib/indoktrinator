@@ -1,0 +1,12 @@
+__pycache__
+*.py[co]
+*.swp
+*~
+*.egg*
+
+/build/
+/dist/
+*/static/vendor/
+*/static/dist/*
+
+node_modules
