@@ -7,6 +7,7 @@ from sqlalchemy import and_
 
 __all__ = ['Program']
 
+
 class Program(Model):
     def init(self):
         self.table_name = 'program'

@@ -7,11 +7,12 @@ from sqlalchemy import and_
 
 __all__ = ['Device']
 
+
 class Device(Model):
     def init(self):
         self.table_name = 'device'
         # Primary key
-        self.pkey = 'id'
+        self.pkey = 'uuid'
         # Relations
         self.relate('_program', self.e('program'))
         self.include_relations = {'item': ['_program'], 'list': ['_program']}

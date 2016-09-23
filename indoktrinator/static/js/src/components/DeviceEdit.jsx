@@ -18,7 +18,7 @@ export var DeviceEdit = React.createClass({
     },
 
     handleSave(data) {
-        data.uuid = this.props.params.id
+        data.uuid = this.props.params.uuid
         DeviceActions.update(data)
     },
 

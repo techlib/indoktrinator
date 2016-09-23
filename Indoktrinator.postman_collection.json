@@ -1,0 +1,56 @@
+{
+	"id": "46ad287d-27b1-0598-5eda-498f36828b52",
+	"name": "Indoktrinator",
+	"description": "",
+	"order": [
+		"249d3035-0b2c-4dac-a148-fdac63fb4ae6",
+		"71c9d19f-b7c7-aeca-5b96-60fb3058f7f6"
+	],
+	"folders": [],
+	"timestamp": 1474458228012,
+	"owner": 0,
+	"public": false,
+	"published": false,
+	"requests": [
+		{
+			"id": "249d3035-0b2c-4dac-a148-fdac63fb4ae6",
+			"headers": "",
+			"url": "{{SERVER_BASE}}/api/device/",
+			"pathVariables": {},
+			"preRequestScript": null,
+			"method": "GET",
+			"collectionId": "46ad287d-27b1-0598-5eda-498f36828b52",
+			"data": null,
+			"dataMode": "params",
+			"name": "device/list",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1474458383911,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {}
+		},
+		{
+			"id": "71c9d19f-b7c7-aeca-5b96-60fb3058f7f6",
+			"headers": "",
+			"url": "{{SERVER_BASE}}/api/device/13eb9327-f40e-4ef1-8020-1c36af1b4b70",
+			"pathVariables": {},
+			"preRequestScript": null,
+			"method": "GET",
+			"collectionId": "46ad287d-27b1-0598-5eda-498f36828b52",
+			"data": null,
+			"dataMode": "params",
+			"name": "device/detail",
+			"description": "",
+			"descriptionFormat": "html",
+			"time": 1474458536616,
+			"version": 2,
+			"responses": [],
+			"tests": null,
+			"currentHelper": "normal",
+			"helperAttributes": {}
+		}
+	]
+}

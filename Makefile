@@ -5,7 +5,7 @@ htmls = $(adocs:.adoc=.html)
 pdfs  = $(adocs:.adoc=.pdf)
 
 all: build doc
-doc: ${htmls} ${pdfs}
+doc: ${htmls} # ${pdfs}
 
 build: npm
 	./node_modules/webpack/bin/webpack.js --progress --colors -p --config webpack/prod.js
@@ -28,9 +28,9 @@ clean:
 
 %.html: %.adoc
 	asciidoctor -r asciidoctor-diagram -b html5 -o $@ $<
-
-%.pdf: %.adoc
-	asciidoctor-pdf -r asciidoctor-diagram -o $@ $<
+#
+# %.pdf: %.adoc
+# 	asciidoctor-pdf -r asciidoctor-diagram -o $@ $<
 
 
 .PHONY: dev build npm default lint

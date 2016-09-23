@@ -19,10 +19,14 @@ def process_value(obj, c):
     else:
         return (c, getattr(obj, c))
 
+
 def object_to_dict(obj, found=None, include=[]):
     mapper = class_mapper(obj.__class__)
     columns = [column.key for column in mapper.columns]
-    get_key_value = lambda c: process_value(obj, c)
+
+    def get_key_value(c):
+        return process_value(obj, c)
+
     out = dict(map(get_key_value, columns))
     for name, relation in mapper.relationships.items():
         related_obj = getattr(obj, name)

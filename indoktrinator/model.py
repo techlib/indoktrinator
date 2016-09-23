@@ -6,6 +6,7 @@ from sqlalchemy.orm import class_mapper
 
 __all__ = ['Model']
 
+
 class Model(object):
     def __init__(self, manager):
         # Stores DB connection for later use.
@@ -38,7 +39,7 @@ class Model(object):
     def update(self, item):
         assert item.get(self.pkey) is not None, 'Primary key is not set'
         entity = self.e().filter_by(**{self.pkey: item.get(self.pkey)}).one()
-        for k,v in item.items():
+        for k, v in item.items():
             if k in self.get_relationships() or k == self.pkey:
                 continue
             setattr(entity, k, v)
@@ -52,7 +53,7 @@ class Model(object):
 
     def insert(self, item):
         newVal = {}
-        for k,v in item.items():
+        for k, v in item.items():
             if k not in self.get_relationships() and v is not None:
                 newVal[k] = v
         e = self.e().insert(**newVal)

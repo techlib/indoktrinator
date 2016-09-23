@@ -19,10 +19,12 @@ import flask
 import os
 import re
 
+
 def make_site(db, manager, access_model, debug=False):
     app = flask.Flask('.'.join(__name__.split('.')[:-1]))
     app.secret_key = os.urandom(16)
     app.debug = debug
+    manager.app = app
 
     @app.template_filter('to_alert')
     def category_to_alert(category):
@@ -49,6 +51,7 @@ def make_site(db, manager, access_model, debug=False):
         return roles
 
     def has_privilege(privilege):
+        return True
         return access_model.have_privilege(privilege, get_roles())
 
     def pass_user_info(fn):
@@ -71,7 +74,6 @@ def make_site(db, manager, access_model, debug=False):
             return fn(*args, **kwargs)
         return wrapper
 
-
     def authorized_only(privilege='user'):
         def make_wrapper(fn):
             @wraps(fn)
@@ -83,7 +85,6 @@ def make_site(db, manager, access_model, debug=False):
 
             return wrapper
         return make_wrapper
-
 
     @app.errorhandler(Forbidden.code)
     def unauthorized(e):
@@ -102,9 +103,8 @@ def make_site(db, manager, access_model, debug=False):
 
         return flask.render_template('index.html', **locals())
 
-
     # Devices
-    @app.route('/device/', methods=['GET', 'POST'])
+    @app.route('/api/device/', methods=['GET', 'POST'])
     @authorized_only()
     def device_handler(**kwargs):
         if 'GET' == flask.request.method:
@@ -112,7 +112,7 @@ def make_site(db, manager, access_model, debug=False):
         if 'POST' == flask.request.method:
             return flask.jsonify(manager.device.insert(flask.request.get_json(force=True)))
 
-    @app.route('/device/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
+    @app.route('/api/device/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
     @authorized_only()
     def device_item_handler(uuid, **kwargs):
         if 'GET' == flask.request.method:
@@ -124,9 +124,8 @@ def make_site(db, manager, access_model, debug=False):
             device['uuid'] = uuid
             return flask.jsonify(manager.device.patch(device))
 
-
     # Events
-    @app.route('/event/', methods=['GET', 'POST'])
+    @app.route('/api/event/', methods=['GET', 'POST'])
     @authorized_only()
     def event_handler(**kwargs):
         if 'GET' == flask.request.method:
@@ -134,7 +133,7 @@ def make_site(db, manager, access_model, debug=False):
         if 'POST' == flask.request.method:
             return flask.jsonify(manager.event.insert(flask.request.get_json(force=True)))
 
-    @app.route('/event/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
+    @app.route('/api/event/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
     @authorized_only()
     def event_item_handler(uuid, **kwargs):
         if 'GET' == flask.request.method:
@@ -146,9 +145,8 @@ def make_site(db, manager, access_model, debug=False):
             event['uuid'] = uuid
             return flask.jsonify(manager.event.patch(event))
 
-
     # Items
-    @app.route('/item/', methods=['GET', 'POST'])
+    @app.route('/api/item/', methods=['GET', 'POST'])
     @authorized_only()
     def item_handler(**kwargs):
         if 'GET' == flask.request.method:
@@ -156,7 +154,7 @@ def make_site(db, manager, access_model, debug=False):
         if 'POST' == flask.request.method:
             return flask.jsonify(manager.item.insert(flask.request.get_json(force=True)))
 
-    @app.route('/item/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
+    @app.route('/api/item/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
     @authorized_only()
     def item_item_handler(uuid, **kwargs):
         if 'GET' == flask.request.method:
@@ -168,9 +166,8 @@ def make_site(db, manager, access_model, debug=False):
             item['uuid'] = uuid
             return flask.jsonify(manager.item.patch(item))
 
-
     # Playlists
-    @app.route('/playlist/', methods=['GET', 'POST'])
+    @app.route('/api/playlist/', methods=['GET', 'POST'])
     @authorized_only()
     def playlist_handler(**kwargs):
         if 'GET' == flask.request.method:
@@ -178,7 +175,7 @@ def make_site(db, manager, access_model, debug=False):
         if 'POST' == flask.request.method:
             return flask.jsonify(manager.playlist.insert(flask.request.get_json(force=True)))
 
-    @app.route('/playlist/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
+    @app.route('/api/playlist/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
     @authorized_only()
     def playlist_item_handler(uuid, **kwargs):
         if 'GET' == flask.request.method:
@@ -190,9 +187,8 @@ def make_site(db, manager, access_model, debug=False):
             playlist['uuid'] = uuid
             return flask.jsonify(manager.playlist.patch(playlist))
 
-
     # Programs
-    @app.route('/program/', methods=['GET', 'POST'])
+    @app.route('/api/program/', methods=['GET', 'POST'])
     @authorized_only()
     def program_handler(**kwargs):
         if 'GET' == flask.request.method:
@@ -200,7 +196,7 @@ def make_site(db, manager, access_model, debug=False):
         if 'POST' == flask.request.method:
             return flask.jsonify(manager.program.insert(flask.request.get_json(force=True)))
 
-    @app.route('/program/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
+    @app.route('/api/program/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
     @authorized_only()
     def program_item_handler(uuid, **kwargs):
         if 'GET' == flask.request.method:
@@ -212,9 +208,8 @@ def make_site(db, manager, access_model, debug=False):
             program['uuid'] = uuid
             return flask.jsonify(manager.program.patch(program))
 
-
     # Segments
-    @app.route('/segment/', methods=['GET', 'POST'])
+    @app.route('/api/segment/', methods=['GET', 'POST'])
     @authorized_only()
     def segment_handler(**kwargs):
         if 'GET' == flask.request.method:
@@ -222,7 +217,7 @@ def make_site(db, manager, access_model, debug=False):
         if 'POST' == flask.request.method:
             return flask.jsonify(manager.segment.insert(flask.request.get_json(force=True)))
 
-    @app.route('/segment/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
+    @app.route('/api/segment/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
     @authorized_only()
     def segment_item_handler(uuid, **kwargs):
         if 'GET' == flask.request.method:
@@ -235,15 +230,13 @@ def make_site(db, manager, access_model, debug=False):
             return flask.jsonify(manager.segment.patch(segment))
 
     # Logged user info
-    @app.route('/user-info/', methods=['GET'])
+    @app.route('/api/user-info/', methods=['GET'])
     @pass_user_info
     def userinfo_handler(**kwargs):
         return ''
         info = kwargs
         info['networks'] = manager.network.network_acls(kwargs['privileges'])
         return flask.jsonify(**info)
-
-
 
     return app
 

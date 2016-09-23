@@ -7,6 +7,7 @@ from sqlalchemy import and_
 
 __all__ = ['Segment']
 
+
 class Segment(Model):
     def init(self):
         self.table_name = 'segment'
@@ -15,7 +16,9 @@ class Segment(Model):
         # Relations
         self.relate('_program', self.e('program'))
         self.relate('_playlist', self.e('playlist'))
-        self.include_relations = {'item': ['_program', '_playlist'],
-                                  'list': ['_program', '_playlist']}
+        self.include_relations = {
+            'item': ['_program', '_playlist'],
+            'list': ['_program', '_playlist']
+        }
 
 # vim:set sw=4 ts=4 et:

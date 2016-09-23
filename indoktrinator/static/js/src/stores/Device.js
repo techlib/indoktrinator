@@ -11,7 +11,7 @@ export var DeviceStore = Reflux.createStore({
   data: {'device': [], 'list': [], 'errors': []},
 
   onRead(id) {
-    $.ajax({url: `/device/${id}`, 
+    $.ajax({url: `/api/device/${id}`,
       success: result => {
         this.data.errors = []
         this.data.device = result
@@ -25,7 +25,7 @@ export var DeviceStore = Reflux.createStore({
 
   onDelete(id) {
     $.ajax({
-      url: `/device/${id}`,
+      url: `/api/device/${id}`,
       method: 'DELETE',
       dataType: 'json',
       contentType: 'application/json',
@@ -42,7 +42,7 @@ export var DeviceStore = Reflux.createStore({
 
   onUpdate(device) {
     $.ajax({
-      url: `/device/${device.uuid}`,
+      url: `/api/device/${device.uuid}`,
       method: 'PATCH',
       dataType: 'json',
       contentType: 'application/json',
@@ -59,7 +59,7 @@ export var DeviceStore = Reflux.createStore({
 
   onCreate(device) {
     $.ajax({
-      url: '/device/',
+      url: '/api/device/',
       method: 'POST',
       dataType: 'json',
       contentType: 'application/json',
@@ -77,7 +77,7 @@ export var DeviceStore = Reflux.createStore({
   },
 
   onList() {
-    $.ajax({url: '/device/', success: result => {
+    $.ajax({url: '/api/device/', success: result => {
         this.data.errors = []
         this.data.list = result.result
         this.trigger(this.data)

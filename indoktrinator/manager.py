@@ -14,9 +14,12 @@ from indoktrinator.playlist import Playlist
 from indoktrinator.program import Program
 from indoktrinator.segment import Segment
 
+
 class Manager(object):
     def __init__(self, db):
         self.db = db
+        self.router = None
+        self.app = None
 
         # Something like models
         self.device = Device(self)

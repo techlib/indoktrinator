@@ -5,6 +5,7 @@ from indoktrinator.model import Model
 
 __all__ = ['User']
 
+
 class User(Model):
     def init(self):
         self.table_name = 'user'

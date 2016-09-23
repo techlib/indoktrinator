@@ -28,8 +28,8 @@ export var Device = React.createClass({
   validate() {
     var r = []
 
-    if (!this.state.id) {
-      r.push(`Id is required`)
+    if (!this.state.uuid) {
+      r.push(`Uuid is required`)
     }
     if (!this.state.name) {
       r.push(`Name is required`)
@@ -66,7 +66,7 @@ export var Device = React.createClass({
     },
 
 	getDeleteLink() {
-		if (this.props.device.id !== true) {
+		if (this.props.device.uiid !== true) {
 			return (
 				<button type="button" className="btn btn-link" onClick={this.delete}>
 					<span className="text-danger">
@@ -96,11 +96,11 @@ export var Device = React.createClass({
                       <div className="form-horizontal">
                         <Input
                           type="text"
-                          label="Id"
-                          ref="id"
-                          name="id"
+                          label="Uuid"
+                          ref="uuid"
+                          name="uuid"
                           onChange={this.handleChange}
-                          value={this.state.id}
+                          value={this.state.uuid}
                           {...this.commonProps} />
                         <Input
                           type="text"

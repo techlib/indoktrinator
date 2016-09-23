@@ -7,6 +7,7 @@ from sqlalchemy import and_
 
 __all__ = ['Item']
 
+
 class Item(Model):
     def init(self):
         self.table_name = 'item'
