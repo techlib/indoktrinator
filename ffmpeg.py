@@ -1,0 +1,191 @@
+import sys
+import os
+import io
+import hashlib
+from PIL import Image
+from subprocess import Popen, PIPE
+
+class File(object):
+    VIDEO_FORMAT = [
+        'avi',
+        'mpeg',
+        'matroska',
+        'matroska,webm',
+        'webm',
+    ]
+    IMAGE_FORMAT = [
+        'image2',
+    ]
+    IMAGE_LENGTH = 10
+    PREVIEW_SCALE = (320, 240)
+    
+    def __init__(
+        self, path, 
+        ffmpeg='/usr/bin/ffmpeg', 
+        ffprobe='/usr/bin/ffprobe',
+        image_length=IMAGE_LENGTH,
+        preview_scale=PREVIEW_SCALE,
+        
+    ):
+        if not os.path.exists(path):
+            raise IOError('File does not exists')
+            
+        self.ffprobe = ffprobe
+        self.ffmpeg = ffmpeg          
+        self.image_length = image_length
+        self.preview_scale = preview_scale
+        
+        self._path = path
+        self._hash = None
+        self._format = None
+        self._length = None
+        self._preview = None
+        
+    @property
+    def hash(self):        
+        if self._hash is not None:
+            return self._hash
+        
+        try:
+            md5 = hashlib.md5()
+            with open(self._path, 'r') as f:
+                chunk = f.read(4096)
+                while len(chunk) > 0:
+                    md5.update(chunk)
+                    chunk = f.read(4096)
+                    
+            self._hash = md5.hexdigest()
+        except Exception as e:
+            self._hash = None
+            
+        return self._hash   
+    
+    @property
+    def length(self):
+        '''
+        get file length
+        '''
+        if self._length is not None:
+            return self._length
+        
+        if self.format in self.VIDEO_FORMAT:
+            try:
+                args = [
+                    self.ffprobe,
+                    '-show_entries',
+                    'format=duration',
+                    '-of',
+                    'default=noprint_wrappers=1:nokey=1',
+                    self._path
+                ]
+                proc = Popen(args, stdout=PIPE, stderr=PIPE)
+                out, err = proc.communicate()
+                
+                self._length = float(out)
+            except Exception as e:
+                self._length = None
+                
+        elif self.format in self.IMAGE_FORMAT:
+            self._length = self.image_length
+            
+        return self._length
+    
+    @property
+    def format(self):
+        '''
+        Get file format
+        '''
+        if self._format is not None:
+            return self._format
+        
+        try:
+            args = [
+                self.ffprobe,
+                '-show_entries',
+                'format=format_name',
+                '-of',
+                'default=noprint_wrappers=1:nokey=1',
+                self._path
+            ]
+            proc = Popen(args, stdout=PIPE, stderr=PIPE)
+            out, err = proc.communicate()
+            
+            self._format = out.strip().lower()
+        except Exception as e:
+            self._format = e
+            
+        return self._format
+                
+    @property
+    def preview(self):
+        '''
+        Get preview image
+        '''
+        if self._preview is not None:
+            return self._preview
+        
+        if self.format in self.VIDEO_FORMAT:
+                    
+            try:
+                step = self.length / 25
+                pos = step
+                # find ideal thumbnail
+                while pos < self.length:
+                    args = [
+                        self.ffmpeg,
+                        '-ss',
+                        str(pos),
+                        '-i',
+                        self._path,
+                        '-vframes',
+                        '1',
+                        '-q:v',
+                        '2',
+                        '-f',
+                        'mjpeg',
+                        '-'
+                    ]
+                        
+                    proc = Popen(args, stdout=PIPE, stderr=PIPE)
+                    out, err = proc.communicate()            
+                    self._preview = Image.open(io.BytesIO(out))
+                    
+                    extrema = self._preview.convert("L").getextrema()
+                    #print("extrema", extrema)
+                    if extrema == (0, 0) or extrema == (1, 1) or extrema[0] == extrema[1]:
+                        pos += step
+                    else:
+                        break
+            except Exception as e:
+                self._preview = None
+                
+        elif self.format in self.IMAGE_FORMAT:
+            self._preview = Image.open(self._path)
+            
+        # scale
+        if self._preview is not None:
+            self._preview.thumbnail(
+                self.preview_scale, 
+                Image.ANTIALIAS
+            )
+            
+        return self._preview    
+    
+    def isMultimedia(self):
+        return self.format in self.VIDEO_FORMAT or self.format in self.IMAGE_FORMAT
+    
+    def isVideo(self):
+        return self.format in self.VIDEO_FORMAT
+    
+    def isImage(self):
+        return self.format in self.IMAGE_FORMAT
+        
+        
+if __name__ == '__main__':
+    f = File(sys.argv[1])
+    #print(f.hash)
+    print(f.format)
+    print(f.length)
+    if f.preview:
+        print(f.preview.size)
+        f.preview.show()
