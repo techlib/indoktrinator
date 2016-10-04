@@ -19,6 +19,7 @@ class FFMpeg(object):
         'matroska',
         'matroska,webm',
         'webm',
+        'mov,mp4,m4a,3gp,3g2,mj2',
     ]
     IMAGE_FORMAT = [
         'image2',
@@ -63,6 +64,7 @@ class FFMpeg(object):
 
             self._hash = md5.hexdigest()
         except Exception as e:
+            msg.log("hash", e)
             self._hash = None
 
         return self._hash
@@ -122,6 +124,7 @@ class FFMpeg(object):
 
             self._format = out.strip().lower().decode('utf8')
         except Exception as e:
+            msg.log("format", e)
             self._format = e
 
         return self._format
@@ -162,7 +165,7 @@ class FFMpeg(object):
                     else:
                         break
             except Exception as e:
-                log.msg(e)
+                log.msg("preview", e)
                 self._preview = None
 
         elif self.format in self.IMAGE_FORMAT:
@@ -175,7 +178,6 @@ class FFMpeg(object):
                 Image.ANTIALIAS
             )
 
-            self.preview.show()
             out = io.BytesIO()
             self._preview.save(out, format='PNG')
             self._preview = out.getvalue()

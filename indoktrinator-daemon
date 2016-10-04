@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+# -*- coding: utf-8 -*-
 # Twisted hosts our website and helps with async tasks.
 # The application threads are structured in the following way:
 #
@@ -68,6 +68,7 @@ if __name__ == '__main__':
 
         # Prepare the manager that runs in an exclusive thread.
         manager = Manager(db, **manager_opts)
+        manager.config['path'] = inotifier_path
 
         # Prepare the website that will get exposed to the users.
         site = make_site(db, manager, access_model, debug=http_debug)
@@ -135,4 +136,3 @@ if __name__ == '__main__':
     action(config=config)
 
 # vim:set sw=4 ts=4 et:
-# -*- coding: utf-8 -*-

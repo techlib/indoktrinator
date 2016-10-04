@@ -7,6 +7,7 @@ from sqlalchemy import and_
 
 __all__ = ['Event']
 
+
 class Event(Model):
     def init(self):
         self.table_name = 'event'

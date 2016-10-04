@@ -130,7 +130,7 @@ def make_site(db, manager, access_model, debug=False):
     @authorized_only()
     def dile_handler(**kwargs):
         if 'GET' == flask.request.method:
-            return flask.jsonify(result=manager.file.list(exclude=['preview']))
+            return flask.jsonify(result=manager.file.list()) #exclude=['preview']))
 
     @app.route('/api/file/<uuid>', methods=['GET'])
     @authorized_only()
@@ -251,6 +251,16 @@ def make_site(db, manager, access_model, debug=False):
         info = kwargs
         info['networks'] = manager.network.network_acls(kwargs['privileges'])
         return flask.jsonify(**info)
+
+    @app.route('/media/<path:path>')
+    def media(path):
+        path = manager.config['path'] + '/' + path
+        print(path)
+        os.path.exists(path)
+        f = open(path, 'rb')
+        d = f.read()
+        f.close()
+        return flask.Response(d, mimetype="application/octet-stream")
 
     return app
 

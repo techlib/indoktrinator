@@ -31,5 +31,7 @@ class Manager(object):
         self.program = Program(self)
         self.segment = Segment(self)
 
+        self.config = {}
+
 
 # vim:set sw=4 ts=4 et:
