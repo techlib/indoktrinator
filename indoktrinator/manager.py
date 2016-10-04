@@ -8,6 +8,7 @@ from twisted.internet import task, reactor
 from twisted.python import log
 
 from indoktrinator.device import Device
+from indoktrinator.file import File
 from indoktrinator.event import Event
 from indoktrinator.item import Item
 from indoktrinator.playlist import Playlist
@@ -23,6 +24,7 @@ class Manager(object):
 
         # Something like models
         self.device = Device(self)
+        self.file = File(self)
         self.event = Event(self)
         self.item = Item(self)
         self.playlist = Playlist(self)

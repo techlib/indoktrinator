@@ -22,13 +22,12 @@ from sqlsoup import SQLSoup
 # Command line arguments follow the GNU conventions.
 from getopt import gnu_getopt
 from sys import argv, stderr
-from txzmq import ZmqFactory, ZmqEndpointType, ZmqEndpoint
 
 # Configuration is stored in a simple ini file.
 from configparser import ConfigParser
 
 # Import all the application handles.
-from indoktrinator import make_site, make_router, Manager, AccessModel
+from indoktrinator import make_site, make_router, make_inotifier, Manager, AccessModel
 
 if __name__ == '__main__':
     def do_start(config):
@@ -43,9 +42,10 @@ if __name__ == '__main__':
         http_host = config.get('http', 'host', fallback='localhost')
         http_port = config.getint('http', 'port', fallback=5000)
         http_pool = config.getint('http', 'pool_size', fallback=4)
-        zmq_address = config.get('zmq', 'zmq_address', fallback='ipc:///tmp/zmq_server.sock')
-        zmq_debug = config.getboolean('zmq', 'debug', fallback=False)
-        zmq_pool = config.getint('zmq', 'pool_size', fallback=4)
+        zmq_address = config.get('router', 'address', fallback='ipc:///tmp/zmq_server.sock')
+        zmq_pool = config.getint('router', 'pool_size', fallback=4)
+        inotifier_path = config.get('inotifier', 'path', fallback='/media')
+        inotifier_timeout = config.getint('inotifier', 'timeout', fallback=5)
 
         # Read role mappings.
         access_model = AccessModel(config.items('access'))
@@ -72,8 +72,10 @@ if __name__ == '__main__':
         # Prepare the website that will get exposed to the users.
         site = make_site(db, manager, access_model, debug=http_debug)
         router = make_router(db, manager, zmq_address, zmq_pool)
+        inotifier = make_inotifier(db, manager, inotifier_path, inotifier_timeout)
         manager.site = site
         manager.router = router
+        manager.inotifier = inotifier
 
         # Prepare WSGI site with a separate thread pool.
         pool = ThreadPool(http_pool, http_pool, 'http')

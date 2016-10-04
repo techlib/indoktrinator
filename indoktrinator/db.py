@@ -8,6 +8,8 @@ from psycopg2.extensions import AsIs
 from sqlalchemy.types import UserDefinedType
 from sqlalchemy.dialects.postgresql.base import ischema_names
 import binascii
+import base64
+
 
 class TSRangeType(UserDefinedType):
     def get_col_spec(self):
@@ -26,6 +28,7 @@ class TSRangeType(UserDefinedType):
             else:
                 return None
         return process
+
 
 class RangeType(UserDefinedType):
     def get_col_spec(self):
@@ -62,6 +65,7 @@ class InetRangeType(UserDefinedType):
             return (v.lower, v.upper)
         return process
 
+
 class ByteaType(UserDefinedType):
     def get_col_spec(self):
         return 'BYTEA'
@@ -69,15 +73,15 @@ class ByteaType(UserDefinedType):
     def bind_processor(self, dialect):
         def process(value):
             if value:
-                raise Exception('Not implemented')
+                return value
         return process
 
     def result_processor(self, dialect, coltype):
         def process(value):
             if value:
-                return binascii.hexlify(bytes(value)).decode('ascii')
-            else:
-                return None
+                return (b'data:image/png;base64, ' + base64.b64encode(value))\
+                    .decode('ascii')
+
         return process
 
 

@@ -6,5 +6,6 @@ from indoktrinator.rbac import *
 from indoktrinator.manager import *
 from indoktrinator.db import *
 from indoktrinator.router import *
+from indoktrinator.inotifier import *
 
 # vim:set sw=4 ts=4 et:

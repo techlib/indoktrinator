@@ -94,6 +94,7 @@ def make_site(db, manager, access_model, debug=False):
     def handle_sqlalchemy_error(error):
         response = flask.jsonify({'message': str(error)})
         response.status_code = 500
+        db.rollback()
         return response
 
     @app.route('/')
@@ -112,17 +113,30 @@ def make_site(db, manager, access_model, debug=False):
         if 'POST' == flask.request.method:
             return flask.jsonify(manager.device.insert(flask.request.get_json(force=True)))
 
-    @app.route('/api/device/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
+    @app.route('/api/device/<id>', methods=['GET', 'DELETE', 'PATCH'])
     @authorized_only()
-    def device_item_handler(uuid, **kwargs):
+    def device_item_handler(id, **kwargs):
         if 'GET' == flask.request.method:
-            return flask.jsonify(manager.device.get_item(uuid))
+            return flask.jsonify(manager.device.get_item(id))
         if 'DELETE' == flask.request.method:
-            return flask.jsonify(manager.device.delete(uuid))
+            return flask.jsonify(manager.device.delete(id))
         if 'PATCH' == flask.request.method:
             device = flask.request.get_json(force=True)
-            device['uuid'] = uuid
+            device['id'] = id
             return flask.jsonify(manager.device.patch(device))
+
+    # Files
+    @app.route('/api/file/', methods=['GET'])
+    @authorized_only()
+    def dile_handler(**kwargs):
+        if 'GET' == flask.request.method:
+            return flask.jsonify(result=manager.file.list(exclude=['preview']))
+
+    @app.route('/api/file/<uuid>', methods=['GET'])
+    @authorized_only()
+    def file_item_handler(uuid, **kwargs):
+        if 'GET' == flask.request.method:
+            return flask.jsonify(manager.file.get_item(uuid))
 
     # Events
     @app.route('/api/event/', methods=['GET', 'POST'])

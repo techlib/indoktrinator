@@ -24,11 +24,19 @@ class Model(object):
     def init(self):
         pass
 
-    def list(self):
+    def list(self, fields=[], exclude=[]):
+        '''
+        '''
+
+        # TODO: better to filter on db query
+
         items = []
         for item in self.e().order_by(self.pkey).all():
             item = object_to_dict(item, include=self.include_relations.get('list'))
-            items.append(item)
+            items.append({
+                key: value for key, value in item.items()
+                if (not fields or key in fields) and key not in exclude
+            })
         return items
 
     def get_item(self, key):
