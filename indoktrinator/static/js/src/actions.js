@@ -13,7 +13,7 @@ export var ItemActions = Reflux.createActions([
 ])
 
 export var PlaylistActions = Reflux.createActions([
-  'create', 'read', 'update', 'delete', 'list'
+  'create', 'read', 'update', 'delete', 'list', 'copy'
 ])
 
 export var ProgramActions = Reflux.createActions([
@@ -30,4 +30,8 @@ export var FeedbackActions = Reflux.createActions([
 
 export var UserInfoActions = Reflux.createActions([
     'read'
+])
+
+export var FileActions = Reflux.createActions([
+  'read', 'list'
 ])

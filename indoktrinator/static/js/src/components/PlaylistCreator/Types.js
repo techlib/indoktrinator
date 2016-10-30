@@ -1,4 +1,4 @@
-export const Types =  {
+export const Types = {
   SYNTH_ITEM: 'synth_item',
   AUTO_ITEM: 'auto__item',
   SYNTH_GROUP: 'synth__group',

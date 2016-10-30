@@ -62,7 +62,7 @@ class Inotifier(object):
         path = filepath.path
         transform_path = self.transformPath(path)
         transform_dir = self.transformPath(filepath.dirname())
-        name = filepath.basename()
+        name = filepath.basename().decode('utf8')
 
         query = self.manager.file.e().filter_by(
             path=transform_path
@@ -70,7 +70,6 @@ class Inotifier(object):
 
         if filepath.exists():
             ffmpeg = FFMpeg(path)
-            print(ffmpeg.format)
 
             if ffmpeg.isMultimedia():
                 if query.count():
@@ -84,6 +83,7 @@ class Inotifier(object):
                         name=name,
                         preview=ffmpeg.preview,
                     ))
+                    self.manager.file.changed = True
 
                 else:
                     self.manager.file.insert(dict(
@@ -95,15 +95,17 @@ class Inotifier(object):
                         name=name,
                         preview=ffmpeg.preview,
                     ))
+                    self.manager.file.changed = True
 
             elif path.endswith(Inotifier.INDEX):
                 pass
         else:
             query.delete()
+            self.manager.file.changed = True
             self.manager.db.commit()
 
         # application version
-        #self.refreshPlayList(transform_dir)
+        # self.refreshPlayList(transform_dir)
 
     def refreshPlayList(self, path):
         '''

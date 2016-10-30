@@ -3,19 +3,19 @@ import {FeedbackActions} from '../actions'
 
 export var FeedbackStore = Reflux.createStore({
 
-    listenables: [FeedbackActions],
+  listenables: [FeedbackActions],
 
-    data: {},
+  data: {},
 
-    onClear() {
-        this.trigger(null)
-    },
+  onClear() {
+    this.trigger(null)
+  },
 
-    onSet(type, message, extra) {
-        this.trigger({
-            type: type,
-            message: message,
-            extra: extra
-        })
-    },
+  onSet(type, message, extra) {
+    this.trigger({
+      type: type,
+      message: message,
+      extra: extra
+    })
+  },
 })

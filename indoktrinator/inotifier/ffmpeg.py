@@ -124,7 +124,7 @@ class FFMpeg(object):
 
             self._format = out.strip().lower().decode('utf8')
         except Exception as e:
-            msg.log("format", e)
+            log.msg("format", e)
             self._format = e
 
         return self._format
@@ -193,7 +193,8 @@ class FFMpeg(object):
         return 0
 
     def isMultimedia(self):
-        return self.format in self.VIDEO_FORMAT or self.format in self.IMAGE_FORMAT
+        return self.format in self.VIDEO_FORMAT \
+            or self.format in self.IMAGE_FORMAT
 
     def isVideo(self):
         return self.format in self.VIDEO_FORMAT

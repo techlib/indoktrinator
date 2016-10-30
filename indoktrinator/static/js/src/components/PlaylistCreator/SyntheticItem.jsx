@@ -1,8 +1,8 @@
-import {DragSource, DropTarget} from 'react-dnd';
-import {Item} from './Item'
-import {Types} from './Types'
-import {flow} from 'lodash'
-import {findDOMNode} from 'react-dom'
+import {DragSource, DropTarget} from "react-dnd";
+import {Item} from "./Item";
+import {Types} from "./Types";
+import {flow} from "lodash";
+import {findDOMNode} from "react-dom";
 
 const itemSource = {
   beginDrag(props, monitor, component) {
@@ -24,7 +24,7 @@ const synthTarget = {
     const hoverIndex = props.index;
 
     if (dragIndex == hoverIndex && item._type != 'auto') {
-       return;
+      return;
     }
 
     if (!item.added && item._type == 'auto') {
@@ -41,14 +41,13 @@ const synthTarget = {
 }
 
 export var SyntheticItem = flow(
-	DropTarget([Types.SYNTH_ITEM, Types.AUTO_ITEM], synthTarget, connect => ({
-      connectDropTarget: connect.dropTarget()
-	})),
+  DropTarget([Types.SYNTH_ITEM, Types.AUTO_ITEM], synthTarget, connect => ({
+    connectDropTarget: connect.dropTarget()
+  })),
 
   DragSource(Types.SYNTH_ITEM, itemSource, (connect, monitor) => ({
     connectDragSource: connect.dragSource(),
     isDragging: monitor.isDragging()
   }))
-
 )(Item)
 

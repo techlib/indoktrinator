@@ -3,7 +3,6 @@
 import * as Reflux from 'reflux'
 import {DeviceActions, FeedbackActions} from '../actions'
 import {ErrorMixin} from './Mixins'
-import {hashHistory as BrowserHistory} from 'react-router'
 
 export var DeviceStore = Reflux.createStore({
   mixins: [ErrorMixin],
@@ -15,6 +14,7 @@ export var DeviceStore = Reflux.createStore({
       success: result => {
         this.data.errors = []
         this.data.device = result
+        this.data.device.state = 'Loaded'
         this.trigger(this.data)
       },
       error: result => {
@@ -30,7 +30,6 @@ export var DeviceStore = Reflux.createStore({
       dataType: 'json',
       contentType: 'application/json',
       success: () => {
-        BrowserHistory.push('/device/')
         FeedbackActions.set('success', 'Device deleted')
       },
       error: result => {
@@ -42,13 +41,12 @@ export var DeviceStore = Reflux.createStore({
 
   onUpdate(device) {
     $.ajax({
-      url: `/api/device/${device.uuid}`,
+      url: `/api/device/${device.id}`,
       method: 'PATCH',
       dataType: 'json',
       contentType: 'application/json',
       data: JSON.stringify(device),
-      success: function success() {
-        BrowserHistory.push('/device/')
+      success: function success(result) {
         FeedbackActions.set('success', 'Device updated')
       },
       error: result => {
@@ -65,7 +63,6 @@ export var DeviceStore = Reflux.createStore({
       contentType: 'application/json',
       data: JSON.stringify(device),
       success: function success(result) {
-        BrowserHistory.push('/device/' + result.id)
         FeedbackActions.set('success', 'Device created')
       },
       error: result => {

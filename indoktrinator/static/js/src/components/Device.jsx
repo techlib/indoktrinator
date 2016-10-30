@@ -1,12 +1,14 @@
-import * as React from 'react'
-import * as Reflux from 'reflux'
-import {DeviceForm} from './DeviceForm'
-import {ModalConfirmMixin} from './ModalConfirmMixin'
-import {DeviceActions, FeedbackActions} from '../actions'
-import {Feedback} from './Feedback'
-import * as _ from 'lodash'
-import {notEmpty} from '../util/simple-validators'
-import {Input} from 'react-bootstrap'
+import * as React from "react";
+import {ModalConfirmMixin} from "./ModalConfirmMixin";
+import {DeviceActions, FeedbackActions} from "../actions";
+import {Feedback} from "./Feedback";
+import {notEmpty} from "../util/simple-validators";
+import {Input} from "react-bootstrap";
+import {FormattedMessage} from "react-intl";
+import {BootstrapSelect} from "./Select";
+import FileBase64 from "../util/react-file-base64.js";
+import {SaveButton} from "./form/button/SaveButton";
+import {DeleteButton} from "./form/button/DeleteButton";
 
 export var Device = React.createClass({
 
@@ -17,33 +19,43 @@ export var Device = React.createClass({
     wrapperClassName: 'col-xs-10',
   },
 
-	getInitialState() {
-       return {}
-    },
+  getInitialState() {
+    return {}
+  },
 
-	componentWillReceiveProps(p) {
-		this.setState(p.device)
-	},
+  componentWillReceiveProps(p) {
+    this.setState(p.device);
+    this.setState(
+      {
+        'preview': p.device.photo,
+        'title': p.device.name
+      }
+    );
+  },
 
   validate() {
-    var r = []
+    var r = [];
 
-    if (!this.state.uuid) {
-      r.push(`Uuid is required`)
-    }
     if (!this.state.name) {
       r.push(`Name is required`)
     }
 
-		return r
+    if (!this.state.id) {
+      r.push(`Id is required`)
+    }
+
+    return r
   },
 
   handleChange(evt) {
     this.setState({[evt.target.name]: evt.target.value})
   },
 
-  getValues() {
-    return this.state
+  handleChangePhoto(files) {
+    this.setState({
+      'preview': files[0]['base64'],
+      'photo': files[0]['base64raw']
+    });
   },
 
   save() {
@@ -52,98 +64,107 @@ export var Device = React.createClass({
     if (errors.length > 0) {
       FeedbackActions.set('error', 'Form contains invalid data:', errors)
     } else {
-      this.props.saveHandler(this.getValues())
+      this.props.saveHandler(this.state)
     }
   },
 
-	delete() {
-		var uuid = this.props.device.id
-		this.modalConfirm('Confirm delete', `Delete ${this.props.device.name}?`,
-                            {'confirmLabel': 'DELETE', 'confirmClass': 'danger'})
-			.then(() => {
-            DeviceActions.delete(uuid)
-			})
-    },
-
-	getDeleteLink() {
-		if (this.props.device.uiid !== true) {
-			return (
-				<button type="button" className="btn btn-link" onClick={this.delete}>
-					<span className="text-danger">
-						<span className="pficon pficon-delete"></span> Delete this device
-					</span>
-				</button>
-			)
-		}
-	},
-
-  handleTypeChange(value) {
-    this.setState({device: {'type': value}})
+  delete() {
+    this.props.deleteHandler(this.state)
   },
 
   render() {
     return (
-        <div className='col-xs-12 container-fluid'>
-            <h1>{this.props.title}</h1>
-                <Feedback />
-            <div className='row'>
-            <div className='col-xs-12 col-md-6'>
-                <div className='panel panel-default'>
-                    <div className='panel-heading'>
-                        <h3 className='panel-title'>Device</h3>
-                    </div>
-                    <div className='panel-body'>
-                      <div className="form-horizontal">
-                        <Input
-                          type="text"
-                          label="Uuid"
-                          ref="uuid"
-                          name="uuid"
-                          onChange={this.handleChange}
-                          value={this.state.uuid}
-                          {...this.commonProps} />
-                        <Input
-                          type="text"
-                          label="Name"
-                          ref="name"
-                          name="name"
-                          onChange={this.handleChange}
-                          value={this.state.name}
-                          {...this.commonProps} />
-                      </div>
-                    </div>
-                    <div className='panel-footer'>
-                        <div className="row">
-                            <div className="col-xs-6">
-                                <button className='btn btn-primary'
-                                        onClick={this.save}>Save</button>
-                            </div>
-                            <div className="col-xs-6 text-right">
-								{this.getDeleteLink()}
-							</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        <div className='col-xs-12 col-md-6'>
+      <div className='col-xs-12 container-fluid'>
+        <h1>{this.state.title}</h1>
+        <Feedback />
+        <div className='row'>
+          <div className='col-xs-12 col-md-6'>
             <div className='panel panel-default'>
-                <div className='panel-heading'>
-                    <h3 className='panel-title'>Image</h3>
+              <div className='panel-heading'>
+                <FormattedMessage
+                  id="app.menu.device.title"
+                  description="Title"
+                  defaultMessage="Device"
+                />
+              </div>
+              <div className='panel-body'>
+                <div className="form-horizontal">
+                  { this.state.state != 'Loaded' ? <Input
+                    type="text"
+                    label="id"
+                    ref="id"
+                    name="id"
+                    onChange={this.handleChange}
+                    value={this.state.id}
+                    {...this.commonProps} />
+                    : null }
+                  <Input
+                    type="text"
+                    label="Name"
+                    ref="name"
+                    name="name"
+                    onChange={this.handleChange}
+                    value={this.state.name}
+                    {...this.commonProps} />
+                  <BootstrapSelect
+                    label='Program'
+                    ref='program'
+                    name='program'
+                    onChange={this.handleChange}
+                    data-live-search={true}
+                    value={this.state.program}
+                    {...this.commonProps}>
+                    {this.props.program.map((item) => {
+                      return <option value={item.uuid} key={item.uuid}>
+                        {item.name}</option>
+                    })}
+                  </BootstrapSelect>
+                  <div className="form-group">
+                    <label className="control-label col-xs-2">
+                      <FormattedMessage
+                        id="app.device.photo"
+                        description="Title"
+                        defaultMessage="Photo"
+                      />
+                    </label>
+                    <FileBase64
+                      multiple={ false }
+                      onDone={ this.handleChangePhoto.bind(this) }
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="control-label col-xs-2">
+                      <FormattedMessage
+                        id="app.device.preview"
+                        description="Title"
+                        defaultMessage="Photo preview"
+                      />
+                    </label>
+                    <div className="col-xs-10">
+                      <img className="img-responsive" src={this.state.preview}></img>
+                    </div>
+                  </div>
                 </div>
-                <div className='panel-body'>
-                    image mooo
+              </div>
+              <div className='panel-footer'>
+                <div className="row">
+                  <div className="col-xs-6">
+                    <SaveButton
+                      handler={this.save}
+                    />
+                  </div>
+                  <div className="col-xs-6">
+                    { this.state.state == 'Loaded' ? <DeleteButton
+                      id={this.state.id}
+                      handler={this.delete}
+                    /> : null }
+                  </div>
                 </div>
-
-                <div className='panel-footer'>
-                    <a onClick={this.addInterface}>
-                        <span className="pficon pficon-add-circle-o"></span> Add new interface</a>
-                </div>
+              </div>
             </div>
-
+          </div>
         </div>
-    </div>
-</div>
+      </div>
     )
-    }
+  }
 })

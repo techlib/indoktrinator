@@ -8,7 +8,7 @@ export var UserStore = Reflux.createStore({
   data: {'user': [], 'list': []},
 
   onRead(id) {
-    $.ajax({url: `/user/${id}`, success: result => {
+    $.ajax({url: `/api/user/${id}`, success: result => {
         this.data.user = result
         this.trigger(this.data)
       }
@@ -18,7 +18,7 @@ export var UserStore = Reflux.createStore({
   onDelete(id) {
     var _this = this
     $.ajax({
-      url: `/user/${id}`,
+      url: `/api/user/${id}`,
       method: 'DELETE',
       dataType: 'json',
       contentType: 'application/json',
@@ -31,7 +31,7 @@ export var UserStore = Reflux.createStore({
 
   onUpdate(user) {
     $.ajax({
-      url: `/user/${user.id}`,
+      url: `/api/user/${user.id}`,
       method: 'PUT',
       dataType: 'json',
       contentType: 'application/json',
@@ -42,7 +42,7 @@ export var UserStore = Reflux.createStore({
   onCreate(user) {
     var _this = this
     $.ajax({
-      url: '/user/',
+      url: '/api/user/',
       method: 'POST',
       dataType: 'json',
       contentType: 'application/json',
@@ -54,7 +54,7 @@ export var UserStore = Reflux.createStore({
   },
 
   onList() {
-    $.ajax({url: '/user/', success: result => {
+    $.ajax({url: '/api/user/', success: result => {
         this.data.list = result.result
         this.trigger(this.data)
       }

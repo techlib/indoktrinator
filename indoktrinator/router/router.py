@@ -49,14 +49,12 @@ class Router(ZmqRouterConnection):
                 online.append(key)
 
             val['change'] = False
-        print('Online', online)
 
         reactor.callLater(5, self.checkClients)
 
     def gotMessage(self, sender_id, action, message):
         Router.MESSAGE_COUNT += 1
         self.updateClient(sender_id)
-        print(sender_id, action, message)
 
         if action in Router.CALLBACK_REGISTER:
             for method in Router.CALLBACK_REGISTER[action]:

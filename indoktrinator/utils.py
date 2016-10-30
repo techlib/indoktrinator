@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -tt
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
+from datetime import datetime, date
 from pprint import pprint as pp
 import inspect
 from psycopg2._range import Range
@@ -12,10 +12,13 @@ __all__ = ['object_to_dict']
 
 
 def process_value(obj, c):
-    if isinstance(getattr(obj, c), datetime):
+    if isinstance(getattr(obj, c), datetime) \
+            or isinstance(getattr(obj, c), date):
         return (c, getattr(obj, c).isoformat())
+
     elif isinstance(getattr(obj, c), Inet):
         return (c, getattr(obj, c).addr)
+
     else:
         return (c, getattr(obj, c))
 
@@ -32,7 +35,10 @@ def object_to_dict(obj, found=None, include=[]):
         related_obj = getattr(obj, name)
         if related_obj is not None and name in include:
             if relation.uselist:
-                out[name] = [object_to_dict(child, found) for child in related_obj]
+                out[name] = [
+                    object_to_dict(child, found)
+                    for child in related_obj
+                ]
             else:
                 out[name] = object_to_dict(related_obj, found)
     return out

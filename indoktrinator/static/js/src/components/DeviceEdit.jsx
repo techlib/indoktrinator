@@ -1,34 +1,47 @@
-import * as React from 'react'
-import * as Reflux from 'reflux'
-import {Device} from './Device'
-import {DeviceStore} from '../stores/Device'
-import {DeviceActions} from '../actions'
+import * as React from "react";
+import {Device} from "./Device";
+import {DeviceActions, ProgramActions} from "../actions";
+import {ProgramStore} from "../stores/Program";
+import {DeviceStore} from "../stores/Device";
+import {hashHistory as BrowserHistory} from "react-router";
 
 export var DeviceEdit = React.createClass({
-    mixins: [
-        Reflux.connect(DeviceStore, 'device'),
-    ],
 
-    componentDidMount() {
-        DeviceActions.read(this.props.params.id)
-    },
+  componentDidMount() {
+    DeviceActions.read(this.props.params.id)
+    ProgramActions.list()
+  },
 
-    getInitialState() {
-        return {device: {device: {}}}
-    },
-
-    handleSave(data) {
-        data.uuid = this.props.params.uuid
-        DeviceActions.update(data)
-    },
-
-    render() {
-        return (
-            <Device device={this.state.device.device}
-                    title={this.state.device.device.name}
-                    saveHandler={this.handleSave}
-                />
-        )
+  getInitialState() {
+    return {
+      device: {device: {}},
+      program: {list: []},
+      file: {list: []}
     }
+  },
+
+  handleSave(data) {
+    DeviceActions.update(data)
+    this.state.device.device = data
+    BrowserHistory.push('/device/' + data.id)
+  },
+
+  handleDelete(id) {
+    DeviceActions.delete(id)
+    BrowserHistory.push('/device/');
+  },
+
+  render() {
+    return (
+      <Device
+        device={this.state.device.device}
+        program={this.state.program.list}
+        file={this.state.file.list}
+        title={this.state.device.device.name}
+        saveHandler={this.handleSave}
+        deleteHandler={this.handleDelete}
+      />
+    )
+  }
 })
 

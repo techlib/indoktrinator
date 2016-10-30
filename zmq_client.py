@@ -8,6 +8,7 @@ class ZmqTestDealerConnection(ZmqDealerConnection):
 
     def gotMessage(self, action, message):
         print(action, message)
+
         self.sendMultipart([b'pong', message])
 
 
@@ -24,3 +25,5 @@ dealer = ZmqTestDealerConnection(
 reactor.callLater(1, dealer.sendMultipart, [b'ping', identity])
 reactor.callLater(1, dealer.sendMultipart, [b'pong', identity])
 reactor.run()
+
+print("INIT")

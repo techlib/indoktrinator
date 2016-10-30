@@ -7,6 +7,7 @@ from sqlalchemy import and_
 
 __all__ = ['Playlist']
 
+
 class Playlist(Model):
     def init(self):
         self.table_name = 'playlist'
@@ -14,6 +15,6 @@ class Playlist(Model):
         self.pkey = 'uuid'
         # Relations
         self.relate('items', self.e('item'))
-        self.include_relations = {'item': ['items'], 'list': ['items']}
+        self.include_relations = {'item': ['items', 'item__file'], 'list': ['items']}
 
 # vim:set sw=4 ts=4 et:

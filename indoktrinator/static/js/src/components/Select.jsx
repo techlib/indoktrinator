@@ -1,10 +1,11 @@
 /* global React, $ */
 'use strict'
-import * as React from 'react'
-import {Input} from 'react-bootstrap'
-import ReactDOM from 'react-dom'
+import * as React from "react";
+import {Input} from "react-bootstrap";
+import ReactDOM from "react-dom";
 
-export var BootstrapSelect = React.createClass({displayName: 'BootstrapSelect',
+export var BootstrapSelect = React.createClass({
+  displayName: 'BootstrapSelect',
   getInitialState: function () {
     return {
       open: false
@@ -33,27 +34,31 @@ export var BootstrapSelect = React.createClass({displayName: 'BootstrapSelect',
     var items = $(ReactDOM.findDOMNode(this)).find('ul.dropdown-menu li a')
 
     $('html').click(function () {
-      self.setState({ open: false })
+      self.setState({open: false})
     })
 
     button.click(function (e) {
       e.stopPropagation()
-      self.setState({ open: !self.state.open })
+      self.setState({open: !self.state.open})
     })
 
     dropdown.click(function () {
-      if (self.props.multiple) {return}
-      self.setState({ open: !self.state.open })
+      if (self.props.multiple) {
+        return
+      }
+      self.setState({open: !self.state.open})
     })
 
     items.click(function () {
-      if (self.props.multiple) {return}
-      self.setState({ open: !self.state.open })
+      if (self.props.multiple) {
+        return
+      }
+      self.setState({open: !self.state.open})
     })
   },
   render: function () {
     return (
-      <Input {...this.props} type='select' />
+      <Input {...this.props} type='select'/>
     )
   }
 })

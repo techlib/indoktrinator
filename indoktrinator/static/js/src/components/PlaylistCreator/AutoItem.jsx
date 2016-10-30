@@ -1,7 +1,7 @@
-import {flow} from 'lodash'
-import {DragSource, DropTarget} from 'react-dnd';
-import {Item} from './Item'
-import {Types} from './Types'
+import {flow} from "lodash";
+import {DragSource, DropTarget} from "react-dnd";
+import {Item} from "./Item";
+import {Types} from "./Types";
 
 
 const itemSource = {
@@ -12,10 +12,11 @@ const itemSource = {
       path: props.path,
       duration: props.duration,
       type: props.type,
+      file: props.file,
       _type: 'auto',
       all_props: props
     }
-    console.log('begin',props, monitor)
+    console.log('begin', props, monitor)
     return me
   },
   endDrag(props, monitor, component) {
@@ -23,20 +24,17 @@ const itemSource = {
       props.finalizeDrop()
     } else {
       props.cancelDrop()
-
     }
   }
 };
 
 export var AutoItem = flow(
-
   DragSource(Types.AUTO_ITEM, itemSource, (connect, monitor) => ({
-		connectDragSource: connect.dragSource(),
-		isDragging: monitor.isDragging()
+    connectDragSource: connect.dragSource(),
+    isDragging: monitor.isDragging()
   })),
 
   DropTarget('fake', {}, connect => ({
-          connectDropTarget: connect.dropTarget()
+    connectDropTarget: connect.dropTarget()
   }))
-
 )(Item)

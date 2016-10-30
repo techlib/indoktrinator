@@ -14,7 +14,7 @@ class Item(Model):
         # Primary key
         self.pkey = 'uuid'
         # Relations
-        self.relate('_playlist', self.e('playlist'))
-        self.include_relations = {'item': ['_playlist'], 'list': ['_playlist']}
+        self.relate('_file', self.e('file'))
+        self.include_relations = {'item': ['_file'], 'list': ['_file']}
 
 # vim:set sw=4 ts=4 et:

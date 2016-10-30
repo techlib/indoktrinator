@@ -66,6 +66,29 @@ class InetRangeType(UserDefinedType):
         return process
 
 
+class Int4RangeType(UserDefinedType):
+    def get_col_spec(self):
+        return 'INT4RANGE'
+
+    def __init__(self):
+        self.caster = RangeCaster('int4range', 'Int4Range', None, None)
+
+    def get_col_spec(self):
+        return 'INT4RANGE'
+
+    def bind_processor(self, dialect):
+        def process(value):
+            if value:
+                return AsIs(self.caster.range(value[0], value[1], '[]'))
+        return process
+
+    def result_processor(self, dialect, coltype):
+        def process(value):
+            if value is not None:
+                return (value.lower, value.upper)
+        return process
+
+
 class ByteaType(UserDefinedType):
     def get_col_spec(self):
         return 'BYTEA'
@@ -88,6 +111,7 @@ class ByteaType(UserDefinedType):
 ischema_names['tsrange']   = TSRangeType
 ischema_names['range']     = RangeType
 ischema_names['inetrange'] = InetRangeType
+ischema_names['int4range'] = Int4RangeType
 ischema_names['bytea'] = ByteaType
 
 # vim:set sw=4 ts=4 et:

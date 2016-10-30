@@ -11,6 +11,8 @@ __all__ = ['File']
 
 class File(Model):
     def init(self):
+        self.changed = True
+
         self.table_name = 'file'
         # Primary key
         self.pkey = 'uuid'

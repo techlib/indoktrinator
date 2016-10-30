@@ -1,7 +1,7 @@
 #!/usr/bin/python3 -tt
 # -*- coding: utf-8 -*-
 from twisted.internet import reactor
-from txzmq import  ZmqRouterConnection
+from txzmq import  ZmqRouterConnection, ZmqEndpointType, ZmqEndpoint, ZmqFactory
 
 
 class ZmqTestRouterConnection(ZmqRouterConnection):
@@ -9,6 +9,7 @@ class ZmqTestRouterConnection(ZmqRouterConnection):
 
     def gotMessage(self, senderId, message):
         print("Received message: %s from %s" %( message, senderId))
+
         reactor.callLater(1, self.sendMsg, senderId, message)
         reactor.callLater(2, self.sendMsg, senderId, message)
 
@@ -18,5 +19,4 @@ router = ZmqTestRouterConnection(
     zf,
     ep,
 )
-
 reactor.run()
