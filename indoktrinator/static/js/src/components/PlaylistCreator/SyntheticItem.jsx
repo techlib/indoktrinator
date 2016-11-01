@@ -11,6 +11,7 @@ const itemSource = {
       index: props.index,
       path: props.path,
       type: props.type,
+      deleteItemHandler: props.deleteItemHandler,
       _type: 'synth',
       all_props: props
     };

@@ -1,16 +1,17 @@
 'use strict'
 
-import * as Reflux from 'reflux'
-import {EventActions, FeedbackActions} from '../actions'
-import {ErrorMixin} from './Mixins'
+import * as Reflux from "reflux";
+import {EventActions, FeedbackActions} from "../actions";
+import {ErrorMixin} from "./Mixins";
 
 export var EventStore = Reflux.createStore({
   mixins: [ErrorMixin],
   listenables: [EventActions],
   data: {'event': [], 'list': [], 'errors': []},
 
-  onRead(uuid) {
-    $.ajax({url: `/api/event/${uuid}`,
+  onRead(uuid, callbackDone) {
+    $.ajax({
+      url: `/api/event/${uuid}`,
       success: result => {
         this.data.errors = []
         this.data.event = result
@@ -20,10 +21,12 @@ export var EventStore = Reflux.createStore({
       error: result => {
         FeedbackActions.set('error', result.responseJSON.message)
       }
+    }).done(() => {
+      if (typeof callbackDone === 'function') { callbackDone(); }
     })
   },
 
-  onDelete(uuid) {
+  onDelete(uuid, callbackDone) {
     $.ajax({
       url: `/api/event/${uuid}`,
       method: 'DELETE',
@@ -35,11 +38,13 @@ export var EventStore = Reflux.createStore({
       error: result => {
         FeedbackActions.set('error', result.responseJSON.message)
       }
+    }).done(() => {
+      if (typeof callbackDone === 'function') { callbackDone(); }
     })
   },
 
 
-  onUpdate(event) {
+  onUpdate(event, callbackDone) {
     $.ajax({
       url: `/api/event/${event.uuid}`,
       method: 'PATCH',
@@ -52,10 +57,12 @@ export var EventStore = Reflux.createStore({
       error: result => {
         FeedbackActions.set('error', result.responseJSON.message)
       }
+    }).done(() => {
+      if (typeof callbackDone === 'function') { callbackDone(); }
     })
   },
 
-  onCreate(event) {
+  onCreate(event, callbackDone) {
     $.ajax({
       url: '/api/event/',
       method: 'POST',
@@ -68,17 +75,20 @@ export var EventStore = Reflux.createStore({
       error: result => {
         FeedbackActions.set('error', result.responseJSON.message)
       }
-
-
-      })
+    }).done(() => {
+      if (typeof callbackDone === 'function') { callbackDone(); }
+    })
   },
 
-  onList() {
-    $.ajax({url: '/api/event/', success: result => {
+  onList(callbackDone) {
+    $.ajax({
+      url: '/api/event/', success: result => {
         this.data.errors = []
         this.data.list = result.result
         this.trigger(this.data)
       }
-    })
+    }).done(() => {
+      if (typeof callbackDone === 'function') { callbackDone(); }
+    });
   }
 })

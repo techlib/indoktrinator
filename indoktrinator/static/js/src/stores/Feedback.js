@@ -1,5 +1,5 @@
-import * as Reflux from 'reflux'
-import {FeedbackActions} from '../actions'
+import * as Reflux from "reflux";
+import {FeedbackActions} from "../actions";
 
 export var FeedbackStore = Reflux.createStore({
 

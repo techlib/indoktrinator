@@ -2,14 +2,14 @@ import * as React from "react";
 import * as Reflux from "reflux";
 import {Feedback} from "./Feedback";
 import {PlaylistStore} from "../stores/Playlist";
-import {PlaylistActions as pa} from "../actions";
+import {PlaylistActions as pa, FeedbackActions} from "../actions";
 import {Button} from "react-bootstrap";
 import {Link} from "react-router";
 import Griddle from "griddle-react";
 import {Pager} from "./Pager";
 import {regexGridFilter} from "../util/griddle-components";
 import {FormattedMessage} from "react-intl";
-import {guid} from "../util/database";
+import {hashHistory as BrowserHistory} from "react-router";
 
 let PlaylistLink = React.createClass({
   render() {
@@ -31,19 +31,52 @@ let PlaylistActions = React.createClass({
     Reflux.connect(PlaylistStore, 'playlist')
   ],
 
+  getInitialState() {
+    return {
+      playlist: {copy: {}}
+    }
+  },
+
   handleCopyPlayList() {
-    console.log(this.state.playlist);
-    pa.copy(this.props.rowData.uuid);
-    console.log(this.state.playlist);
+    pa.copy(this.props.rowData.uuid, () => {
+      pa.list();
+    });
+  },
+
+  handleDeletePlayList() {
+    pa.delete(this.props.rowData.uuid, () => {
+      pa.list();
+      BrowserHistory.push('/playlist/');
+    });
   },
 
   render() {
-    return (<Button
+    return (
+      <span>
+        <Button
+          label=''
+          bsStyle=''
+          onClick={this.handleCopyPlayList}>
+      <i className="fa fa-files-o"></i>
+           <FormattedMessage
+             id="app.button.copy"
+             description="Title"
+             defaultMessage="Copy"
+           />
+    </Button>
+    <Button
       label=''
       bsStyle=''
-      onClick={this.handleCopyPlayList}>
-      <i className="fa fa-files-o"></i> copy
-    </Button>)
+      onClick={this.handleDeletePlayList}>
+      <i className="fa fa-trash"></i>
+      <FormattedMessage
+        id="app.button.delete"
+        description="Title"
+        defaultMessage="Delete"
+      />
+      </Button>
+      </span>
+    )
   }
 })
 
@@ -62,7 +95,7 @@ export var PlaylistList = React.createClass({
 
     let columnMeta = [
       {columnName: 'name', displayName: 'Name', customComponent: PlaylistLink},
-      {columnName: 'c', displayName: '', customComponent: PlaylistActions}
+      {columnName: 'c', displayName: 'Actions', customComponent: PlaylistActions}
     ]
 
     return (

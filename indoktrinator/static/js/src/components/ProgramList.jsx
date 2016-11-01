@@ -1,10 +1,11 @@
 import * as React from "react";
 import * as Reflux from "reflux";
 import {Feedback} from "./Feedback";
-import {ProgramActions} from "../actions";
+import {ProgramActions as pa, FeedbackActions} from "../actions";
 import Griddle from "griddle-react";
 import {Pager} from "./Pager";
-import {Link} from "react-router";
+import {Button} from "react-bootstrap";
+import {Link, hashHistory as BrowserHistory} from "react-router";
 import {regexGridFilter} from "../util/griddle-components";
 import {FormattedMessage} from "react-intl";
 import {ProgramStore} from "../stores/Program";
@@ -17,11 +18,42 @@ let ProgramLink = React.createClass({
   }
 })
 
+let ProgramActions = React.createClass({
+
+  handleDeleteProgram() {
+    pa.delete(this.props.rowData.uuid, () => {
+      pa.list();
+      BrowserHistory.push('/program/');
+    });
+  },
+
+  render() {
+    return (
+      <span>
+    <Button
+      label=''
+      bsStyle=''
+      onClick={this.handleDeleteProgram}>
+      <i className="fa fa-trash"></i>
+      <FormattedMessage
+        id="app.button.delete"
+        description="Title"
+        defaultMessage="Delete"
+      />
+      </Button>
+      </span>
+    )
+  }
+})
+
 export var ProgramList = React.createClass({
-  mixins: [Reflux.connect(ProgramStore, 'program')],
+
+  mixins: [
+    Reflux.connect(ProgramStore, 'program')
+  ],
 
   componentDidMount() {
-    ProgramActions.list()
+    pa.list()
   },
 
   getInitialState() {
@@ -31,7 +63,8 @@ export var ProgramList = React.createClass({
   render() {
 
     let columnMeta = [
-      {columnName: 'name', displayName: 'Name', customComponent: ProgramLink}
+      {columnName: 'name', displayName: 'Name', customComponent: ProgramLink},
+      {columnName: 'c', displayName: 'Actions', customComponent: ProgramActions}
     ]
 
     return (
@@ -66,7 +99,7 @@ export var ProgramList = React.createClass({
           customPagerComponent={Pager}
           sortAscendingComponent={<span className='fa fa-sort-alpha-asc'></span>}
           sortDescendingComponent={<span className='fa fa-sort-alpha-desc'></span>}
-          columns={['name']}
+          columns={['name', 'c']}
           resultsPerPage='50'
           customFilterer={regexGridFilter}
           useCustomFilterer='true'

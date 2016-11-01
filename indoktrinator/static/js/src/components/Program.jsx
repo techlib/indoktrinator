@@ -1,12 +1,10 @@
 import * as React from "react";
 import * as Reflux from "reflux";
-import {FeedbackActions, EventActions, ProgramActions, PlaylistActions, SegmentActions} from "../actions";
+import {FeedbackActions, EventActions, SegmentActions} from "../actions";
 import {Feedback} from "./Feedback";
-import {EventStore} from "../stores/Event";
-import {SegmentStore} from "../stores/Segment";
 import {ProgramStore} from "../stores/Program";
-import {PlaylistStore} from "../stores/Playlist";
-import {notEmpty} from "../util/simple-validators";
+import {SegmentStore} from "../stores/Segment";
+import {EventStore} from "../stores/Event";
 import {Input, Modal, Button} from "react-bootstrap";
 import {FormattedMessage} from "react-intl";
 import {SaveButton} from "./form/button/SaveButton";
@@ -24,6 +22,20 @@ let Footer = Modal.Footer
 BigCalendar.setLocalizer(
   BigCalendar.momentLocalizer(moment)
 );
+
+moment.locale('cz', {
+  week: {
+    dow: 1, // Monday is the first day of the week.
+    doy: 4  // The week that contains Jan 4th is the first week of the year.
+  }
+});
+
+moment.locale('en', {
+  week: {
+    dow: 1, // Monday is the first day of the week.
+    doy: 4  // The week that contains Jan 4th is the first week of the year.
+  }
+});
 
 export var Program = React.createClass({
 
@@ -45,7 +57,9 @@ export var Program = React.createClass({
       'day': '',
       'date': '',
       'playlist': '',
-      'events': this.getEvents()
+      'events': [],
+      'calendarClickedEvent': {item: {playlist: '', uuid: ''}},
+      'calendarClickedEventPlaylist': ''
     }
   },
 
@@ -54,7 +68,10 @@ export var Program = React.createClass({
       'title': p.title,
       'name': p.program.name,
       'uuid': p.program.uuid,
-      'state': p.program.state
+      'state': p.program.state,
+      'segment': p.segment,
+      'event': p.event,
+      'events': this.getEvents(p.segment, p.event, new Date())
     });
   },
 
@@ -86,7 +103,15 @@ export var Program = React.createClass({
     if (errors.length > 0) {
       FeedbackActions.set('error', 'Form contains invalid data:', errors)
     } else {
-      this.props.saveHandler(this.state)
+
+      // save only name
+      var program = {};
+      program.name = this.state.name;
+      program.uuid = this.state.uuid;
+      program.state = this.state.state;
+      program.title = this.state.title;
+
+      this.props.saveHandler(program);
     }
   },
 
@@ -94,26 +119,43 @@ export var Program = React.createClass({
     this.props.deleteHandler(this.state.uuid);
   },
 
-  showModal() {
-    this.setState({show: true});
+  showNewCalendarItemModal() {
+    this.setState({showNewCalendarItemModal: true});
   },
 
-  hideModal() {
-    this.setState({show: false});
+  hideNewCalendarItemModal() {
+    this.setState({showNewCalendarItemModal: false});
+  },
+
+  showEditCalendarItemModal() {
+    this.setState({showEditCalendarItemModal: true});
+  },
+
+  hideEditCalendarItemModal() {
+    this.setState({showEditCalendarItemModal: false});
   },
 
   handleSelectSlot(slotInfo) {
-    var startDayMidnight = moment(slotInfo.start.toLocaleString(), "DD/MM/YYYY, HH:mm:ss A").startOf('day');
-    var start = moment(slotInfo.start.toLocaleString(), "DD/MM/YYYY, HH:mm:ss A");
-    var end = moment(slotInfo.end.toLocaleString(), "DD/MM/YYYY, HH:mm:ss A");
+    var startDayMidnight = moment(slotInfo.start).startOf('day');
+    var start = moment(slotInfo.start);
+    var end = moment(slotInfo.end);
 
     this.setState({
       range: [start.diff(startDayMidnight, 'seconds'), end.diff(startDayMidnight, 'seconds')],
-      day: start.format("E"),
-      date: moment(slotInfo.start.toLocaleString(), "DD/MM/YYYY, HH:mm:ss A").format('YYYY-MM-DD')
+      day: start.weekday(),
+      date: start.format('YYYY-MM-DD')
     });
 
-    this.showModal();
+    this.showNewCalendarItemModal();
+  },
+
+  handleSelectEvent(event) {
+    this.setState({
+      calendarClickedEvent: event,
+      calendarClickedEventPlaylist: event.item.name
+    });
+
+    this.showEditCalendarItemModal();
   },
 
   validateEvent() {
@@ -123,8 +165,8 @@ export var Program = React.createClass({
       r.push(`Playlist is required`)
     }
 
-    if (!this.state.day) {
-      r.push(`Day is required`)
+    if (!this.state.date) {
+      r.push(`Date is required`)
     }
 
     if (!this.state.range) {
@@ -134,25 +176,20 @@ export var Program = React.createClass({
     return r
   },
 
-  saveSegment() {
-    var errors = this.validateEvent();
+  validateSegment() {
+    var r = []
 
-    if (errors.length > 0) {
-      FeedbackActions.set('error', 'Form contains invalid data:', errors)
-    } else {
-      var segment = {};
-      segment.uuid = guid();
-      segment.program = this.state.uuid;
-      segment.playlist = this.state.playlist;
-
-      segment.day = this.state.day;
-      segment.range = this.state.range;
-      console.log(segment);
-      //console.log(this.state);
-      SegmentActions.create(segment);
-
-      this.hideModal();
+    if (!this.state.playlist) {
+      r.push(`Playlist is required`)
     }
+
+    // todo: validate day
+
+    if (!this.state.range) {
+      r.push(`Range is required`)
+    }
+
+    return r;
   },
 
   saveEvent() {
@@ -166,51 +203,177 @@ export var Program = React.createClass({
       event.program = this.state.uuid;
       event.playlist = this.state.playlist;
       event.date = this.state.date;
-      event.range = this.range;
+      event.range = this.state.range;
 
-      console.log(event);
-      //console.log(this.state);
-      EventActions.create(event);
-
-      this.hideModal();
+      EventActions.create(event, () => {
+        this.hideNewCalendarItemModal();
+        EventActions.list(() => {
+          var data = EventActions.data.list;
+          this.setState({event: data});
+          this.setState({
+            'events': this.getEvents()
+          });
+        });
+      });
     }
   },
 
-  getEvents() {
-    console.log(this.props.segment);
-    /*this.props.segment.forEach(function (item) {
-     //console.log(index);
-     this.state.events.push({
-     'title': item._playlist.name,
-     'start': moment("2016-10-30").startOf('day').seconds(item.range[0]).format("DD/MM/YYYY, HH:mm:ss A"), // FIXME start the specific day by property day
-     'end': moment("2016-10-30").startOf('day').seconds(item.range[1]).format("DD/MM/YYYY, HH:mm:ss A")
-     });
-     }.bind(this));
+  saveSegment() {
+    var errors = this.validateSegment();
 
-     this.props.event.forEach(function (item) {
-     this.state.events.push({
-     'title': item._playlist.name,
-     'start': moment(item.date, "YYYY-MM-DD").startOf('day').seconds(item.range[0]).format("DD/MM/YYYY, HH:mm:ss A"),
-     'end': moment(item.date, "YYYY-MM-DD").startOf('day').seconds(item.range[1]).format("DD/MM/YYYY, HH:mm:ss A")
-     });
-     }.bind(this));*/
+    if (errors.length > 0) {
+      FeedbackActions.set('error', 'Form contains invalid data:', errors)
+    } else {
+      var segment = {};
+      segment.uuid = guid();
+      segment.program = this.state.uuid;
+      segment.playlist = this.state.playlist;
 
-    return [
-      {
-        'title': 'All Day Event',
-        'start': new Date(2016, 10, 30),
-        'end': new Date(2016, 10, 30)
-      },
-      {
-        'title': 'Long Event',
-        'start': new Date(2016, 10, 30),
-        'end': new Date(2016, 10, 30)
-      }
-    ]
+      segment.day = this.state.day;
+      segment.range = this.state.range;
+
+      SegmentActions.create(segment, () => {
+        this.hideNewCalendarItemModal();
+        SegmentActions.list(() => {
+          var data = SegmentStore.data.list;
+          this.setState({segment: data});
+          this.setState({
+            'events': this.getEvents()
+          });
+        });
+      });
+    }
+  },
+
+  saveCalendarEvent() {
+    if (this.state.calendarClickedEvent.type == 'segment') {
+      var segment = this.state.calendarClickedEvent.item;
+      segment.playlist = this.state.calendarClickedEventPlaylist;
+      SegmentActions.update(segment, () => {
+        this.hideEditCalendarItemModal();
+        var data = SegmentStore.data.list;
+        this.setState({segment: data});
+        this.setState({
+          'events': this.getEvents()
+        });
+      });
+    } else if (this.state.calendarClickedEvent.type == 'event') {
+      var event = this.state.calendarClickedEvent.item;
+      event.playlist = this.state.calendarClickedEventPlaylist;
+      EventActions.update(event, () => {
+        this.hideEditCalendarItemModal();
+        var data = EventStore.data.list;
+        this.setState({event: data});
+        this.setState({
+          'events': this.getEvents()
+        });
+      });
+    }
+  },
+
+  deleteCalendarEvent() {
+    if (this.state.calendarClickedEvent.type == 'segment') {
+      var segment = this.state.calendarClickedEvent.item;
+      SegmentActions.delete(segment.uuid, () => {
+        this.hideEditCalendarItemModal();
+        SegmentActions.list(() => {
+          var data = SegmentStore.data.list;
+          this.setState({segment: data});
+          this.setState({
+            'events': this.getEvents()
+          });
+        });
+      });
+    } else if (this.state.calendarClickedEvent.type == 'event') {
+      var event = this.state.calendarClickedEvent.item;
+      EventActions.delete(event.uuid, () => {
+        this.hideEditCalendarItemModal();
+        EventActions.list(() => {
+          var data = EventStore.data.list;
+          this.setState({event: data});
+          this.setState({
+            'events': this.getEvents()
+          });
+        });
+      });
+    }
+  },
+
+  getEvents(segment, event, startDatetime) {
+    var events = [];
+
+    if (!segment) {
+      segment = this.state.segment;
+    }
+
+    if (!event) {
+      event = this.state.event;
+    }
+
+    if (!startDatetime) {
+      startDatetime = new Date();
+    }
+
+    segment.forEach((item) => {
+      var startMoment = moment(startDatetime).startOf('isoWeek').add(item.day, 'days').seconds(item.range[0]);
+      var endMoment = moment(startDatetime).startOf('isoWeek').add(item.day, 'days').seconds(item.range[1]);
+
+      events.push({
+        'title': item._playlist.name,
+        'start': startMoment.toDate(),
+        'end': endMoment.toDate(),
+        'type': 'segment',
+        'item': item
+      });
+    });
+
+    event.forEach((item) => {
+      var startMoment = moment(item.date, "YYYY-MM-DD").startOf('day').seconds(item.range[0]);
+      var endMoment = moment(item.date, "YYYY-MM-DD").startOf('day').seconds(item.range[1]);
+
+      events.push({
+        'title': item._playlist.name,
+        'start': startMoment.toDate(),
+        'end': endMoment.toDate(),
+        'type': 'event',
+        'item': item
+      });
+    });
+
+    return events;
+  },
+
+  onNavigate(date) {
+    this.setState({
+      'events': this.getEvents(null,null,date)
+    });
+  },
+
+  columnStyleGetter: function (event, start, end, isSelected) {
+    var style = {
+      borderRadius: '0px',
+      opacity: 0.8,
+      color: 'black',
+      border: '0px',
+      display: 'block'
+    };
+
+    if (event.type == 'segment') {
+      style = {
+        backgroundColor: '#0CB3EB'
+      };
+    } else {
+      style = {
+        backgroundColor: '#D62439'
+      };
+    }
+    return {
+      style: style
+    };
   },
 
   render() {
-    //console.log(this.state);
+    console.log(this.state.events);
 
     return (
       <div className='col-xs-24 container-fluid'>
@@ -236,6 +399,28 @@ export var Program = React.createClass({
                     onChange={this.handleChange}
                     value={this.state.name}
                     {...this.commonProps} />
+                </div>
+              </div>
+              <div className='panel-footer'>
+                <div className="row">
+                  <div className="col-xs-6">
+                    <SaveButton
+                      handler={this.save}
+                    />
+                  </div>
+                  <div className="col-xs-6">
+                    { this.state.state == 'Loaded' ? <DeleteButton
+                      id={this.state.uuid}
+                      handler={this.delete}
+                    /> : null }
+                  </div>
+                </div>
+              </div>
+            </div>
+            { this.props.program.state == 'Loaded' ? <div className='panel panel-default'>
+              <div className='panel-body'>
+                <div className="form-horizontal">
+
                   <div className="form-group">
                     <label className="control-label col-xs-2">
                       <FormattedMessage
@@ -247,32 +432,68 @@ export var Program = React.createClass({
                     <div className="col-xs-10">
                       <BigCalendar
                         selectable
+                        startAccessor='start'
+                        endAccessor='end'
                         events={this.state.events}
+                        eventPropGetter={this.columnStyleGetter}
+                        onNavigate={this.onNavigate}
                         timeslots={1}
                         defaultView='week'
-                        defaultDate={moment().utc().valueOf()}
-                        onSelectEvent={event => alert(event.title)}
+                        defaultDate={new Date(moment().startOf('isoWeek').format("YYYY, MM, DD"))}
+                        onSelectEvent={this.handleSelectEvent}
                         onSelectSlot={this.handleSelectSlot}
                       />
                     </div>
                     <Modal
-                      show={this.state.show}
-                      onHide={this.hideModal}
-                      dialogClassName="event-modal"
+                      show={this.state.showEditCalendarItemModal}
+                      onHide={this.hideEditCalendarItemModal}
+                      dialogClassName="edit-calendar-item-modal"
                     >
+                      <Modal.Body>
+                        <p>
+                          <BootstrapSelect
+                            label='Playlist'
+                            ref='playlist'
+                            name='playlist'
+                            onChange={this.handleChange}
+                            data-live-search={true}
+                            value={this.state.calendarClickedEventPlaylist}
+                            {...this.commonProps}>
+                            {this.props.playlist.map((item) => {
+                              return <option value={item.uuid} key={item.uuid}>
+                                {item.name}</option>
+                            })}
+                          </BootstrapSelect>
+                        </p>
+                      </Modal.Body>
 
-                      <Tabs onSelect={(index, label) => console.log(label + ' selected')}>
-                        <Tab label={<FormattedMessage
-                          id="app.menu.segment.title"
-                          description="Title"
-                          defaultMessage="Segment"
-                        />}>
+                      <Modal.Footer>
+                        <SaveButton
+                          handler={this.saveCalendarEvent}
+                        />
+                        <DeleteButton
+                          id={this.state.calendarClickedEvent.item.uuid}
+                          handler={this.deleteCalendarEvent}
+                        />
+                        <Button
+                          onClick={this.hideEditCalendarItemModal}
+                        >Close</Button>
+                      </Modal.Footer>
 
-                          <Modal.Header closeButton>
-                            <Modal.Title id="contained-modal-title-lg">Modal heading</Modal.Title>
-                          </Modal.Header>
+                    </Modal>
+                    <Modal
+                      show={this.state.showNewCalendarItemModal}
+                      onHide={this.hideNewCalendarItemModal}
+                      dialogClassName="new-calendar-item-modal"
+                    >
+                      <Tabs>
+                        <Tab label={
+                          <FormattedMessage
+                            id="app.menu.segment.title"
+                            description="Title"
+                            defaultMessage="Segment"
+                          />}>
                           <Modal.Body>
-
                             <p>
                               <BootstrapSelect
                                 label='Playlist'
@@ -294,7 +515,7 @@ export var Program = React.createClass({
                               handler={this.saveSegment}
                             />
                             <Button
-                              onClick={this.hideModal}
+                              onClick={this.hideNewCalendarItemModal}
                             >Close</Button>
                           </Modal.Footer>
                         </Tab>
@@ -303,12 +524,7 @@ export var Program = React.createClass({
                           description="Title"
                           defaultMessage="Event"
                         />}>
-
-                          <Modal.Header closeButton>
-                            <Modal.Title id="contained-modal-title-lg">Modal heading</Modal.Title>
-                          </Modal.Header>
                           <Modal.Body>
-
                             <p>
                               <BootstrapSelect
                                 label='Playlist'
@@ -330,7 +546,7 @@ export var Program = React.createClass({
                               handler={this.saveEvent}
                             />
                             <Button
-                              onClick={this.hideModal}
+                              onClick={this.hideNewCalendarItemModal}
                             >Close</Button>
                           </Modal.Footer>
                         </Tab>
@@ -338,23 +554,8 @@ export var Program = React.createClass({
                     </Modal>
                   </div>
                 </div>
-                <div className='panel-footer'>
-                  <div className="row">
-                    <div className="col-xs-6">
-                      <SaveButton
-                        handler={this.save}
-                      />
-                    </div>
-                    <div className="col-xs-6">
-                      { this.state.state == 'Loaded' ? <DeleteButton
-                        id={this.state.uuid}
-                        handler={this.delete}
-                      /> : null }
-                    </div>
-                  </div>
-                </div>
               </div>
-            </div>
+            </div> : null }
           </div>
         </div>
       </div>

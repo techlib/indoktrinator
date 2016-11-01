@@ -8,6 +8,7 @@ from sqlalchemy.exc import *
 from werkzeug.exceptions import *
 from indoktrinator.site.util import *
 from functools import wraps
+from base64 import b64decode
 
 
 from sqlalchemy import desc
@@ -127,7 +128,23 @@ def make_site(db, manager, access_model, debug=False):
         if 'PATCH' == flask.request.method:
             device = flask.request.get_json(force=True)
             device['id'] = id
+            if 'photo' in device:
+                start = device['photo'].find(',')
+                device['photo'] = b64decode(device['photo'][start:])
+
             return flask.jsonify(manager.device.update(device))
+
+    @app.route('/api/device/<id>/url', methods=['GET'])
+    @authorized_only()
+    def device_item_url(id):
+        manager.router.url(id, url1=flask.request.args.get('url1'), url2=flask.request.args.get('url2'))
+        return flask.jsonify(True)
+
+    @app.route('/api/device/<id>/play', methods=['GET'])
+    @authorized_only()
+    def device_item_play(id):
+        manager.router.play(id, flask.request.args.get('type'), flask.request.args.get('url'))
+        return flask.jsonify(True)
 
     # Files
     @app.route('/api/file/', methods=['GET'])
@@ -207,15 +224,18 @@ def make_site(db, manager, access_model, debug=False):
         if 'GET' == flask.request.method:
             return flask.jsonify(manager.playlist.get_item(uuid))
         if 'DELETE' == flask.request.method:
+            # TODO: bug v triggeru pri zmene itemu
             return flask.jsonify(manager.playlist.delete(uuid))
         if 'PATCH' == flask.request.method:
+
             playlist = flask.request.get_json(force=True)
             playlist['uuid'] = uuid
             tmp = manager.playlist.get_item(uuid)
             if tmp['system']:
                 return Forbidden('System playlist can not be modified')
+            tmp['system'] = False
 
-            if playlist['path']:
+            if 'path' in playlist and playlist['path']:
                 manager.item.e().filter_by(playlist=uuid).delete()
 
             return flask.jsonify(manager.playlist.update(playlist))
@@ -229,9 +249,25 @@ def make_site(db, manager, access_model, debug=False):
     @app.route('/api/playlist/<uuid>/copy', methods=['GET'])
     @authorized_only()
     def playlist_item_copy_handler(uuid, **kwargs):
+        playlist_item_copy_handler.copy = getattr(
+            playlist_item_copy_handler, 'copy', 0
+        ) + 1
+
         if 'GET' == flask.request.method:
-            # TODO: copy playlist
-            return flask.jsonify(manager.playlist.get_item(uuid))
+            old_playlist = manager.playlist.get_item(uuid)
+            new_playlist = old_playlist.copy()
+            new_playlist['uuid'] = None
+            new_playlist['name'] += ' Copy %d' % playlist_item_copy_handler.copy
+            new_playlist['system'] = False
+            new = manager.playlist.insert(new_playlist)
+            new['items'] = []
+
+            for item in old_playlist['items']:
+                item['playlist'] = new['uuid']
+                item['uuid'] = None
+                new['items'].append(manager.item.insert(item))
+
+            return flask.jsonify(new)
 
     # Programs
     @app.route('/api/program/', methods=['GET', 'POST'])

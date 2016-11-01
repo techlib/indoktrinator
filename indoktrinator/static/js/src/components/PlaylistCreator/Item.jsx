@@ -1,42 +1,33 @@
 import * as React from "react";
 import moment from 'moment'
 import 'moment-duration-format'
+import {RemoveButton} from '../form/button/RemoveButton';
 
 export var Item = React.createClass({
 
-  iconClasses: {
-    'video': 'fa-film',
-    'image': 'fa-picture-o',
-    'stream': 'fa-wifi fa-rotate-90',
-    'website': 'fa-globe'
-  },
-
-  getTypeIcon(type) {
-    console.log(type);
-    return this.iconClasses[type];
+  delete() {
+    this.props.deleteItemHandler(this.props.uuid);
   },
 
   getDeleteButton() {
     if (this.props.editable) {
-      return <div className="list-view-pf-actions">Zap!</div>
+      return (<RemoveButton
+        id={this.props.uuid}
+        handler={this.delete}
+      />);
     }
   },
 
   render() {
-    let cls = 'fa ' + this.getTypeIcon(this.props.type)
     const opacity = this.props.isDragging || this.props.hide ? 0 : 1;
 
     return this.props.connectDragSource(this.props.connectDropTarget(
       <div className="list-group-item" style={{opacity}}>
-        {this.getDeleteButton()}
         <div className="list-view-pf-main-info">
-          <div className="list-view-pf-left">
-            <span className={cls}></span>
-          </div>
           <div className="list-view-pf-body">
             <div className="list-view-pf-description">
               <div className="list-group-item-heading">
-                {this.props.path}
+                {this.props.name}
               </div>
             </div>
             <div className="list-view-pf-additional-info">

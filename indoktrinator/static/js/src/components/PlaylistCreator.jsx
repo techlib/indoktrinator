@@ -1,7 +1,7 @@
 import * as React from "react";
-import * as Reflux from "reflux";
-import {PlaylistActions, ItemActions, FeedbackActions} from "../actions";
+import {PlaylistActions, ItemActions, FeedbackActions, FileActions, SegmentActions} from "../actions";
 import {PlaylistStore} from "../stores/Playlist";
+import {FileStore} from "../stores/File";
 import update from "react/lib/update";
 import {AutoItem} from "./PlaylistCreator/AutoItem";
 import {SyntheticItem} from "./PlaylistCreator/SyntheticItem";
@@ -12,29 +12,35 @@ import {FormattedMessage} from "react-intl";
 import {Input} from "react-bootstrap";
 import {Feedback} from "./Feedback";
 import {ItemStore} from "../stores/Item";
-import {guid} from "../util/database";
 import {hashHistory as BrowserHistory} from "react-router";
+import {guid} from "../util/database";
 
 var Component = React.createClass({
-
-  mixins: [//Reflux.listenTo(PlaylistStore, 'playlist'),
-    Reflux.listenTo(PlaylistStore, 'onDataChange')
-  ],
 
   commonProps: {
     labelClassName: 'col-xs-2',
     wrapperClassName: 'col-xs-10',
   },
 
-  onDataChange(data) {
-    this.setState(update(this.state, {
-      itemsAvailable: {$set: data.list}
-    }))
+  componentWillReceiveProps(p) {
+    this.setState({
+      uuid: p.playlist.playlist.uuid,
+      name: p.playlist.playlist.name,
+      title: p.playlist.playlist.name,
+      playlist: {list: p.playlist.list},
+      file: p.file
+    });
   },
 
-  componentDidMount() {
-    //PlaylistActions.read(this.props.params.id)
-    PlaylistActions.list()
+  getInitialState() {
+    return {
+      'playlist': {list: []},
+      'items': [{uuid: 'default', type: 'video', path: '', editable: false}],
+      'newCounter': 0,
+      'filter': '',
+      'openPlaylist': null,
+      'file': []
+    }
   },
 
   moveCard(dragIndex, hoverIndex) {
@@ -74,10 +80,6 @@ var Component = React.createClass({
     this.setState({[evt.target.name]: evt.target.value})
   },
 
-  getValues() {
-    return this.state
-  },
-
   save() {
     var errors = this.validate();
 
@@ -89,7 +91,7 @@ var Component = React.createClass({
       var playlist = {};
       playlist.name = this.state.name;
       playlist.uuid = this.state.uuid;
-      PlaylistActions.create(playlist);
+      PlaylistActions.update(playlist);
 
       // create playlist items
       var ii = 1;
@@ -115,10 +117,6 @@ var Component = React.createClass({
 
   validate() {
     var r = [];
-
-    if (this.state.items.length - 1 < 1) {
-      r.push(`Atlest one items is required`)
-    }
 
     if (!this.state.uuid) {
       r.push(`Uuid is required`);
@@ -162,50 +160,35 @@ var Component = React.createClass({
 
   },
 
-  getFilteredAvailable() {
-    return filter(this.state.itemsAvailable, (item) => {
-      return item.name.toLowerCase().indexOf(this.state.filter.toLowerCase()) >= 0 && item.items.length > 0
+  getFilteredAvailableFiles() {
+    return filter(this.state.file, (item) => {
+      return item.name.toLowerCase().indexOf(this.state.filter.toLowerCase()) >= 0
     })
   },
 
-  getAvailableItems(playlist) {
-    if (this.state.openPlaylist == playlist.uuid) {
-      return playlist.items.map((item, i) => {
-        return <AutoItem
-          index={i}
-          moveCard={this.moveCard}
-          addToSynth={this.addToSynth}
-          cancelDrop={this.cancelDrop}
-          finalizeDrop={this.finalizeDrop}
-          {...item} />
-
-      })
-
-    }
+  getAutoItem(file, index) {
+    return <AutoItem
+      index={index}
+      moveCard={this.moveCard}
+      addToSynth={this.addToSynth}
+      cancelDrop={this.cancelDrop}
+      finalizeDrop={this.finalizeDrop}
+      {...file} />
   },
 
-  getInitialState() {
-    return {
-      'uuid': guid(),
-      'name': '',
-      'items': [{uuid: 'default', type: 'video', path: ''}],
-     // 'items': [],
-      'itemsAvailable': [],
-      'newCounter': 0,
-      'filter': '',
-      'openPlaylist': null
-    }
+  deleteItemHandler(uuid) {
+    // delete
+    ItemActions.delete(uuid);
+
+    // refresh
+    BrowserHistory.push('/playlist/' + playlist.uuid)
   },
 
   render() {
     return (
       <div className='col-xs-12 container-fluid'>
         <h1>
-          <FormattedMessage
-            id="app.playlist.title"
-            description="Title"
-            defaultMessage="Create playlist"
-          />
+          {this.state.title}
         </h1>
         <div className='row'>
           <div className='col-xs-12 col-md-6'>
@@ -234,7 +217,8 @@ var Component = React.createClass({
                           index={i}
                           key={item.uuid}
                           hide={item.hide}
-                          editable={true}
+                          editable={item.editable ? item.editable : true}
+                          deleteItemHandler={this.deleteItemHandler}
                           moveCard={this.moveCard}
                           addToSynth={this.addToSynth}
                           {...item} />
@@ -274,15 +258,8 @@ var Component = React.createClass({
                   <div className="form-horizontal">
                     <input onChange={this.handleFilter} type="text" ref="filter"></input>
                     <div className="list-group list-view-pf list-view-pf-view playlist">
-                      {this.getFilteredAvailable().map((item, i) => {
-                          return (<div>
-                            <h3>
-                              <a onClick={this.togglePlaylist.bind(null, item.uuid)}>
-                                {item.name}
-                              </a>
-                            </h3>
-                            {this.getAvailableItems(item)}
-                          </div>)
+                      {this.getFilteredAvailableFiles().map((item, i) => {
+                          return (this.getAutoItem(item, i))
                         }
                       )}
                     </div>

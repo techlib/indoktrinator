@@ -1,8 +1,6 @@
 import * as React from "react";
-import {ModalConfirmMixin} from "./ModalConfirmMixin";
-import {DeviceActions, FeedbackActions} from "../actions";
+import {FeedbackActions} from "../actions";
 import {Feedback} from "./Feedback";
-import {notEmpty} from "../util/simple-validators";
 import {Input} from "react-bootstrap";
 import {FormattedMessage} from "react-intl";
 import {BootstrapSelect} from "./Select";
@@ -11,8 +9,6 @@ import {SaveButton} from "./form/button/SaveButton";
 import {DeleteButton} from "./form/button/DeleteButton";
 
 export var Device = React.createClass({
-
-  mixins: [ModalConfirmMixin],
 
   commonProps: {
     labelClassName: 'col-xs-2',
@@ -69,7 +65,7 @@ export var Device = React.createClass({
   },
 
   delete() {
-    this.props.deleteHandler(this.state)
+    this.props.deleteHandler(this.state.id)
   },
 
   render() {

@@ -1,16 +1,17 @@
 'use strict'
 
-import * as Reflux from 'reflux'
-import {DeviceActions, FeedbackActions} from '../actions'
-import {ErrorMixin} from './Mixins'
+import * as Reflux from "reflux";
+import {DeviceActions, FeedbackActions} from "../actions";
+import {ErrorMixin} from "./Mixins";
 
 export var DeviceStore = Reflux.createStore({
   mixins: [ErrorMixin],
   listenables: [DeviceActions],
   data: {'device': [], 'list': [], 'errors': []},
 
-  onRead(id) {
-    $.ajax({url: `/api/device/${id}`,
+  onRead(id, callbackDone) {
+    $.ajax({
+      url: `/api/device/${id}`,
       success: result => {
         this.data.errors = []
         this.data.device = result
@@ -20,26 +21,34 @@ export var DeviceStore = Reflux.createStore({
       error: result => {
         FeedbackActions.set('error', result.responseJSON.message)
       }
-    })
+    }).done(() => {
+      if (typeof callbackDone === 'function') {
+        if (typeof callbackDone === 'function') { callbackDone(); }
+      }
+    });
   },
 
-  onDelete(id) {
+  onDelete(id, callbackDone) {
     $.ajax({
       url: `/api/device/${id}`,
       method: 'DELETE',
       dataType: 'json',
       contentType: 'application/json',
       success: () => {
-        FeedbackActions.set('success', 'Device deleted')
+        FeedbackActions.set('success', 'Program deleted')
       },
       error: result => {
         FeedbackActions.set('error', result.responseJSON.message)
       }
-    })
+    }).done(() => {
+      if (typeof callbackDone === 'function') {
+        if (typeof callbackDone === 'function') { callbackDone(); }
+      }
+    });
   },
 
 
-  onUpdate(device) {
+  onUpdate(device, callbackDone) {
     $.ajax({
       url: `/api/device/${device.id}`,
       method: 'PATCH',
@@ -52,10 +61,12 @@ export var DeviceStore = Reflux.createStore({
       error: result => {
         FeedbackActions.set('error', result.responseJSON.message)
       }
-    })
+    }).done(() => {
+      if (typeof callbackDone === 'function') { callbackDone(); }
+    });
   },
 
-  onCreate(device) {
+  onCreate(device, callbackDone) {
     $.ajax({
       url: '/api/device/',
       method: 'POST',
@@ -68,17 +79,20 @@ export var DeviceStore = Reflux.createStore({
       error: result => {
         FeedbackActions.set('error', result.responseJSON.message)
       }
-
-
-      })
+    }).done(() => {
+      if (typeof callbackDone === 'function') { callbackDone(); }
+    });
   },
 
-  onList() {
-    $.ajax({url: '/api/device/', success: result => {
+  onList(callbackDone) {
+    $.ajax({
+      url: '/api/device/', success: result => {
         this.data.errors = []
         this.data.list = result.result
         this.trigger(this.data)
       }
-    })
+    }).done(() => {
+      if (typeof callbackDone === 'function') { callbackDone(); }
+    });
   }
 })

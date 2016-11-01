@@ -8,6 +8,7 @@ import {DeviceListPanel} from './DeviceListPanel'
 import {FormattedMessage} from 'react-intl';
 
 export var DeviceList = React.createClass({
+
   mixins: [Reflux.connect(DeviceStore, 'data')],
 
   componentDidMount() {

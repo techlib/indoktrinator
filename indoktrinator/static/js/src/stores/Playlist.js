@@ -1,16 +1,17 @@
 'use strict'
 
-import * as Reflux from 'reflux'
-import {PlaylistActions, FeedbackActions} from '../actions'
-import {ErrorMixin} from './Mixins'
+import * as Reflux from "reflux";
+import {PlaylistActions, FeedbackActions} from "../actions";
+import {ErrorMixin} from "./Mixins";
 
 export var PlaylistStore = Reflux.createStore({
   mixins: [ErrorMixin],
   listenables: [PlaylistActions],
   data: {'playlist': [], 'list': [], 'errors': []},
 
-  onRead(uuid) {
-    $.ajax({url: `/api/playlist/${uuid}`,
+  onRead(uuid, callbackDone) {
+    $.ajax({
+      url: `/api/playlist/${uuid}`,
       success: result => {
         this.data.errors = []
         this.data.playlist.state = 'Loaded'
@@ -20,26 +21,29 @@ export var PlaylistStore = Reflux.createStore({
       error: result => {
         FeedbackActions.set('error', result.responseJSON.message)
       }
+    }).done(() => {
+      if (typeof callbackDone === 'function') { callbackDone(); }
     })
   },
 
-  onDelete(id) {
+  onDelete(id, callbackDone) {
     $.ajax({
       url: `/api/playlist/${id}`,
       method: 'DELETE',
       dataType: 'json',
       contentType: 'application/json',
       success: () => {
-        BrowserHistory.push('/playlist/')
         FeedbackActions.set('success', 'Playlist deleted')
       },
       error: result => {
         FeedbackActions.set('error', result.responseJSON.message)
       }
+    }).done(() => {
+      if (typeof callbackDone === 'function') { callbackDone(); }
     })
   },
 
-  onUpdate(playlist) {
+  onUpdate(playlist, callbackDone) {
     $.ajax({
       url: `/api/playlist/${playlist.uuid}`,
       method: 'PATCH',
@@ -52,11 +56,14 @@ export var PlaylistStore = Reflux.createStore({
       error: result => {
         FeedbackActions.set('error', result.responseJSON.message)
       }
+    }).done(() => {
+      if (typeof callbackDone === 'function') { callbackDone(); }
     })
   },
 
-  onCopy(uuid) {
-    $.ajax({url: `/api/playlist/${uuid}/copy`,
+  onCopy(uuid, callbackDone) {
+    $.ajax({
+      url: `/api/playlist/${uuid}/copy`,
       success: result => {
         this.data.errors = []
         this.data.playlist.state = 'Loaded'
@@ -66,10 +73,12 @@ export var PlaylistStore = Reflux.createStore({
       error: result => {
         FeedbackActions.set('error', result.responseJSON.message)
       }
+    }).done(() => {
+      if (typeof callbackDone === 'function') { callbackDone(); }
     })
   },
 
-  onCreate(playlist) {
+  onCreate(playlist, callbackDone) {
     $.ajax({
       url: '/api/playlist/',
       method: 'POST',
@@ -82,15 +91,20 @@ export var PlaylistStore = Reflux.createStore({
       error: result => {
         FeedbackActions.set('error', result.responseJSON.message)
       }
+    }).done(() => {
+      if (typeof callbackDone === 'function') { callbackDone(); }
     })
   },
 
-  onList() {
-    $.ajax({url: '/api/playlist/', success: result => {
+  onList(callbackDone) {
+    $.ajax({
+      url: '/api/playlist/', success: result => {
         this.data.errors = []
         this.data.list = result.result
         this.trigger(this.data)
       }
+    }).done(() => {
+      if (typeof callbackDone === 'function') { callbackDone(); }
     })
   }
 })

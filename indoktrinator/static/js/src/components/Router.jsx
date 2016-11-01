@@ -7,8 +7,8 @@ import {DeviceNew} from "./DeviceNew";
 import {DeviceEdit} from "./DeviceEdit";
 import {FeedbackActions} from "../actions";
 import {PlaylistList} from "./PlaylistList";
-import {PlaylistDetail} from "./PlaylistDetail";
-import {PlaylistCreator} from "./PlaylistCreator";
+import {PlaylistNew} from "./PlaylistNew";
+import {PlaylistEdit} from "./PlaylistEdit";
 import {ProgramList} from "./ProgramList";
 import {ProgramNew} from "./ProgramNew";
 import {ProgramEdit} from "./ProgramEdit";
@@ -28,8 +28,8 @@ ReactDOM.render((
         <Route path="/program/new" component={ProgramNew}/>
         <Route path="/program/:uuid" component={ProgramEdit}/>
         <Route path="/playlist" component={PlaylistList}/>
-        <Route path="/playlist/new" component={PlaylistCreator}/>
-        <Route path="/playlist/:uuid" component={PlaylistDetail}/>
+        <Route path="/playlist/new" component={PlaylistNew}/>
+        <Route path="/playlist/:uuid" component={PlaylistEdit}/>
       </Route>
     </Router>
   ), document.getElementById('AdminatorApp')

@@ -1,16 +1,17 @@
 'use strict'
 
-import * as Reflux from 'reflux'
-import {SegmentActions, FeedbackActions} from '../actions'
-import {ErrorMixin} from './Mixins'
+import * as Reflux from "reflux";
+import {SegmentActions, FeedbackActions} from "../actions";
+import {ErrorMixin} from "./Mixins";
 
 export var SegmentStore = Reflux.createStore({
   mixins: [ErrorMixin],
   listenables: [SegmentActions],
   data: {'segment': [], 'list': [], 'errors': []},
 
-  onRead(uuid) {
-    $.ajax({url: `/api/segment/${uuid}`,
+  onRead(uuid, callbackDone) {
+    $.ajax({
+      url: `/api/segment/${uuid}`,
       success: result => {
         this.data.errors = []
         this.data.segment = result
@@ -20,11 +21,13 @@ export var SegmentStore = Reflux.createStore({
       error: result => {
         FeedbackActions.set('error', result.responseJSON.message)
       }
+    }).done(() => {
+      if (typeof callbackDone === 'function') { callbackDone(); }
     })
   },
 
-  onDelete(uuid) {
-    $.ajax({
+  onDelete(uuid, callbackDone) {
+    return $.ajax({
       url: `/api/segment/${uuid}`,
       method: 'DELETE',
       dataType: 'json',
@@ -35,11 +38,13 @@ export var SegmentStore = Reflux.createStore({
       error: result => {
         FeedbackActions.set('error', result.responseJSON.message)
       }
+    }).done(() => {
+      if (typeof callbackDone === 'function') { callbackDone(); }
     })
   },
 
 
-  onUpdate(segment) {
+  onUpdate(segment, callbackDone) {
     $.ajax({
       url: `/api/segment/${segment.uuid}`,
       method: 'PATCH',
@@ -52,10 +57,12 @@ export var SegmentStore = Reflux.createStore({
       error: result => {
         FeedbackActions.set('error', result.responseJSON.message)
       }
+    }).done(() => {
+      if (typeof callbackDone === 'function') { callbackDone(); }
     })
   },
 
-  onCreate(segment) {
+  onCreate(segment, callbackDone) {
     $.ajax({
       url: '/api/segment/',
       method: 'POST',
@@ -68,16 +75,20 @@ export var SegmentStore = Reflux.createStore({
       error: result => {
         FeedbackActions.set('error', result.responseJSON.message)
       }
-
-
-      })
+    }).done(() => {
+      if (typeof callbackDone === 'function') { callbackDone(); }
+    })
   },
 
-  onList() {
-    $.ajax({url: '/api/segment/', success: result => {
-      this.data.errors = []
-    this.data.list = result.result
-    this.trigger(this.data)
+  onList(callbackDone) {
+    $.ajax({
+      url: '/api/segment/', success: result => {
+        this.data.errors = []
+        this.data.list = result.result
+        this.trigger(this.data)
+      }
+    }).done(() => {
+      if (typeof callbackDone === 'function') { callbackDone(); }
+    })
   }
-  })
-}})
+})

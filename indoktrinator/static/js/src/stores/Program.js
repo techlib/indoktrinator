@@ -1,16 +1,17 @@
 'use strict'
 
-import * as Reflux from 'reflux'
-import {ProgramActions, FeedbackActions} from '../actions'
-import {ErrorMixin} from './Mixins'
+import * as Reflux from "reflux";
+import {ProgramActions, FeedbackActions} from "../actions";
+import {ErrorMixin} from "./Mixins";
 
 export var ProgramStore = Reflux.createStore({
   mixins: [ErrorMixin],
   listenables: [ProgramActions],
   data: {'program': [], 'list': [], 'errors': []},
 
-  onRead(uuid) {
-    $.ajax({url: `/api/program/${uuid}`,
+  onRead(uuid, callbackDone) {
+    $.ajax({
+      url: `/api/program/${uuid}`,
       success: result => {
         this.data.errors = []
         this.data.program = result
@@ -20,27 +21,30 @@ export var ProgramStore = Reflux.createStore({
       error: result => {
         FeedbackActions.set('error', result.responseJSON.message)
       }
+    }).done(() => {
+      if (typeof callbackDone === 'function') { callbackDone(); }
     })
   },
 
-  onDelete(id) {
+  onDelete(id, callbackDone) {
     $.ajax({
       url: `/api/program/${id}`,
       method: 'DELETE',
       dataType: 'json',
       contentType: 'application/json',
       success: () => {
-        BrowserHistory.push('/program/')
         FeedbackActions.set('success', 'Program deleted')
       },
       error: result => {
         FeedbackActions.set('error', result.responseJSON.message)
       }
+    }).done(() => {
+      if (typeof callbackDone === 'function') { callbackDone(); }
     })
   },
 
 
-  onUpdate(program) {
+  onUpdate(program, callbackDone) {
     $.ajax({
       url: `/api/program/${program.uuid}`,
       method: 'PATCH',
@@ -53,10 +57,12 @@ export var ProgramStore = Reflux.createStore({
       error: result => {
         FeedbackActions.set('error', result.responseJSON.message)
       }
+    }).done(() => {
+      if (typeof callbackDone === 'function') { callbackDone(); }
     })
   },
 
-  onCreate(program) {
+  onCreate(program, callbackDone) {
     $.ajax({
       url: '/api/program/',
       method: 'POST',
@@ -69,15 +75,20 @@ export var ProgramStore = Reflux.createStore({
       error: result => {
         FeedbackActions.set('error', result.responseJSON.message)
       }
-      })
+    }).done(() => {
+      if (typeof callbackDone === 'function') { callbackDone(); }
+    })
   },
 
-  onList() {
-    $.ajax({url: '/api/program/', success: result => {
+  onList(callbackDone) {
+    $.ajax({
+      url: '/api/program/', success: result => {
         this.data.errors = []
         this.data.list = result.result
         this.trigger(this.data)
       }
+    }).done(() => {
+      if (typeof callbackDone === 'function') { callbackDone(); }
     })
   }
 })

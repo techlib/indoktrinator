@@ -16,7 +16,6 @@ const itemSource = {
       _type: 'auto',
       all_props: props
     }
-    console.log('begin', props, monitor)
     return me
   },
   endDrag(props, monitor, component) {

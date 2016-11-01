@@ -33,5 +33,4 @@ class Manager(object):
 
         self.config = {}
 
-
 # vim:set sw=4 ts=4 et:

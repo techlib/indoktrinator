@@ -1,17 +1,20 @@
 import * as React from "react";
 import * as Reflux from "reflux";
 import {Program} from "./Program";
-import {ProgramActions, PlaylistActions, SegmentActions, EventActions} from "../actions";
+import {ProgramActions, PlaylistActions, SegmentActions, EventActions, FeedbackActions} from "../actions";
 import {ProgramStore} from "../stores/Program";
 import {PlaylistStore} from "../stores/Playlist";
+import {EventStore} from "../stores/Event";
 import {SegmentStore} from "../stores/Segment";
 import {hashHistory as BrowserHistory} from "react-router";
 
 export var ProgramEdit = React.createClass({
+
   mixins: [
     Reflux.connect(ProgramStore, 'program'),
     Reflux.connect(PlaylistStore, 'playlist'),
-    Reflux.connect(SegmentStore, 'segment')
+    Reflux.connect(SegmentStore, 'segment'),
+    Reflux.connect(EventStore, 'event')
   ],
 
   componentDidMount() {
@@ -31,26 +34,28 @@ export var ProgramEdit = React.createClass({
   },
 
   handleSave(data) {
-    ProgramActions.update(data)
-    this.state.program.program = data
-    BrowserHistory.push('/program/' + data.uuid);
+    ProgramActions.update(data, () => {
+      this.setState({program:{program:data}});
+    })
   },
 
   handleDelete(uuid) {
-    ProgramActions.delete(uuid)
-    BrowserHistory.push('/program/');
+    ProgramActions.delete(uuid, () => {
+      BrowserHistory.push('/program/');
+      FeedbackActions.set('success', 'Program deleted')
+    })
   },
 
   getFilteredSegments() {
-    return this.state.segment.list.filter(function (item) {
+    return this.state.segment.list.filter((item) => {
       return item.program == this.state.program.program.uuid;
-    }.bind(this))
+    });
   },
 
-  getFilteredSegments() {
-    return this.state.event.list.filter(function (item) {
+  getFilteredEvents() {
+    return this.state.event.list.filter((item) => {
       return item.program == this.state.program.program.uuid;
-    }.bind(this))
+    });
   },
 
   render() {
@@ -60,10 +65,9 @@ export var ProgramEdit = React.createClass({
         segment={this.getFilteredSegments()}
         program={this.state.program.program}
         playlist={this.state.playlist.list}
-        event={this.state.event.list}
+        event={this.getFilteredEvents()}
         saveHandler={this.handleSave}
         deleteHandler={this.handleDelete}
       />);
   }
 })
-
