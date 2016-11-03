@@ -3,9 +3,9 @@ import {Modal} from "react-bootstrap";
 import ReactDOM from "react-dom";
 import classNames from "classnames";
 
-let Header = Modal.Header
-let Body = Modal.Body
-let Footer = Modal.Footer
+let Header = Modal.Header;
+let Body = Modal.Body;
+let Footer = Modal.Footer;
 
 export var Confirm = React.createClass({
 
@@ -82,29 +82,22 @@ export var Confirm = React.createClass({
       </Modal>
     )
   }
-})
+});
 
-export var ModalConfirmMixin = {
-  wrapper: null,
-  component: null,
+export function getModal(title, text, others, show) {
+  return <Confirm title={title} text={text} show={show} {...others}  />
+}
 
-  getModal(title, text, others, show) {
-    return <Confirm title={title} text={text} show={show} {...others}  />
-  },
-
-  modalConfirm(title, text, others) {
-    var modal = this.getModal(title, text, others, true)
-    this.wrapper = document.body.appendChild(document.createElement('div'))
-    this.component = ReactDOM.render(modal, this.wrapper)
-    this.component.promise.always(this.cleanup).promise()
-    return this.component.promise
-  },
-
-  cleanup() {
-    ReactDOM.render(this.getModal(null, null, null, false), this.wrapper)
+export function confirmModal(title, text, others) {
+  var modal = getModal(title, text, others, true);
+  var wrapper = document.body.appendChild(document.createElement('div'));
+  var component = ReactDOM.render(modal, wrapper);
+  component.promise.always(() => {
+    ReactDOM.render(getModal(null, null, null, false), wrapper);
     setTimeout(() => {
-      ReactDOM.unmountComponentAtNode(this.wrapper)
-      this.wrapper.remove()
+      ReactDOM.unmountComponentAtNode(wrapper);
+      wrapper.remove()
     })
-  }
+  }).promise();
+  return component.promise
 }

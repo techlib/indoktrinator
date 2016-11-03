@@ -2,18 +2,18 @@ import * as React from "react";
 import * as Reflux from "reflux";
 import {Feedback} from "./Feedback";
 import {PlaylistStore} from "../stores/Playlist";
-import {PlaylistActions as pa, FeedbackActions} from "../actions";
+import {PlaylistActions as pa} from "../actions";
 import {Button} from "react-bootstrap";
-import {Link} from "react-router";
+import {Link, hashHistory as BrowserHistory} from "react-router";
 import Griddle from "griddle-react";
 import {Pager} from "./Pager";
 import {regexGridFilter} from "../util/griddle-components";
 import {FormattedMessage} from "react-intl";
-import {hashHistory as BrowserHistory} from "react-router";
+import {confirmModal} from "./ModalConfirmMixin";
 
 let PlaylistLink = React.createClass({
   render() {
-    var link = (<span>{this.props.rowData.name}</span>)
+    var link = (<span>{this.props.rowData.name}</span>);
 
     if (!this.props.rowData.system) {
       link = (<Link to={`/playlist/${this.props.rowData.uuid}`}>
@@ -23,7 +23,7 @@ let PlaylistLink = React.createClass({
 
     return link;
   }
-})
+});
 
 let PlaylistActions = React.createClass({
 
@@ -44,10 +44,15 @@ let PlaylistActions = React.createClass({
   },
 
   handleDeletePlayList() {
-    pa.delete(this.props.rowData.uuid, () => {
-      pa.list();
-      BrowserHistory.push('/playlist/');
-    });
+    confirmModal(
+      'Are you sure?',
+      'Would you like to remove playlist?'
+    ).then(() => {
+      pa.delete(this.props.rowData.uuid, () => {
+        pa.list();
+        BrowserHistory.push('/playlist/');
+      })
+    })
   },
 
   render() {
@@ -78,7 +83,7 @@ let PlaylistActions = React.createClass({
       </span>
     )
   }
-})
+});
 
 export var PlaylistList = React.createClass({
   mixins: [Reflux.connect(PlaylistStore, 'data')],
@@ -96,7 +101,7 @@ export var PlaylistList = React.createClass({
     let columnMeta = [
       {columnName: 'name', displayName: 'Name', customComponent: PlaylistLink},
       {columnName: 'c', displayName: 'Actions', customComponent: PlaylistActions}
-    ]
+    ];
 
     return (
       <div className='container-fluid col-xs-12'>
@@ -139,5 +144,4 @@ export var PlaylistList = React.createClass({
       </div>
     )
   }
-})
-
+});

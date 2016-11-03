@@ -42,5 +42,4 @@ export var ProgramNew = React.createClass({
         saveHandler={this.handleSave}
       />);
   }
-
-})
+});

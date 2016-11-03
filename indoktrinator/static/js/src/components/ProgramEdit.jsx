@@ -7,6 +7,7 @@ import {PlaylistStore} from "../stores/Playlist";
 import {EventStore} from "../stores/Event";
 import {SegmentStore} from "../stores/Segment";
 import {hashHistory as BrowserHistory} from "react-router";
+import {confirmModal} from "./ModalConfirmMixin";
 
 export var ProgramEdit = React.createClass({
 
@@ -40,9 +41,14 @@ export var ProgramEdit = React.createClass({
   },
 
   handleDelete(uuid) {
-    ProgramActions.delete(uuid, () => {
-      BrowserHistory.push('/program/');
-      FeedbackActions.set('success', 'Program deleted')
+    confirmModal(
+      'Are you sure?',
+      'Would you like to remove program?'
+    ).then(() => {
+      ProgramActions.delete(uuid, () => {
+        BrowserHistory.push('/program/');
+        FeedbackActions.set('success', 'Program deleted')
+      })
     })
   },
 
@@ -70,4 +76,4 @@ export var ProgramEdit = React.createClass({
         deleteHandler={this.handleDelete}
       />);
   }
-})
+});
