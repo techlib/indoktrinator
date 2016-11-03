@@ -14,10 +14,11 @@ import moment from "moment";
 import {guid} from "../util/database";
 import {BootstrapSelect} from "./Select";
 import {Tabs, Tab} from "react-bootstrap-tabs";
+import {confirmModal} from "./ModalConfirmMixin";
 
-let Header = Modal.Header
-let Body = Modal.Body
-let Footer = Modal.Footer
+let Header = Modal.Header;
+let Body = Modal.Body;
+let Footer = Modal.Footer;
 
 BigCalendar.setLocalizer(
   BigCalendar.momentLocalizer(moment)
@@ -159,7 +160,7 @@ export var Program = React.createClass({
   },
 
   validateEvent() {
-    var r = []
+    var r = [];
 
     if (!this.state.playlist) {
       r.push(`Playlist is required`)
@@ -177,7 +178,7 @@ export var Program = React.createClass({
   },
 
   validateSegment() {
-    var r = []
+    var r = [];
 
     if (!this.state.playlist) {
       r.push(`Playlist is required`)
@@ -208,13 +209,13 @@ export var Program = React.createClass({
       EventActions.create(event, () => {
         this.hideNewCalendarItemModal();
         EventActions.list(() => {
-          var data = EventActions.data.list;
+          var data = EventStore.data.list;
           this.setState({event: data});
           this.setState({
             'events': this.getEvents()
-          });
-        });
-      });
+          })
+        })
+      })
     }
   },
 
@@ -239,9 +240,9 @@ export var Program = React.createClass({
           this.setState({segment: data});
           this.setState({
             'events': this.getEvents()
-          });
-        });
-      });
+          })
+        })
+      })
     }
   },
 
@@ -255,8 +256,8 @@ export var Program = React.createClass({
         this.setState({segment: data});
         this.setState({
           'events': this.getEvents()
-        });
-      });
+        })
+      })
     } else if (this.state.calendarClickedEvent.type == 'event') {
       var event = this.state.calendarClickedEvent.item;
       event.playlist = this.state.calendarClickedEventPlaylist;
@@ -266,36 +267,46 @@ export var Program = React.createClass({
         this.setState({event: data});
         this.setState({
           'events': this.getEvents()
-        });
-      });
+        })
+      })
     }
   },
 
   deleteCalendarEvent() {
     if (this.state.calendarClickedEvent.type == 'segment') {
-      var segment = this.state.calendarClickedEvent.item;
-      SegmentActions.delete(segment.uuid, () => {
-        this.hideEditCalendarItemModal();
-        SegmentActions.list(() => {
-          var data = SegmentStore.data.list;
-          this.setState({segment: data});
-          this.setState({
-            'events': this.getEvents()
-          });
-        });
-      });
+      confirmModal(
+        'Are you sure?',
+        'Would you like to remove segment?'
+      ).then(() => {
+        var segment = this.state.calendarClickedEvent.item;
+        SegmentActions.delete(segment.uuid, () => {
+          this.hideEditCalendarItemModal();
+          SegmentActions.list(() => {
+            var data = SegmentStore.data.list;
+            this.setState({segment: data});
+            this.setState({
+              'events': this.getEvents()
+            })
+          })
+        })
+      })
     } else if (this.state.calendarClickedEvent.type == 'event') {
-      var event = this.state.calendarClickedEvent.item;
-      EventActions.delete(event.uuid, () => {
-        this.hideEditCalendarItemModal();
-        EventActions.list(() => {
-          var data = EventStore.data.list;
-          this.setState({event: data});
-          this.setState({
-            'events': this.getEvents()
-          });
-        });
-      });
+      confirmModal(
+        'Are you sure?',
+        'Would you like to remove event?'
+      ).then(() => {
+        var event = this.state.calendarClickedEvent.item;
+        EventActions.delete(event.uuid, () => {
+          this.hideEditCalendarItemModal();
+          EventActions.list(() => {
+            var data = EventStore.data.list;
+            this.setState({event: data});
+            this.setState({
+              'events': this.getEvents()
+            })
+          })
+        })
+      })
     }
   },
 
@@ -324,7 +335,7 @@ export var Program = React.createClass({
         'end': endMoment.toDate(),
         'type': 'segment',
         'item': item
-      });
+      })
     });
 
     event.forEach((item) => {
@@ -337,7 +348,7 @@ export var Program = React.createClass({
         'end': endMoment.toDate(),
         'type': 'event',
         'item': item
-      });
+      })
     });
 
     return events;
@@ -345,8 +356,8 @@ export var Program = React.createClass({
 
   onNavigate(date) {
     this.setState({
-      'events': this.getEvents(null,null,date)
-    });
+      'events': this.getEvents(null, null, date)
+    })
   },
 
   columnStyleGetter: function (event, start, end, isSelected) {
@@ -361,7 +372,7 @@ export var Program = React.createClass({
     if (event.type == 'segment') {
       style = {
         backgroundColor: '#0CB3EB'
-      };
+      }
     } else {
       style = {
         backgroundColor: '#D62439'
@@ -369,12 +380,10 @@ export var Program = React.createClass({
     }
     return {
       style: style
-    };
+    }
   },
 
   render() {
-    console.log(this.state.events);
-
     return (
       <div className='col-xs-24 container-fluid'>
         <h1>{this.state.title}</h1>
