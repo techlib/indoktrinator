@@ -3,19 +3,18 @@ import {DragSource, DropTarget} from "react-dnd";
 import {Item} from "./Item";
 import {Types} from "./Types";
 
-
 const itemSource = {
   beginDrag(props, monitor) {
     const me = {
       uuid: props.uuid,
       index: props.index,
       path: props.path,
+      file: props.file,
       duration: props.duration,
       type: props.type,
-      file: props.file,
       _type: 'auto',
       all_props: props
-    }
+    };
     return me
   },
   endDrag(props, monitor, component) {

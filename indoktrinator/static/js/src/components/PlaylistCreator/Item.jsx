@@ -1,7 +1,7 @@
 import * as React from "react";
-import moment from 'moment'
-import 'moment-duration-format'
-import {RemoveButton} from '../form/button/RemoveButton';
+import moment from "moment";
+import "moment-duration-format";
+import {RemoveButton} from "../form/button/RemoveButton";
 
 export var Item = React.createClass({
 
@@ -33,7 +33,12 @@ export var Item = React.createClass({
             <div className="list-view-pf-additional-info">
 
               <div className="list-view-pf-additional-info-item">
-                <img src="/static/img/kitten.jpg" alt="placeholder image"/>
+                <img src={this.props.file ? this.props.file.preview : '/static/img/kitten.jpg'} style={{height: 32}}
+                  alt="placeholder image"/>
+              </div>
+
+              <div className="list-view-pf-additional-info-item">
+                {this.props.file ? this.props.file.name : ''}
               </div>
 
               <div className="list-view-pf-additional-info-item">

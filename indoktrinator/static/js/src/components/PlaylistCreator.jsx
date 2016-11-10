@@ -1,7 +1,5 @@
 import * as React from "react";
-import {PlaylistActions, ItemActions, FeedbackActions, FileActions, SegmentActions} from "../actions";
-import {PlaylistStore} from "../stores/Playlist";
-import {FileStore} from "../stores/File";
+import {PlaylistActions, ItemActions, FeedbackActions} from "../actions";
 import update from "react/lib/update";
 import {AutoItem} from "./PlaylistCreator/AutoItem";
 import {SyntheticItem} from "./PlaylistCreator/SyntheticItem";
@@ -11,7 +9,6 @@ import {map, filter} from "lodash";
 import {FormattedMessage} from "react-intl";
 import {Input} from "react-bootstrap";
 import {Feedback} from "./Feedback";
-import {ItemStore} from "../stores/Item";
 import {hashHistory as BrowserHistory} from "react-router";
 import {guid} from "../util/database";
 
@@ -91,27 +88,27 @@ var Component = React.createClass({
       var playlist = {};
       playlist.name = this.state.name;
       playlist.uuid = this.state.uuid;
-      PlaylistActions.update(playlist);
+      PlaylistActions.update(playlist, () => {
 
-      // create playlist items
-      var ii = 1;
-      this.state.items.forEach((item, i) => {
-        if (item.uuid != "default") {
-          var databaseItem = {};
-          databaseItem.playlist = this.state.uuid;
-          databaseItem.uuid = guid();
-          databaseItem.position = item.position;
-          databaseItem.file = item.file;
-          databaseItem.duration = item.duration;
-          databaseItem.position = ii;
+        this.setState({name: playlist.name, title: playlist.name});
 
-          ItemActions.create(databaseItem);
-        }
-        ii++;
+        // create playlist items
+        var ii = 1;
+        this.state.items.forEach((item, i) => {
+          if (item.uuid != "default") {
+            var databaseItem = {};
+            databaseItem.playlist = this.state.uuid;
+            databaseItem.uuid = guid();
+            databaseItem.position = item.position;
+            databaseItem.file = item.file;
+            databaseItem.duration = item.duration;
+            databaseItem.position = ii;
+
+            ItemActions.create(databaseItem);
+          }
+          ii++;
+        });
       });
-
-      // go to the detail
-      BrowserHistory.push('/playlist/' + playlist.uuid)
     }
   },
 
@@ -177,11 +174,9 @@ var Component = React.createClass({
   },
 
   deleteItemHandler(uuid) {
-    // delete
-    ItemActions.delete(uuid);
-
-    // refresh
-    BrowserHistory.push('/playlist/' + playlist.uuid)
+    ItemActions.delete(uuid, () => {
+      BrowserHistory.push('/playlist/' + uuid)
+    });
   },
 
   render() {

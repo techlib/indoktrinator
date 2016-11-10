@@ -3,6 +3,7 @@
 import * as Reflux from "reflux";
 import {DeviceActions, FeedbackActions} from "../actions";
 import {ErrorMixin} from "./Mixins";
+import {StoreTypes} from "./StoreTypes";
 
 export var DeviceStore = Reflux.createStore({
   mixins: [ErrorMixin],
@@ -15,7 +16,7 @@ export var DeviceStore = Reflux.createStore({
       success: result => {
         this.data.errors = []
         this.data.device = result
-        this.data.device.state = 'Loaded'
+        this.data.device.state = StoreTypes.LOADED
         this.trigger(this.data)
       },
       error: result => {

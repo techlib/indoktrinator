@@ -17,10 +17,13 @@ from indoktrinator.segment import Segment
 
 
 class Manager(object):
-    def __init__(self, db):
+    def __init__(self, db, **kwargs):
         self.db = db
+        self.items = kwargs
         self.router = None
         self.app = None
+        self.inotifier = None
+        self.url = kwargs.get('url')
 
         # Something like models
         self.device = Device(self)
@@ -30,7 +33,6 @@ class Manager(object):
         self.playlist = Playlist(self)
         self.program = Program(self)
         self.segment = Segment(self)
-
         self.config = {}
 
 # vim:set sw=4 ts=4 et:

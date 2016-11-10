@@ -5,6 +5,7 @@ import {DeviceActions, ProgramActions} from "../actions";
 import {ProgramStore} from "../stores/Program";
 import {DeviceStore} from "../stores/Device";
 import {hashHistory as BrowserHistory} from "react-router";
+import {confirmModal} from "./ModalConfirmMixin";
 
 export var DeviceEdit = React.createClass({
 
@@ -14,7 +15,7 @@ export var DeviceEdit = React.createClass({
   ],
 
   componentDidMount() {
-    DeviceActions.read(this.props.params.id)
+    DeviceActions.read(this.props.params.id);
     ProgramActions.list()
   },
 
@@ -33,9 +34,14 @@ export var DeviceEdit = React.createClass({
   },
 
   handleDelete(id) {
-    DeviceActions.delete(id, () => {
-      BrowserHistory.push('/device/');
-    });
+    confirmModal(
+      'Are you sure?',
+      'Would you like to remove device?'
+    ).then(() => {
+      DeviceActions.delete(id, () => {
+        BrowserHistory.push('/device/');
+      });
+    })
   },
 
   render() {

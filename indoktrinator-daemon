@@ -42,6 +42,7 @@ if __name__ == '__main__':
         http_host = config.get('http', 'host', fallback='localhost')
         http_port = config.getint('http', 'port', fallback=5000)
         http_pool = config.getint('http', 'pool_size', fallback=4)
+        http_url = config.get('http', 'url', fallback='http://localhost:7070/media')
         zmq_address = config.get('router', 'address', fallback='ipc:///tmp/zmq_server.sock')
         zmq_pool = config.getint('router', 'pool_size', fallback=4)
         inotifier_path = config.get('inotifier', 'path', fallback='/media')
@@ -79,11 +80,10 @@ if __name__ == '__main__':
         manager.inotifier = inotifier
 
         # Prepare WSGI site with a separate thread pool.
+        # define reactor thread
         pool = ThreadPool(http_pool, http_pool, 'http')
         site = Site(WSGIResource(reactor, pool, site))
         pool.start()
-
-        # define reactor thread
 
         # Bind the website to it's address.
         reactor.listenTCP(http_port, site, interface=http_host)

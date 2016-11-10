@@ -7,6 +7,7 @@ import {BootstrapSelect} from "./Select";
 import FileBase64 from "../util/react-file-base64.js";
 import {SaveButton} from "./form/button/SaveButton";
 import {DeleteButton} from "./form/button/DeleteButton";
+import {StoreTypes} from "./../stores/StoreTypes";
 
 export var Device = React.createClass({
 
@@ -85,7 +86,7 @@ export var Device = React.createClass({
               </div>
               <div className='panel-body'>
                 <div className="form-horizontal">
-                  { this.state.state != 'Loaded' ? <Input
+                  { this.state.state != StoreTypes.LOADED ? <Input
                     type="text"
                     label="id"
                     ref="id"
@@ -150,7 +151,7 @@ export var Device = React.createClass({
                     />
                   </div>
                   <div className="col-xs-6">
-                    { this.state.state == 'Loaded' ? <DeleteButton
+                    { this.state.state == StoreTypes.LOADED ? <DeleteButton
                       id={this.state.id}
                       handler={this.delete}
                     /> : null }

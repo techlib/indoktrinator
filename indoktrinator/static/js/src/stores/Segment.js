@@ -3,6 +3,7 @@
 import * as Reflux from "reflux";
 import {SegmentActions, FeedbackActions} from "../actions";
 import {ErrorMixin} from "./Mixins";
+import {StoreTypes} from "./StoreTypes";
 
 export var SegmentStore = Reflux.createStore({
   mixins: [ErrorMixin],
@@ -15,7 +16,7 @@ export var SegmentStore = Reflux.createStore({
       success: result => {
         this.data.errors = []
         this.data.segment = result
-        this.data.segment.state = 'Loaded'
+        this.data.segment.state = StoreTypes.LOADED
         this.trigger(this.data)
       },
       error: result => {

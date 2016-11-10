@@ -23,6 +23,7 @@ class FFMpeg(object):
     ]
     IMAGE_FORMAT = [
         'image2',
+        'png_pipe',
     ]
     IMAGE_DURATION = 10
     PREVIEW_SCALE = (320, 240)
@@ -95,7 +96,7 @@ class FFMpeg(object):
         elif self.format in self.IMAGE_FORMAT:
             self._duration = self.image_duration
 
-            find = DURATION_PATTERN.find
+            find = DURATION_PATTERN.findall(self._path.decode('utf8'))
             if find:
                 self._duration = min(
                     find.group(1) or self.image_duration,
@@ -127,6 +128,7 @@ class FFMpeg(object):
             log.msg("format", e)
             self._format = e
 
+        print(self._format)
         return self._format
 
     @property

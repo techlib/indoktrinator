@@ -1,23 +1,23 @@
 import * as React from "react";
 import * as Reflux from "reflux";
 import {FeedbackActions, EventActions, SegmentActions} from "../actions";
-import {Feedback} from "./Feedback";
 import {ProgramStore} from "../stores/Program";
 import {SegmentStore} from "../stores/Segment";
+import {Feedback} from "./Feedback";
 import {EventStore} from "../stores/Event";
-import {Input, Modal, Button} from "react-bootstrap";
 import {FormattedMessage} from "react-intl";
-import {SaveButton} from "./form/button/SaveButton";
 import {DeleteButton} from "./form/button/DeleteButton";
 import BigCalendar from "react-big-calendar";
+import {SaveButton} from "./form/button/SaveButton";
 import moment from "moment";
+import {SegmentEditModal} from "./Program/SegmentEditModal";
+import {EventEditModal} from "./Program/EventEditModal";
+import {CreateCalendarEventModal} from "./Program/CreateCalendarEventModal";
+import {StoreTypes} from "./../stores/StoreTypes";
 import {guid} from "../util/database";
-import {BootstrapSelect} from "./Select";
 import {Tabs, Tab} from "react-bootstrap-tabs";
-
-let Header = Modal.Header
-let Body = Modal.Body
-let Footer = Modal.Footer
+import {confirmModal} from "./ModalConfirmMixin";
+import {Input} from "react-bootstrap";
 
 BigCalendar.setLocalizer(
   BigCalendar.momentLocalizer(moment)
@@ -25,14 +25,14 @@ BigCalendar.setLocalizer(
 
 moment.locale('cz', {
   week: {
-    dow: 1, // Monday is the first day of the week.
+    dow: 0, // Monday is the first day of the week.
     doy: 4  // The week that contains Jan 4th is the first week of the year.
   }
 });
 
 moment.locale('en', {
   week: {
-    dow: 1, // Monday is the first day of the week.
+    dow: 0, // Monday is the first day of the week.
     doy: 4  // The week that contains Jan 4th is the first week of the year.
   }
 });
@@ -40,7 +40,9 @@ moment.locale('en', {
 export var Program = React.createClass({
 
   mixins: [
-    Reflux.connect(ProgramStore, 'program')
+    Reflux.connect(ProgramStore, 'program'),
+    Reflux.connect(EventStore, 'event'),
+    Reflux.connect(SegmentStore, 'segment')
   ],
 
   commonProps: {
@@ -51,15 +53,12 @@ export var Program = React.createClass({
   getInitialState() {
     return {
       'uuid': this.props.program.uuid,
-      'state': this.props.program.state,
       'title': this.props.title,
-      'range': [],
-      'day': '',
-      'date': '',
-      'playlist': '',
-      'events': [],
-      'calendarClickedEvent': {item: {playlist: '', uuid: ''}},
-      'calendarClickedEventPlaylist': ''
+      'events': [], // displayed events in grid
+      'bigCalendarSlotInfo': {}, // clicked slot info
+      'showSegmentEditModal': false,
+      'showEventEditModal': false,
+      'showCreateCalendarModal': false
     }
   },
 
@@ -75,8 +74,144 @@ export var Program = React.createClass({
     });
   },
 
+  createEvent(slotInfo) {
+    var startDayMidnight = slotInfo ? moment(slotInfo.start).startOf('day') : moment().startOf('day');
+
+    var event = {};
+    event.uuid = guid();
+    event.program = this.props.program;
+    event.state = StoreTypes.NEW;
+
+    if (slotInfo) {
+      var start = moment(slotInfo.start);
+      var end = moment(slotInfo.end);
+
+      event.range = [start.diff(startDayMidnight, 'seconds'), end.diff(startDayMidnight, 'seconds')];
+      event.date = start.format('YYYY-MM-DD');
+    } else {
+      var now = moment();
+
+      event.range = [now.diff(startDayMidnight, 'seconds'), now.diff(startDayMidnight, 'seconds')];
+      event.date = now.format('YYYY-MM-DD');
+    }
+
+    return event;
+  },
+
+  createSegment(slotInfo) {
+    var startDayMidnight = slotInfo ? moment(slotInfo.start).startOf('day') : moment().startOf('day');
+
+    var segment = {};
+    segment.uuid = guid();
+    segment.program = this.props.program;
+    segment.state = StoreTypes.NEW;
+
+    if (slotInfo) {
+      var start = moment(slotInfo.start);
+      var end = moment(slotInfo.end);
+
+      segment.range = [start.diff(startDayMidnight, 'seconds'), end.diff(startDayMidnight, 'seconds')];
+      segment.day = start.weekday();
+    } else {
+      var now = moment();
+
+      segment.day = now.weekday();
+      segment.range = [now.diff(startDayMidnight, 'seconds'), now.diff(startDayMidnight, 'seconds')];
+    }
+
+    return segment;
+  },
+
+  deleteEvent(uuid) {
+    confirmModal(
+      'Are you sure?',
+      'Would you like to remove event?'
+    ).then(() => {
+      EventActions.delete(uuid, () => {
+        this.hideEventEditModal();
+        EventActions.list(() => {
+          var data = EventStore.data.list;
+          this.setState({event: data});
+          this.setState({
+            'events': this.getEvents()
+          });
+        });
+      });
+    });
+  },
+
+  deleteSegment(uuid) {
+    confirmModal(
+      'Are you sure?',
+      'Would you like to remove segment?'
+    ).then(() => {
+      SegmentActions.delete(uuid, () => {
+        this.hideSegmentEditModal();
+        SegmentActions.list(() => {
+          var data = SegmentStore.data.list;
+          this.setState({segment: data});
+          this.setState({
+            'events': this.getEvents()
+          });
+        });
+      });
+    });
+  },
+
+  updateEvent(event) {
+    EventActions.update(event, () => {
+      this.hideEventEditModal();
+      EventActions.list(() => {
+        var data = EventStore.data.list;
+        this.setState({event: data});
+        this.setState({
+          'events': this.getEvents()
+        });
+      });
+    });
+  },
+
+  updateSegment(segment) {
+    SegmentActions.update(segment, () => {
+      this.hideSegmentEditModal();
+      SegmentActions.list(() => {
+        var data = SegmentStore.data.list;
+        this.setState({segment: data});
+        this.setState({
+          'events': this.getEvents()
+        });
+      });
+    });
+  },
+
+  saveEvent(event) {
+    EventActions.create(event, () => {
+      this.hideCreateCalendarEventModal();
+      EventActions.list(() => {
+        var data = EventStore.data.list;
+        this.setState({event: data});
+        this.setState({
+          'events': this.getEvents()
+        });
+      });
+    });
+  },
+
+  saveSegment(segment) {
+    SegmentActions.create(segment, () => {
+      this.hideCreateCalendarEventModal();
+      SegmentActions.list(() => {
+        var data = SegmentStore.data.list;
+        this.setState({segment: data});
+        this.setState({
+          'events': this.getEvents()
+        });
+      });
+    });
+  },
+
   validate() {
-    var r = []
+    var r = [];
 
     if (!this.state.name) {
       r.push(`Name is required`)
@@ -90,10 +225,6 @@ export var Program = React.createClass({
   },
 
   handleChange(evt) {
-    this.setState({[evt.target.name]: evt.target.value})
-  },
-
-  handleChangeNewEventModal(evt) {
     this.setState({[evt.target.name]: evt.target.value})
   },
 
@@ -119,187 +250,60 @@ export var Program = React.createClass({
     this.props.deleteHandler(this.state.uuid);
   },
 
-  showNewCalendarItemModal() {
-    this.setState({showNewCalendarItemModal: true});
+  showEventEditModal() {
+    this.setState({showEventEditModal: true});
   },
 
-  hideNewCalendarItemModal() {
-    this.setState({showNewCalendarItemModal: false});
+  hideEventEditModal() {
+    this.setState({showEventEditModal: false});
   },
 
-  showEditCalendarItemModal() {
-    this.setState({showEditCalendarItemModal: true});
+  showSegmentEditModal() {
+    this.setState({showSegmentEditModal: true});
   },
 
-  hideEditCalendarItemModal() {
-    this.setState({showEditCalendarItemModal: false});
+  hideSegmentEditModal() {
+    this.setState({showSegmentEditModal: false});
+  },
+
+  showCreateCalendarEventModal() {
+    this.setState({showCreateCalendarEventModal: true});
+  },
+
+  hideCreateCalendarEventModal() {
+    this.setState({showCreateCalendarEventModal: false});
   },
 
   handleSelectSlot(slotInfo) {
-    var startDayMidnight = moment(slotInfo.start).startOf('day');
-    var start = moment(slotInfo.start);
-    var end = moment(slotInfo.end);
+    console.log(slotInfo);
 
     this.setState({
-      range: [start.diff(startDayMidnight, 'seconds'), end.diff(startDayMidnight, 'seconds')],
-      day: start.weekday(),
-      date: start.format('YYYY-MM-DD')
+      bigCalendarSlotInfo: slotInfo
     });
-
-    this.showNewCalendarItemModal();
+    this.showCreateCalendarEventModal();
   },
 
-  handleSelectEvent(event) {
-    this.setState({
-      calendarClickedEvent: event,
-      calendarClickedEventPlaylist: event.item.name
-    });
-
-    this.showEditCalendarItemModal();
-  },
-
-  validateEvent() {
-    var r = []
-
-    if (!this.state.playlist) {
-      r.push(`Playlist is required`)
-    }
-
-    if (!this.state.date) {
-      r.push(`Date is required`)
-    }
-
-    if (!this.state.range) {
-      r.push(`Range is required`)
-    }
-
-    return r
-  },
-
-  validateSegment() {
-    var r = []
-
-    if (!this.state.playlist) {
-      r.push(`Playlist is required`)
-    }
-
-    // todo: validate day
-
-    if (!this.state.range) {
-      r.push(`Range is required`)
-    }
-
-    return r;
-  },
-
-  saveEvent() {
-    var errors = this.validateEvent();
-
-    if (errors.length > 0) {
-      FeedbackActions.set('error', 'Form contains invalid data:', errors)
-    } else {
-      var event = {};
-      event.uuid = guid();
-      event.program = this.state.uuid;
-      event.playlist = this.state.playlist;
-      event.date = this.state.date;
-      event.range = this.state.range;
-
-      EventActions.create(event, () => {
-        this.hideNewCalendarItemModal();
-        EventActions.list(() => {
-          var data = EventActions.data.list;
-          this.setState({event: data});
-          this.setState({
-            'events': this.getEvents()
-          });
-        });
-      });
-    }
-  },
-
-  saveSegment() {
-    var errors = this.validateSegment();
-
-    if (errors.length > 0) {
-      FeedbackActions.set('error', 'Form contains invalid data:', errors)
-    } else {
-      var segment = {};
-      segment.uuid = guid();
-      segment.program = this.state.uuid;
-      segment.playlist = this.state.playlist;
-
-      segment.day = this.state.day;
-      segment.range = this.state.range;
-
-      SegmentActions.create(segment, () => {
-        this.hideNewCalendarItemModal();
-        SegmentActions.list(() => {
-          var data = SegmentStore.data.list;
-          this.setState({segment: data});
-          this.setState({
-            'events': this.getEvents()
-          });
-        });
-      });
-    }
-  },
-
-  saveCalendarEvent() {
-    if (this.state.calendarClickedEvent.type == 'segment') {
-      var segment = this.state.calendarClickedEvent.item;
-      segment.playlist = this.state.calendarClickedEventPlaylist;
-      SegmentActions.update(segment, () => {
-        this.hideEditCalendarItemModal();
-        var data = SegmentStore.data.list;
-        this.setState({segment: data});
+  handleSelectEvent(event)
+  {
+    if (event.type == 'event') {
+      EventActions.read(event.uuid, () => {
         this.setState({
-          'events': this.getEvents()
+          selectedEvent: EventStore.data.event
         });
+        this.showEventEditModal();
       });
-    } else if (this.state.calendarClickedEvent.type == 'event') {
-      var event = this.state.calendarClickedEvent.item;
-      event.playlist = this.state.calendarClickedEventPlaylist;
-      EventActions.update(event, () => {
-        this.hideEditCalendarItemModal();
-        var data = EventStore.data.list;
-        this.setState({event: data});
+    } else if (event.type == 'segment') {
+      SegmentActions.read(event.uuid, () => {
         this.setState({
-          'events': this.getEvents()
+          selectedSegment: SegmentStore.data.segment
         });
+        this.showSegmentEditModal();
       });
     }
   },
 
-  deleteCalendarEvent() {
-    if (this.state.calendarClickedEvent.type == 'segment') {
-      var segment = this.state.calendarClickedEvent.item;
-      SegmentActions.delete(segment.uuid, () => {
-        this.hideEditCalendarItemModal();
-        SegmentActions.list(() => {
-          var data = SegmentStore.data.list;
-          this.setState({segment: data});
-          this.setState({
-            'events': this.getEvents()
-          });
-        });
-      });
-    } else if (this.state.calendarClickedEvent.type == 'event') {
-      var event = this.state.calendarClickedEvent.item;
-      EventActions.delete(event.uuid, () => {
-        this.hideEditCalendarItemModal();
-        EventActions.list(() => {
-          var data = EventStore.data.list;
-          this.setState({event: data});
-          this.setState({
-            'events': this.getEvents()
-          });
-        });
-      });
-    }
-  },
-
-  getEvents(segment, event, startDatetime) {
+  getEvents(segment, event, startDatetime)
+  {
     var events = [];
 
     if (!segment) {
@@ -315,15 +319,16 @@ export var Program = React.createClass({
     }
 
     segment.forEach((item) => {
-      var startMoment = moment(startDatetime).startOf('isoWeek').add(item.day, 'days').seconds(item.range[0]);
-      var endMoment = moment(startDatetime).startOf('isoWeek').add(item.day, 'days').seconds(item.range[1]);
+      var startMoment = moment(startDatetime).startOf('week').add(item.day, 'days').seconds(item.range[0]);
+      var endMoment = moment(startDatetime).startOf('week').add(item.day, 'days').seconds(item.range[1]);
 
       events.push({
         'title': item._playlist.name,
         'start': startMoment.toDate(),
         'end': endMoment.toDate(),
         'type': 'segment',
-        'item': item
+        'uuid': item.uuid,
+        'allDay': this.isAllDaySegment(item)
       });
     });
 
@@ -336,18 +341,49 @@ export var Program = React.createClass({
         'start': startMoment.toDate(),
         'end': endMoment.toDate(),
         'type': 'event',
-        'item': item
+        'uuid': item.uuid,
+        'allDay': this.isAllDayEvent(item)
       });
     });
 
     return events;
   },
 
-  onNavigate(date) {
-    this.setState({
-      'events': this.getEvents(null,null,date)
-    });
+  isAllDaySegment(segment) {
+    if (segment.range[0] + segment.range[1] == 86399) {
+      return true;
+    }
+    if (segment.range[0] + segment.range[1] == 86400) {
+      return true;
+    }
+    if (segment.range[0] + segment.range[1] == 86401) {
+      return true;
+    }
+
+    return false;
   },
+
+  isAllDayEvent(event) {
+    if (event.range[0] + event.range[1] == 86399) {
+      return true;
+    }
+    if (event.range[0] + event.range[1] == 86400) {
+      return true;
+    }
+    if (event.range[0] + event.range[1] == 86401) {
+      return true;
+    }
+
+    return false;
+  },
+
+  onNavigate(date)
+  {
+    this.setState({
+      'events': this.getEvents(null, null, date)
+    });
+  }
+  ,
 
   columnStyleGetter: function (event, start, end, isSelected) {
     var style = {
@@ -361,7 +397,7 @@ export var Program = React.createClass({
     if (event.type == 'segment') {
       style = {
         backgroundColor: '#0CB3EB'
-      };
+      }
     } else {
       style = {
         backgroundColor: '#D62439'
@@ -369,11 +405,13 @@ export var Program = React.createClass({
     }
     return {
       style: style
-    };
-  },
+    }
+  }
+  ,
 
-  render() {
-    console.log(this.state.events);
+  render()
+  {
+    console.log(this.state);
 
     return (
       <div className='col-xs-24 container-fluid'>
@@ -409,7 +447,7 @@ export var Program = React.createClass({
                     />
                   </div>
                   <div className="col-xs-6">
-                    { this.state.state == 'Loaded' ? <DeleteButton
+                    { this.state.state == StoreTypes.LOADED ? <DeleteButton
                       id={this.state.uuid}
                       handler={this.delete}
                     /> : null }
@@ -417,7 +455,7 @@ export var Program = React.createClass({
                 </div>
               </div>
             </div>
-            { this.props.program.state == 'Loaded' ? <div className='panel panel-default'>
+            { this.props.program.state == StoreTypes.LOADED ? <div className='panel panel-default'>
               <div className='panel-body'>
                 <div className="form-horizontal">
 
@@ -444,114 +482,36 @@ export var Program = React.createClass({
                         onSelectSlot={this.handleSelectSlot}
                       />
                     </div>
-                    <Modal
-                      show={this.state.showEditCalendarItemModal}
-                      onHide={this.hideEditCalendarItemModal}
-                      dialogClassName="edit-calendar-item-modal"
-                    >
-                      <Modal.Body>
-                        <p>
-                          <BootstrapSelect
-                            label='Playlist'
-                            ref='playlist'
-                            name='playlist'
-                            onChange={this.handleChange}
-                            data-live-search={true}
-                            value={this.state.calendarClickedEventPlaylist}
-                            {...this.commonProps}>
-                            {this.props.playlist.map((item) => {
-                              return <option value={item.uuid} key={item.uuid}>
-                                {item.name}</option>
-                            })}
-                          </BootstrapSelect>
-                        </p>
-                      </Modal.Body>
-
-                      <Modal.Footer>
-                        <SaveButton
-                          handler={this.saveCalendarEvent}
-                        />
-                        <DeleteButton
-                          id={this.state.calendarClickedEvent.item.uuid}
-                          handler={this.deleteCalendarEvent}
-                        />
-                        <Button
-                          onClick={this.hideEditCalendarItemModal}
-                        >Close</Button>
-                      </Modal.Footer>
-
-                    </Modal>
-                    <Modal
-                      show={this.state.showNewCalendarItemModal}
-                      onHide={this.hideNewCalendarItemModal}
-                      dialogClassName="new-calendar-item-modal"
-                    >
-                      <Tabs>
-                        <Tab label={
-                          <FormattedMessage
-                            id="app.menu.segment.title"
-                            description="Title"
-                            defaultMessage="Segment"
-                          />}>
-                          <Modal.Body>
-                            <p>
-                              <BootstrapSelect
-                                label='Playlist'
-                                ref='playlist'
-                                name='playlist'
-                                onChange={this.handleChange}
-                                data-live-search={true}
-                                value={this.state.playlist}
-                                {...this.commonProps}>
-                                {this.props.playlist.map((item) => {
-                                  return <option value={item.uuid} key={item.uuid}>
-                                    {item.name}</option>
-                                })}
-                              </BootstrapSelect>
-                            </p>
-                          </Modal.Body>
-                          <Modal.Footer>
-                            <SaveButton
-                              handler={this.saveSegment}
-                            />
-                            <Button
-                              onClick={this.hideNewCalendarItemModal}
-                            >Close</Button>
-                          </Modal.Footer>
-                        </Tab>
-                        <Tab label={<FormattedMessage
-                          id="app.menu.event.title"
-                          description="Title"
-                          defaultMessage="Event"
-                        />}>
-                          <Modal.Body>
-                            <p>
-                              <BootstrapSelect
-                                label='Playlist'
-                                ref='playlist'
-                                name='playlist'
-                                onChange={this.handleChange}
-                                data-live-search={true}
-                                value={this.state.playlist}
-                                {...this.commonProps}>
-                                {this.props.playlist.map((item) => {
-                                  return <option value={item.uuid} key={item.uuid}>
-                                    {item.name}</option>
-                                })}
-                              </BootstrapSelect>
-                            </p>
-                          </Modal.Body>
-                          <Modal.Footer>
-                            <SaveButton
-                              handler={this.saveEvent}
-                            />
-                            <Button
-                              onClick={this.hideNewCalendarItemModal}
-                            >Close</Button>
-                          </Modal.Footer>
-                        </Tab>
-                      </Tabs>
-                    </Modal>
+                    <CreateCalendarEventModal
+                      title='Create event or segment'
+                      show={this.state.showCreateCalendarEventModal}
+                      program={this.props.program}
+                      playlist={this.props.playlist}
+                      slotInfo={this.state.bigCalendarSlotInfo}
+                      saveEventHandler={this.saveEvent}
+                      deleteEventHandler={this.deleteEvent}
+                      saveSegmentHandler={this.saveSegment}
+                      deleteSegmentHandler={this.deleteSegment}
+                      hideHandler={this.hideCreateCalendarEventModal}
+                    />
+                    <EventEditModal
+                      title={this.state.selectedEvent && this.state.selectedEvent.state == StoreTypes.LOADED ? this.state.selectedEvent.playlist.name : 'New Event'}
+                      show={this.state.showEventEditModal}
+                      event={this.state.selectedEvent ? this.state.selectedEvent : this.createEvent()}
+                      playlist={this.props.playlist}
+                      saveHandler={this.updateEvent}
+                      deleteHandler={this.deleteEvent}
+                      hideHandler={this.hideEventEditModal}
+                    />
+                    <SegmentEditModal
+                      title={this.state.selectedSegment && this.state.selectedSegment.state == StoreTypes.LOADED ? this.state.selectedSegment.playlist.name : 'New Segment'}
+                      show={this.state.showSegmentEditModal}
+                      segment={this.state.selectedSegment ? this.state.selectedSegment : this.createSegment()}
+                      playlist={this.props.playlist}
+                      saveHandler={this.updateSegment}
+                      deleteHandler={this.deleteSegment}
+                      hideHandler={this.hideSegmentEditModal}
+                    />
                   </div>
                 </div>
               </div>

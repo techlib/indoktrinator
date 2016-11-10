@@ -10,6 +10,7 @@ const itemSource = {
       uuid: props.uuid,
       index: props.index,
       path: props.path,
+      file: props.file,
       type: props.type,
       deleteItemHandler: props.deleteItemHandler,
       _type: 'synth',
@@ -20,7 +21,7 @@ const itemSource = {
 
 const synthTarget = {
   hover(props, monitor, component) {
-    const item = monitor.getItem()
+    const item = monitor.getItem();
     const dragIndex = item.index;
     const hoverIndex = props.index;
 

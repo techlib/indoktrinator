@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import sys, traceback
 import datetime
 from twisted.internet import reactor
 from txzmq import ZmqRouterConnection
@@ -9,6 +9,9 @@ from jsonschema import validate
 
 from indoktrinator.router.schema import schema
 from uuid import uuid4
+
+
+from indoktrinator.router.planner import Planner
 
 
 class Router(ZmqRouterConnection):
@@ -135,7 +138,26 @@ class Router(ZmqRouterConnection):
         '''
         Send plan to the device
         '''
-        pass
+        program = None
+        plan = None
+        program = self.manager.db.session.query(
+            self.manager.device.e().program
+        ).filter_by(
+            id=device_id.decode('utf8')
+        ).one_or_none()
+
+        if program is not None:
+            planner = Planner(self.manager, program[0])
+            plan = []
+            for item in planner.plan:
+                plan.append({
+                    'start': item[1],
+                    'end': item[2],
+                    'type': 'video' if item[3] == 1 else 'image',
+                    'uri': item[0],
+                })
+
+            self.sendMsg(device_id, 'plan', {'plan': plan})
 
     def powerOff(self, id_device):
         '''
@@ -198,9 +220,13 @@ class Router(ZmqRouterConnection):
 
     def on_init(self, id_device, message):
         self.ok(id_device, message)
-
-        # self.plan(id_device)
-        self.resolution(id_device, 'both', url1='https://www.seznam.cz', url2='https://www.google.com')
+        self.plan(id_device)
+        self.resolution(
+            id_device,
+            'both',
+            url1='https://www.seznam.cz',
+            url2='https://www.google.com'
+        )
 
     def on_ok(self, id_device, message):
         '''

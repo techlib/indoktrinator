@@ -24,7 +24,7 @@ class Model(object):
     def init(self):
         pass
 
-    def list(self, filter={}, fields=[], exclude=[]):
+    def list(self, order_by=[], filter={}, fields=[], exclude=[]):
         '''
         '''
 
@@ -32,9 +32,17 @@ class Model(object):
 
         items = []
 
-        query = self.e().order_by(self.pkey).all()
+        query = self.e()
+
+        if order_by:
+            query = query.order_by(*order_by)
+        else:
+            query = query.order_by(self.pkey)
+
         if filter:
-            query = self.e().order_by(self.pkey).filter_by(**filter)
+            query = query.filter_by(**filter)
+        else:
+            query = query.all()
 
         for item in query:
             item = object_to_dict(

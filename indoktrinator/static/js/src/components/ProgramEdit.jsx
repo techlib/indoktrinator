@@ -7,6 +7,7 @@ import {PlaylistStore} from "../stores/Playlist";
 import {EventStore} from "../stores/Event";
 import {SegmentStore} from "../stores/Segment";
 import {hashHistory as BrowserHistory} from "react-router";
+import {confirmModal} from "./ModalConfirmMixin";
 
 export var ProgramEdit = React.createClass({
 
@@ -18,10 +19,10 @@ export var ProgramEdit = React.createClass({
   ],
 
   componentDidMount() {
-    ProgramActions.read(this.props.params.uuid)
-    SegmentActions.list()
-    EventActions.list()
-    PlaylistActions.list()
+    ProgramActions.read(this.props.params.uuid);
+    SegmentActions.list();
+    EventActions.list();
+    PlaylistActions.list();
   },
 
   getInitialState() {
@@ -35,15 +36,20 @@ export var ProgramEdit = React.createClass({
 
   handleSave(data) {
     ProgramActions.update(data, () => {
-      this.setState({program:{program:data}});
+      this.setState({program: {program: data}});
     })
   },
 
   handleDelete(uuid) {
-    ProgramActions.delete(uuid, () => {
-      BrowserHistory.push('/program/');
-      FeedbackActions.set('success', 'Program deleted')
-    })
+    confirmModal(
+      'Are you sure?',
+      'Would you like to remove program?'
+    ).then(() => {
+      ProgramActions.delete(uuid, () => {
+        BrowserHistory.push('/program/');
+        FeedbackActions.set('success', 'Program deleted')
+      })
+    });
   },
 
   getFilteredSegments() {
@@ -70,4 +76,4 @@ export var ProgramEdit = React.createClass({
         deleteHandler={this.handleDelete}
       />);
   }
-})
+});

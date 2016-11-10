@@ -3,6 +3,7 @@
 import * as Reflux from "reflux";
 import {PlaylistActions, FeedbackActions} from "../actions";
 import {ErrorMixin} from "./Mixins";
+import {StoreTypes} from "./StoreTypes";
 
 export var PlaylistStore = Reflux.createStore({
   mixins: [ErrorMixin],
@@ -14,7 +15,7 @@ export var PlaylistStore = Reflux.createStore({
       url: `/api/playlist/${uuid}`,
       success: result => {
         this.data.errors = []
-        this.data.playlist.state = 'Loaded'
+        this.data.playlist.state = StoreTypes.LOADED
         this.data.playlist = result
         this.trigger(this.data)
       },
@@ -66,7 +67,7 @@ export var PlaylistStore = Reflux.createStore({
       url: `/api/playlist/${uuid}/copy`,
       success: result => {
         this.data.errors = []
-        this.data.playlist.state = 'Loaded'
+        this.data.playlist.state = StoreTypes.LOADED
         this.data.playlist = result
         this.trigger(this.data)
       },

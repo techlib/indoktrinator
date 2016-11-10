@@ -3,6 +3,7 @@
 import * as Reflux from "reflux";
 import {ItemActions, FeedbackActions} from "../actions";
 import {ErrorMixin} from "./Mixins";
+import {StoreTypes} from "./StoreTypes";
 
 export var ItemStore = Reflux.createStore({
   mixins: [ErrorMixin],
@@ -14,7 +15,7 @@ export var ItemStore = Reflux.createStore({
       url: `/api/item/${uuid}`,
       success: result => {
         this.data.errors = []
-        this.data.item.state = 'Loaded'
+        this.data.item.state = StoreTypes.LOADED
         this.data.item = result
         this.trigger(this.data)
       },
