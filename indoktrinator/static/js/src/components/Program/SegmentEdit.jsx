@@ -12,7 +12,6 @@ import moment from "moment";
 import "rc-time-picker/assets/index.css";
 import {Feedback} from "../../stores/Feedback";
 
-
 export var SegmentEdit = React.createClass({
 
   mixins: [],
@@ -25,7 +24,8 @@ export var SegmentEdit = React.createClass({
   getInitialState() {
     return {
       'range': this.props.segment.range,
-      'day': this.props.segment.day
+      'day': this.props.segment.day,
+      'playlist': this.props.segment.playlist ? this.props.segment.playlist : (this.props.playlist[0] ? this.props.playlist[0].uuid : ''),
     }
   },
 
@@ -38,6 +38,10 @@ export var SegmentEdit = React.createClass({
 
     if (this.state.range[0] > this.state.range[1]) {
       r.push(`Format of range is [x < y]`);
+    }
+
+    if (this.state.range[0] == this.state.range[1]) {
+      r.push(`Range can not be null`);
     }
 
     return r;

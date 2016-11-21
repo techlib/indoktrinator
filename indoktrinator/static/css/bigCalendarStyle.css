@@ -498,9 +498,13 @@ button.rbc-input::-moz-focus-inner {
     -ms-flex-align: start;
     align-items: flex-start;
     width: 100%;
-    border-top: 2px solid #DDD;
     overflow-y: auto;
     position: relative;
+    border-top: none;
+    padding-top: 0px;
+}
+.rbc-time-header > .rbc-row:nth-of-type(2) {
+    display: none;
 }
 .rbc-time-content > .rbc-time-gutter {
     -ms-flex: none;

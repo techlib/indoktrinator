@@ -14,6 +14,16 @@ export var DeviceEdit = React.createClass({
     Reflux.connect(ProgramStore, 'program')
   ],
 
+  componentWillReceiveProps(p) {
+    this.setState({
+      uuid: p.playlist.playlist.uuid,
+      name: p.playlist.playlist.name,
+      title: p.playlist.playlist.name,
+      playlist: {list: p.playlist.list, playlist: {}},
+      file: {list: p.file, file: {}}
+    });
+  },
+
   componentDidMount() {
     DeviceActions.read(this.props.params.id);
     ProgramActions.list()
@@ -22,14 +32,18 @@ export var DeviceEdit = React.createClass({
   getInitialState() {
     return {
       device: {device: {}},
-      program: {list: []},
-      file: {list: []}
+      program: {list: []}
     }
   },
 
   handleSave(data) {
+    delete data['preview'];
+    delete data['program'];
     DeviceActions.update(data, () => {
-      this.setState({device: {device: data}});
+      DeviceActions.read(data.id, () => {
+        var device = DeviceStore.data.device;
+        this.setState({device: {device: device}});
+      });
     });
   },
 

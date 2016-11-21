@@ -115,8 +115,15 @@ def make_site(db, manager, access_model, debug=False):
     def device_handler(**kwargs):
         if 'GET' == flask.request.method:
             return flask.jsonify(result=manager.device.list())
+
         if 'POST' == flask.request.method:
-            return flask.jsonify(manager.device.insert(flask.request.get_json(force=True)))
+            device = flask.request.get_json(force=True)
+            if 'photo' in device:
+                start = device['photo'].find(',')
+                if start < 0:
+                    start = 0
+                device['photo'] = b64decode(device['photo'][start:])
+            return flask.jsonify(manager.device.insert(device))
 
     @app.route('/api/device/<id>', methods=['GET', 'DELETE', 'PATCH'])
     @authorized_only()
@@ -130,6 +137,8 @@ def make_site(db, manager, access_model, debug=False):
             device['id'] = id
             if 'photo' in device:
                 start = device['photo'].find(',')
+                if start < 0:
+                    start = 0
                 device['photo'] = b64decode(device['photo'][start:])
 
             return flask.jsonify(manager.device.update(device))

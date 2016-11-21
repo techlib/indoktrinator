@@ -34,8 +34,7 @@ export var ItemStore = Reflux.createStore({
       dataType: 'json',
       contentType: 'application/json',
       success: () => {
-        BrowserHistory.push('/item/')
-        FeedbackActions.set('success', 'Item deleted')
+        //FeedbackActions.set('success', 'Item deleted')
       },
       error: result => {
         FeedbackActions.set('error', result.responseJSON.message)
@@ -54,7 +53,7 @@ export var ItemStore = Reflux.createStore({
       contentType: 'application/json',
       data: JSON.stringify(item),
       success: function success(result) {
-        FeedbackActions.set('success', 'Item updated')
+        //FeedbackActions.set('success', 'Item updated')
       },
       error: result => {
         FeedbackActions.set('error', result.responseJSON.message)
@@ -72,7 +71,7 @@ export var ItemStore = Reflux.createStore({
       contentType: 'application/json',
       data: JSON.stringify(item),
       success: function success(result) {
-        FeedbackActions.set('success', 'Item created')
+        //FeedbackActions.set('success', 'Item created')
       },
       error: result => {
         FeedbackActions.set('error', result.responseJSON.message)

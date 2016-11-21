@@ -3,31 +3,49 @@ import * as Reflux from "reflux";
 import {ModalConfirmMixin} from "./ModalConfirmMixin";
 import {PlaylistActions} from "../actions";
 import {PlaylistStore} from "../stores/Playlist";
-import {secondsToString} from '../util/datetime';
-import moment from 'moment'
+import moment from "moment";
+import {Types} from "./PlaylistCreator/Types";
+import {StoreTypes} from "./../stores/StoreTypes";
+import {add3Dots} from "./../util/string";
 
 export var PlaylistDetail = React.createClass({
 
-  mixins: [Reflux.connect(PlaylistStore, 'data'),
-    ModalConfirmMixin],
+  mixins: [
+    Reflux.connect(PlaylistStore, 'data'),
+    ModalConfirmMixin
+  ],
 
   componentDidMount() {
-    PlaylistActions.read(this.props.params.uuid)
+    PlaylistActions.read(this.props.uuid)
   },
 
   getInitialState() {
     return {data: {playlist: {items: []}}}
   },
 
-  iconClasses: {
-    'video': 'fa-film',
-    'image': 'fa-picture-o',
-    'stream': 'fa-wifi fa-rotate-90',
-    'website': 'fa-globe'
-  },
+  getItems() {
+    var items = [];
+    var playlist = this.state.data.playlist;
 
-  getTypeIcon(type) {
-    return this.iconClasses[type];
+    playlist.items.forEach((item) => {
+      items.push({
+        uuid: item.uuid,
+        type: Types.SYNTH_ITEM,
+        state: StoreTypes.LOADED,
+        file: {
+          name: item.file_name,
+          hash: item.file_hash,
+          duration: item.file_duration,
+          path: item.file_path,
+          preview: item.file_preview,
+          type: item.file_type,
+          uuid: item.file_uuid
+        },
+        hide: false,
+        editable: !playlist.system
+      });
+    });
+    return items;
   },
 
   render() {
@@ -37,29 +55,26 @@ export var PlaylistDetail = React.createClass({
 
         <div className="list-group list-view-pf list-view-pf-view playlist">
 
-          {this.state.data.playlist.items.map((item) => {
-            let cls = 'fa ' + this.getTypeIcon(item.type)
+          {this.getItems().map((item) => {
             return (
               <div className="list-group-item">
                 <div className="list-view-pf-main-info">
-                  <div className="list-view-pf-left">
-                    <span className={cls}></span>
-                  </div>
                   <div className="list-view-pf-body">
                     <div className="list-view-pf-description">
                       <div className="list-group-item-heading">
-                        {item.path}
+                        {add3Dots(item.file.name, 40)}
                       </div>
                     </div>
                     <div className="list-view-pf-additional-info">
 
                       <div className="list-view-pf-additional-info-item">
-                        <img src="https://placekitten.com/80/45" alt="placeholder image"/>
+                        <img src={item.file.preview} style={{height: 32, width: 32}}
+                          alt="placeholder image"/>
                       </div>
 
                       <div className="list-view-pf-additional-info-item">
                         <span className="fa fa-clock-o"></span>
-                        {moment.duration(item.duration, 'seconds').format('m:ss', {trim: false})}
+                        {moment.duration(item.file.duration, 'seconds').format('m:ss', {trim: false})}
                       </div>
                     </div>
                   </div>

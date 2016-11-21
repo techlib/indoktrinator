@@ -31,16 +31,14 @@ const synthTarget = {
 
     if (!item.added && item._type == 'auto') {
       props.addToSynth(item, component.props.index + 1)
-      monitor.getItem().index = component.props.index + 1
       monitor.getItem().added = true
+      monitor.getItem().index = component.props.index + 1
     } else {
       props.moveCard(dragIndex, hoverIndex);
       monitor.getItem().index = hoverIndex;
     }
-
   }
-
-}
+};
 
 export var SyntheticItem = flow(
   DropTarget([Types.SYNTH_ITEM, Types.AUTO_ITEM], synthTarget, connect => ({
@@ -51,5 +49,5 @@ export var SyntheticItem = flow(
     connectDragSource: connect.dragSource(),
     isDragging: monitor.isDragging()
   }))
-)(Item)
+)(Item);
 

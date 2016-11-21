@@ -25,14 +25,14 @@ BigCalendar.setLocalizer(
 
 moment.locale('cz', {
   week: {
-    dow: 0, // Monday is the first day of the week.
+    dow: 1, // Monday is the first day of the week.
     doy: 4  // The week that contains Jan 4th is the first week of the year.
   }
 });
 
 moment.locale('en', {
   week: {
-    dow: 0, // Monday is the first day of the week.
+    dow: 1, // Monday is the first day of the week.
     doy: 4  // The week that contains Jan 4th is the first week of the year.
   }
 });
@@ -54,8 +54,10 @@ export var Program = React.createClass({
     return {
       'uuid': this.props.program.uuid,
       'title': this.props.title,
-      'events': [], // displayed events in grid
+      'event': {list: []},
+      'segment': {list: []},
       'bigCalendarSlotInfo': {}, // clicked slot info
+      'bigCalendarDate': new Date(moment().startOf('isoWeek').format("YYYY, MM, DD")), // actual start calendar date
       'showSegmentEditModal': false,
       'showEventEditModal': false,
       'showCreateCalendarModal': false
@@ -68,9 +70,8 @@ export var Program = React.createClass({
       'name': p.program.name,
       'uuid': p.program.uuid,
       'state': p.program.state,
-      'segment': p.segment,
-      'event': p.event,
-      'events': this.getEvents(p.segment, p.event, new Date())
+      'segment': {list: p.segment},
+      'event': {list: p.event}
     });
   },
 
@@ -129,13 +130,7 @@ export var Program = React.createClass({
     ).then(() => {
       EventActions.delete(uuid, () => {
         this.hideEventEditModal();
-        EventActions.list(() => {
-          var data = EventStore.data.list;
-          this.setState({event: data});
-          this.setState({
-            'events': this.getEvents()
-          });
-        });
+        this.reloadEventsSources();
       });
     });
   },
@@ -147,13 +142,7 @@ export var Program = React.createClass({
     ).then(() => {
       SegmentActions.delete(uuid, () => {
         this.hideSegmentEditModal();
-        SegmentActions.list(() => {
-          var data = SegmentStore.data.list;
-          this.setState({segment: data});
-          this.setState({
-            'events': this.getEvents()
-          });
-        });
+        this.reloadEventsSources();
       });
     });
   },
@@ -161,52 +150,28 @@ export var Program = React.createClass({
   updateEvent(event) {
     EventActions.update(event, () => {
       this.hideEventEditModal();
-      EventActions.list(() => {
-        var data = EventStore.data.list;
-        this.setState({event: data});
-        this.setState({
-          'events': this.getEvents()
-        });
-      });
+      this.reloadEventsSources();
     });
   },
 
   updateSegment(segment) {
     SegmentActions.update(segment, () => {
       this.hideSegmentEditModal();
-      SegmentActions.list(() => {
-        var data = SegmentStore.data.list;
-        this.setState({segment: data});
-        this.setState({
-          'events': this.getEvents()
-        });
-      });
+      this.reloadEventsSources();
     });
   },
 
   saveEvent(event) {
     EventActions.create(event, () => {
       this.hideCreateCalendarEventModal();
-      EventActions.list(() => {
-        var data = EventStore.data.list;
-        this.setState({event: data});
-        this.setState({
-          'events': this.getEvents()
-        });
-      });
+      this.reloadEventsSources();
     });
   },
 
   saveSegment(segment) {
     SegmentActions.create(segment, () => {
       this.hideCreateCalendarEventModal();
-      SegmentActions.list(() => {
-        var data = SegmentStore.data.list;
-        this.setState({segment: data});
-        this.setState({
-          'events': this.getEvents()
-        });
-      });
+      this.reloadEventsSources();
     });
   },
 
@@ -275,8 +240,6 @@ export var Program = React.createClass({
   },
 
   handleSelectSlot(slotInfo) {
-    console.log(slotInfo);
-
     this.setState({
       bigCalendarSlotInfo: slotInfo
     });
@@ -302,90 +265,73 @@ export var Program = React.createClass({
     }
   },
 
-  getEvents(segment, event, startDatetime)
+  reloadEventsSources() {
+    SegmentActions.list(() => {
+      var data = SegmentStore.data.list;
+      this.setState({segment: {list: this.getFilteredSegments(data)}});
+    });
+    EventActions.list(() => {
+      var data = EventStore.data.list;
+      this.setState({event: {list: this.getFilteredSegments(data)}});
+    });
+  },
+
+  getFilteredSegments(segments) {
+    return segments.filter((item) => {
+      return item.program == this.props.params.uuid;
+    });
+  },
+
+  getFilteredEvents(events) {
+    return events.filter((item) => {
+      return item.program == this.props.params.uuid;
+    });
+  },
+
+  getPreparedEvents()
   {
     var events = [];
 
-    if (!segment) {
-      segment = this.state.segment;
-    }
+    this.state.segment.list.forEach((item) => {
 
-    if (!event) {
-      event = this.state.event;
-    }
-
-    if (!startDatetime) {
-      startDatetime = new Date();
-    }
-
-    segment.forEach((item) => {
-      var startMoment = moment(startDatetime).startOf('week').add(item.day, 'days').seconds(item.range[0]);
-      var endMoment = moment(startDatetime).startOf('week').add(item.day, 'days').seconds(item.range[1]);
+      // +1 / -1 because  + 1, // cus bug of bigCalendar, events immediately behind yourselfs
+      var startMoment = moment(this.state.bigCalendarDate).startOf('week').add(item.day, 'days').seconds(item.range[0] + 1);
+      var endMoment = moment(this.state.bigCalendarDate).startOf('week').add(item.day, 'days').seconds(item.range[1] - 1);
 
       events.push({
         'title': item._playlist.name,
         'start': startMoment.toDate(),
         'end': endMoment.toDate(),
         'type': 'segment',
-        'uuid': item.uuid,
-        'allDay': this.isAllDaySegment(item)
+        'uuid': item.uuid
       });
     });
 
-    event.forEach((item) => {
-      var startMoment = moment(item.date, "YYYY-MM-DD").startOf('day').seconds(item.range[0]);
-      var endMoment = moment(item.date, "YYYY-MM-DD").startOf('day').seconds(item.range[1]);
+    // +1 / -1 because  + 1, // cus bug of bigCalendar, events immediately behind yourselfs
+    this.state.event.list.forEach((item) => {
+      var startMoment = moment(item.date, "YYYY-MM-DD").startOf('day').seconds(item.range[0] + 1);
+      var endMoment = moment(item.date, "YYYY-MM-DD").startOf('day').seconds(item.range[1] - 1);
 
       events.push({
         'title': item._playlist.name,
         'start': startMoment.toDate(),
         'end': endMoment.toDate(),
         'type': 'event',
-        'uuid': item.uuid,
-        'allDay': this.isAllDayEvent(item)
+        'uuid': item.uuid
       });
     });
 
     return events;
   },
 
-  isAllDaySegment(segment) {
-    if (segment.range[0] + segment.range[1] == 86399) {
-      return true;
-    }
-    if (segment.range[0] + segment.range[1] == 86400) {
-      return true;
-    }
-    if (segment.range[0] + segment.range[1] == 86401) {
-      return true;
-    }
-
-    return false;
-  },
-
-  isAllDayEvent(event) {
-    if (event.range[0] + event.range[1] == 86399) {
-      return true;
-    }
-    if (event.range[0] + event.range[1] == 86400) {
-      return true;
-    }
-    if (event.range[0] + event.range[1] == 86401) {
-      return true;
-    }
-
-    return false;
-  },
-
   onNavigate(date)
   {
     this.setState({
-      'events': this.getEvents(null, null, date)
+      'bigCalendarDate': date
     });
-  }
-  ,
+  },
 
-  columnStyleGetter: function (event, start, end, isSelected) {
+  columnStyleGetter: function (event) {
     var style = {
       borderRadius: '0px',
       opacity: 0.8,
@@ -406,13 +352,10 @@ export var Program = React.createClass({
     return {
       style: style
     }
-  }
-  ,
+  },
 
   render()
   {
-    console.log(this.state);
-
     return (
       <div className='col-xs-24 container-fluid'>
         <h1>{this.state.title}</h1>
@@ -472,14 +415,15 @@ export var Program = React.createClass({
                         selectable
                         startAccessor='start'
                         endAccessor='end'
-                        events={this.state.events}
+                        events={this.getPreparedEvents()}
                         eventPropGetter={this.columnStyleGetter}
                         onNavigate={this.onNavigate}
                         timeslots={1}
                         defaultView='week'
-                        defaultDate={new Date(moment().startOf('isoWeek').format("YYYY, MM, DD"))}
+                        defaultDate={this.state.bigCalendarDate}
                         onSelectEvent={this.handleSelectEvent}
                         onSelectSlot={this.handleSelectSlot}
+                        views={['day', 'week']}
                       />
                     </div>
                     <CreateCalendarEventModal

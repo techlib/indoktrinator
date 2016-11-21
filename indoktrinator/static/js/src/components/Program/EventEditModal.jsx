@@ -9,6 +9,7 @@ import {DeleteButton} from "../form/button/DeleteButton";
 import {FormattedMessage} from "react-intl";
 import TimePicker from "rc-time-picker";
 import moment from "moment";
+var DatePicker = require("react-bootstrap-date-picker");
 
 let Header = Modal.Header;
 let Body = Modal.Body;
@@ -85,6 +86,10 @@ export var EventEditModal = React.createClass({
     return moment(this.state.date).startOf('day').add(this.state.range[1], 'seconds');
   },
 
+  handleChangeDate(date) {
+    this.setState({date: moment(date).toDate()});
+  },
+
   handleChange(evt) {
     this.setState({[evt.target.name]: evt.target.value})
   },
@@ -124,6 +129,26 @@ export var EventEditModal = React.createClass({
           <h2>
             {this.state.title}
           </h2>
+          <div className="row">
+            <div className="form-group">
+              <div className="col-xs-2">
+                <label className="control-label">
+                  <FormattedMessage
+                    id="app.menu.event.date"
+                    description="Title"
+                    defaultMessage="Date"
+                  />
+                </label>
+              </div>
+              <div className="col-xs-10">
+                <DatePicker
+                  value={this.state.date}
+                  onChange={this.handleChangeDate}
+                  showClearButton="false"
+                />
+              </div>
+            </div>
+          </div>
           <div className="row">
             <div className="form-group">
               <div className="col-xs-2">
