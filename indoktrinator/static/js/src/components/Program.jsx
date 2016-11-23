@@ -278,13 +278,13 @@ export var Program = React.createClass({
 
   getFilteredSegments(segments) {
     return segments.filter((item) => {
-      return item.program == this.props.params.uuid;
+      return item.program == this.state.uuid;
     });
   },
 
   getFilteredEvents(events) {
     return events.filter((item) => {
-      return item.program == this.props.params.uuid;
+      return item.program == this.state.uuid;
     });
   },
 

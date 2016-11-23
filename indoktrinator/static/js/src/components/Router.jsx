@@ -33,4 +33,4 @@ ReactDOM.render((
       </Route>
     </Router>
   ), document.getElementById('AdminatorApp')
-)
+)``

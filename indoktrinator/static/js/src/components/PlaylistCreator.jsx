@@ -57,9 +57,10 @@ var Component = React.createClass({
     var items = [];
 
     if (playlist.items && playlist.items.length > 0) {
-      playlist.items.forEach((item) => {
+      playlist.items.forEach((item, index) => {
         items.push({
           uuid: item.uuid,
+          index: index,
           type: Types.SYNTH_ITEM,
           state: StoreTypes.LOADED,
           file: {
@@ -75,13 +76,19 @@ var Component = React.createClass({
           editable: !playlist.system
         });
       });
-      return items;
     } else {
       return [{uuid: null, type: Types.DEFAULT, path: '', editable: false, name: 'Drag and drop here!'}];
     }
+
+    return items;
   },
 
   moveCard(dragIndex, hoverIndex) {
+    console.log('2 - drag', dragIndex, 'hover', hoverIndex);
+
+    var test = this.state.items;
+    console.log(test);
+
     const cards = this.state.items;
     const dragCard = cards[dragIndex];
 
@@ -93,10 +100,12 @@ var Component = React.createClass({
         ]
       }
     }));
+
+    var test2 = this.state.items;
+    console.log(test2);
   },
 
   addToSynth(obj, pos) {
-    obj.hide = true;
     this.setState(update(this.state, {
       items: {$splice: [[pos, 0, obj]]},
       newCounter: {$set: this.state.newCounter + 1}
@@ -193,7 +202,6 @@ var Component = React.createClass({
     const items = map(this.state.items, (item) => {
       item.hide = false
       item._type = 'synth'
-      delete(item.index)
       return item
     });
 
@@ -204,6 +212,11 @@ var Component = React.createClass({
   },
 
   getSyntheticItem(item, index) {
+    if (item.hasOwnProperty('index')) {
+      delete item.index;
+    }
+    console.log(index);
+
     return <SyntheticItem
       index={index}
       key={item.uuid}
@@ -243,9 +256,19 @@ var Component = React.createClass({
       'Are you sure?',
       'Would you like to cancel adding of this item?'
     ).then(() => {
-      var newItems = this.state.items;
-      delete(newItems[index]);
-      this.setState({items: newItems});
+      FeedbackActions.set('success', 'Item canceled');
+
+      // remove index
+      var items = this.state.items.filter((item, i) => {
+        return index != i;
+      });
+
+      // remove index
+      this.setState(update(this.state, {
+        items: {
+          $set: items
+        }
+      }));
     });
   },
 
@@ -257,18 +280,16 @@ var Component = React.createClass({
       ItemActions.delete(uuid, () => {
         FeedbackActions.set('success', 'Item deleted');
 
-        // find index to remove
-        var itemIndex = null;
-        this.state.items.forEach((item, index) => {
-          if(item.uuid == uuid) {
-            itemIndex = index;
-          }
+        // remove index
+        var items = this.state.items.filter((item, i) => {
+          return item.uuid != uuid;
         });
 
-        // remove index
-        var newItems = this.state.items;
-        delete(newItems[itemIndex]);
-        this.setState({items: newItems});
+        this.setState(update(this.state, {
+          items: {
+            $set: items
+          }
+        }));
       });
     });
   },
@@ -302,11 +323,7 @@ var Component = React.createClass({
                     {...this.commonProps} />
                   <div className="list-group list-view-pf list-view-pf-view playlist">
                     {this.state.items.map((item, i) => {
-                      if (!item || (this.state.items.length > 1 && item.type == Types.DEFAULT)) {
-                        return null;
-                      } else {
-                        return (this.getSyntheticItem(item, i))
-                      }
+                      return (this.getSyntheticItem(item, i))
                     })}
                   </div>
                 </div>

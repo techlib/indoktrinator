@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-import sys, traceback
+import sys
+import traceback
 import datetime
 from twisted.internet import reactor
 from txzmq import ZmqRouterConnection
@@ -10,9 +11,7 @@ from jsonschema import validate
 from indoktrinator.router.schema import schema
 from uuid import uuid4
 
-
 from indoktrinator.router.planner import Planner
-
 
 class Router(ZmqRouterConnection):
     MESSAGE_COUNT = 0
@@ -140,10 +139,13 @@ class Router(ZmqRouterConnection):
         '''
         program = None
         plan = None
+        if not isinstance(device_id, str):
+            device_id = device_id.decode('utf8')
+
         program = self.manager.db.session.query(
             self.manager.device.e().program
         ).filter_by(
-            id=device_id.decode('utf8')
+            id=device_id
         ).one_or_none()
 
         if program is not None:
@@ -219,6 +221,15 @@ class Router(ZmqRouterConnection):
             print("TODO: pong is wrong")
 
     def on_init(self, id_device, message):
+        id_device_str = id_device.decode('utf8')
+        try:
+            device = self.manager.device.get_item(id_device_str)
+        except:
+            device = self.manager.device.insert({
+                'id': id_device_str,
+                'name': id_device_str,
+            })
+
         self.ok(id_device, message)
         self.plan(id_device)
         self.resolution(

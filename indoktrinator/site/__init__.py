@@ -118,11 +118,14 @@ def make_site(db, manager, access_model, debug=False):
 
         if 'POST' == flask.request.method:
             device = flask.request.get_json(force=True)
-            if 'photo' in device:
-                start = device['photo'].find(',')
-                if start < 0:
-                    start = 0
-                device['photo'] = b64decode(device['photo'][start:])
+            try:
+                if 'photo' in device:
+                    start = device['photo'].find(',')
+                    if start < 0:
+                        start = 0
+                    device['photo'] = b64decode(device['photo'][start:])
+            except:
+                device['photo'] = None
             return flask.jsonify(manager.device.insert(device))
 
     @app.route('/api/device/<id>', methods=['GET', 'DELETE', 'PATCH'])
@@ -135,11 +138,14 @@ def make_site(db, manager, access_model, debug=False):
         if 'PATCH' == flask.request.method:
             device = flask.request.get_json(force=True)
             device['id'] = id
-            if 'photo' in device:
-                start = device['photo'].find(',')
-                if start < 0:
-                    start = 0
-                device['photo'] = b64decode(device['photo'][start:])
+            try:
+                if 'photo' in device:
+                    start = device['photo'].find(',')
+                    if start < 0:
+                        start = 0
+                    device['photo'] = b64decode(device['photo'][start:])
+            except:
+                device['photo'] = None
 
             return flask.jsonify(manager.device.update(device))
 

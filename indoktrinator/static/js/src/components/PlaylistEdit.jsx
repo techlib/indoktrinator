@@ -32,8 +32,9 @@ export var PlaylistEdit = React.createClass({
     var items = [];
 
     if (playlist.items && playlist.items.length > 0) {
-      playlist.items.forEach((item) => {
+      playlist.items.forEach((item, index) => {
         items.push({
+          index: index,
           uuid: item.uuid,
           type: Types.SYNTH_ITEM,
           state: StoreTypes.LOADED,

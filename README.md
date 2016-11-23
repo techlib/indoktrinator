@@ -16,3 +16,8 @@ Documentation requires `asciidoctor` with some addons:
 Since it contains some diagrams, you also need `plantuml`:
 
     yum install -y plantuml
+
+Create RPM package with
+
+    python3 setup.py bdist_rpm
+

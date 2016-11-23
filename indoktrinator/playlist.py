@@ -31,15 +31,16 @@ class Playlist(Model):
             self.e('file'),
             isouter=True,
         ).all()
-
-        result = {
-            'uuid': query[0].MappedPlaylist.uuid,
-            'name': query[0].MappedPlaylist.name,
-            'duration': query[0].MappedPlaylist.duration,
-            'path': query[0].MappedPlaylist.path,
-            'system': query[0].MappedPlaylist.system,
-            'items': [],
-        }
+        result = {}
+        if len(query) > 0:
+            result = {
+                'uuid': query[0].MappedPlaylist.uuid,
+                'name': query[0].MappedPlaylist.name,
+                'duration': query[0].MappedPlaylist.duration,
+                'path': query[0].MappedPlaylist.path,
+                'system': query[0].MappedPlaylist.system,
+                'items': [],
+            }
 
         for item in query:
             if item.MappedFile and item.MappedItem:

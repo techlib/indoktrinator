@@ -15,7 +15,9 @@ export var DeviceListPanel = React.createClass({
             </h3>
           </div>
           <div className="panel-body">
-            <img className="img-responsive" src={this.props.photo} style={{width: '100%', height: 250}}></img>
+            <Link to={`/device/${this.props.id}`}>
+              <img className="img-responsive" src={this.props.photo} style={{width: '100%', height: 250}}></img>
+            </Link>
           </div>
           <div className="panel-footer">
             <ul style={{paddingLeft: 0}}>
@@ -57,7 +59,7 @@ export var DeviceListPanel = React.createClass({
                   id="app.menu.device.power.false"
                   description="Description"
                   defaultMessage="No"
-                />}  {this.props.program ? ',' : null}
+                />} {this.props.program ? ',' : null}
               </li>
               <li style={{display: 'inline', marginRight: 5}}>
                 {this.props.program ?
