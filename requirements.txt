@@ -9,3 +9,5 @@ txpostgres
 ldap3
 requests
 txZMQ
+pyyaml
+jsonschema

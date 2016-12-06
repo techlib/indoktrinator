@@ -1,5 +1,6 @@
 import * as React from "react";
-import {PlaylistActions, ItemActions, FeedbackActions} from "../actions";
+import * as Reflux from "reflux";
+import {PlaylistActions, ItemActions, FeedbackActions, BrowserHistory} from "../actions";
 import update from "react/lib/update";
 import {AutoItem} from "./PlaylistCreator/AutoItem";
 import {SyntheticItem} from "./PlaylistCreator/SyntheticItem";
@@ -9,10 +10,20 @@ import {map, filter} from "lodash";
 import {FormattedMessage} from "react-intl";
 import {Input} from "react-bootstrap";
 import {Feedback} from "./Feedback";
-import {hashHistory as BrowserHistory} from "react-router";
 import {guid} from "../util/database";
+import {Types} from "./PlaylistCreator/Types";
+import {PlaylistStore} from "../stores/Playlist";
+import {ItemStore} from "../stores/Item";
+import {FileStore} from "../stores/File";
+import {confirmModal} from "./ModalConfirmMixin";
+import {StoreTypes} from "./../stores/StoreTypes";
 
 var Component = React.createClass({
+
+  mixins: [
+    Reflux.connect(ItemStore, 'item'),
+    Reflux.connect(FileStore, 'file')
+  ],
 
   commonProps: {
     labelClassName: 'col-xs-2',
@@ -24,23 +35,60 @@ var Component = React.createClass({
       uuid: p.playlist.playlist.uuid,
       name: p.playlist.playlist.name,
       title: p.playlist.playlist.name,
-      playlist: {list: p.playlist.list},
-      file: p.file
+      playlist: {list: p.playlist.list, playlist: {}},
+      files: p.files,
+      items: p.items
     });
   },
 
   getInitialState() {
     return {
       'playlist': {list: []},
-      'items': [{uuid: 'default', type: 'video', path: '', editable: false}],
       'newCounter': 0,
       'filter': '',
       'openPlaylist': null,
-      'file': []
+      'file': {file: {}},
+      'files': [],
+      'items': []
     }
   },
 
+  getItems(playlist) {
+    var items = [];
+
+    if (playlist.items && playlist.items.length > 0) {
+      playlist.items.forEach((item, index) => {
+        items.push({
+          uuid: item.uuid,
+          index: index,
+          type: Types.SYNTH_ITEM,
+          state: StoreTypes.LOADED,
+          file: {
+            name: item.file_name,
+            hash: item.file_hash,
+            duration: item.file_duration,
+            path: item.file_path,
+            preview: item.file_preview,
+            type: item.file_type,
+            uuid: item.file_uuid
+          },
+          hide: false,
+          editable: !playlist.system
+        });
+      });
+    } else {
+      return [{uuid: null, type: Types.DEFAULT, path: '', editable: false, name: 'Drag and drop here!'}];
+    }
+
+    return items;
+  },
+
   moveCard(dragIndex, hoverIndex) {
+    console.log('2 - drag', dragIndex, 'hover', hoverIndex);
+
+    var test = this.state.items;
+    console.log(test);
+
     const cards = this.state.items;
     const dragCard = cards[dragIndex];
 
@@ -52,11 +100,12 @@ var Component = React.createClass({
         ]
       }
     }));
+
+    var test2 = this.state.items;
+    console.log(test2);
   },
 
   addToSynth(obj, pos) {
-    obj.uuid = '_n-' + this.state.newCounter
-    obj.hide = true
     this.setState(update(this.state, {
       items: {$splice: [[pos, 0, obj]]},
       newCounter: {$set: this.state.newCounter + 1}
@@ -84,29 +133,44 @@ var Component = React.createClass({
       FeedbackActions.set('error', 'Form contains invalid data:', errors)
     } else {
 
-      // create playlist
+      // clone items
+      var itemsCache = this.state.items;
+
+      // delete playlist items
+      this.props.playlist.playlist.items.forEach((item) => {
+        ItemActions.delete(item.uuid, () => {
+        });
+      });
+
+      // create playlist items
+      var ii = 1;
+      itemsCache.forEach((item) => {
+        if (item.type != Types.DEFAULT) {
+          var databaseItem = {};
+          databaseItem.playlist = this.state.uuid;
+          databaseItem.file = item.file.uuid;
+          databaseItem.duration = item.file.duration;
+          databaseItem.position = ii;
+
+          databaseItem.uuid = guid();
+          ItemActions.create(databaseItem, () => {
+
+          });
+
+          ii++;
+        }
+      });
+      // update playlist
       var playlist = {};
       playlist.name = this.state.name;
       playlist.uuid = this.state.uuid;
       PlaylistActions.update(playlist, () => {
-
+        // update name + title
         this.setState({name: playlist.name, title: playlist.name});
-
-        // create playlist items
-        var ii = 1;
-        this.state.items.forEach((item, i) => {
-          if (item.uuid != "default") {
-            var databaseItem = {};
-            databaseItem.playlist = this.state.uuid;
-            databaseItem.uuid = guid();
-            databaseItem.position = item.position;
-            databaseItem.file = item.file;
-            databaseItem.duration = item.duration;
-            databaseItem.position = ii;
-
-            ItemActions.create(databaseItem);
-          }
-          ii++;
+        // update items
+        PlaylistActions.read(this.state.uuid, () => {
+          var data = PlaylistStore.data.playlist;
+          this.reloadItems(data);
         });
       });
     }
@@ -134,22 +198,12 @@ var Component = React.createClass({
     }))
   },
 
-
-  togglePlaylist(uuid) {
-    this.setState(update(this.state, {
-      openPlaylist: {
-        $set: this.state.openPlaylist != uuid ? uuid : null
-      }
-    }))
-  },
-
   finalizeDrop() {
     const items = map(this.state.items, (item) => {
       item.hide = false
       item._type = 'synth'
-      delete(item.index)
       return item
-    })
+    });
 
     this.setState(update(this.state, {
       items: {$set: items}
@@ -157,8 +211,27 @@ var Component = React.createClass({
 
   },
 
+  getSyntheticItem(item, index) {
+    if (item.hasOwnProperty('index')) {
+      delete item.index;
+    }
+    console.log(index);
+
+    return <SyntheticItem
+      index={index}
+      key={item.uuid}
+      hide={item.hide}
+      file={item.file}
+      editable={item.editable}
+      deleteItemHandler={this.deleteItemHandler}
+      cancelItemHandler={this.cancelItemHandler}
+      moveCard={this.moveCard}
+      addToSynth={this.addToSynth}
+      {...item} />
+  },
+
   getFilteredAvailableFiles() {
-    return filter(this.state.file, (item) => {
+    return filter(this.state.files, (item) => {
       return item.name.toLowerCase().indexOf(this.state.filter.toLowerCase()) >= 0
     })
   },
@@ -166,16 +239,58 @@ var Component = React.createClass({
   getAutoItem(file, index) {
     return <AutoItem
       index={index}
+      file={file}
       moveCard={this.moveCard}
       addToSynth={this.addToSynth}
       cancelDrop={this.cancelDrop}
       finalizeDrop={this.finalizeDrop}
-      {...file} />
+    />
+  },
+
+  reloadItems(playlist) {
+    this.setState({items: this.getItems(playlist)});
+  },
+
+  cancelItemHandler(index) {
+    confirmModal(
+      'Are you sure?',
+      'Would you like to cancel adding of this item?'
+    ).then(() => {
+      FeedbackActions.set('success', 'Item canceled');
+
+      // remove index
+      var items = this.state.items.filter((item, i) => {
+        return index != i;
+      });
+
+      // remove index
+      this.setState(update(this.state, {
+        items: {
+          $set: items
+        }
+      }));
+    });
   },
 
   deleteItemHandler(uuid) {
-    ItemActions.delete(uuid, () => {
-      BrowserHistory.push('/playlist/' + uuid)
+    confirmModal(
+      'Are you sure?',
+      'Would you like to remove item?'
+    ).then(() => {
+      ItemActions.delete(uuid, () => {
+        FeedbackActions.set('success', 'Item deleted');
+
+        // remove index
+        var items = this.state.items.filter((item, i) => {
+          return item.uuid != uuid;
+        });
+
+        this.setState(update(this.state, {
+          items: {
+            $set: items
+          }
+        }));
+      });
     });
   },
 
@@ -208,17 +323,8 @@ var Component = React.createClass({
                     {...this.commonProps} />
                   <div className="list-group list-view-pf list-view-pf-view playlist">
                     {this.state.items.map((item, i) => {
-                        return <SyntheticItem
-                          index={i}
-                          key={item.uuid}
-                          hide={item.hide}
-                          editable={item.editable ? item.editable : true}
-                          deleteItemHandler={this.deleteItemHandler}
-                          moveCard={this.moveCard}
-                          addToSynth={this.addToSynth}
-                          {...item} />
-                      }
-                    )}
+                      return (this.getSyntheticItem(item, i))
+                    })}
                   </div>
                 </div>
               </div>
@@ -238,7 +344,6 @@ var Component = React.createClass({
               </div>
             </div>
           </div>
-
           <div className='col-xs-12 col-md-6'>
             <div className='row'>
               <div className='panel panel-default'>

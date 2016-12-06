@@ -11,17 +11,25 @@ import {regexGridFilter} from "../util/griddle-components";
 import {FormattedMessage} from "react-intl";
 import {confirmModal} from "./ModalConfirmMixin";
 
+let PlaylistSystemColumn = React.createClass({
+  render() {
+    return (this.props.rowData.system ? <FormattedMessage
+      id="app.playlist.system.true"
+      description="Status column"
+      defaultMessage="Yes"
+    /> : <FormattedMessage
+      id="app.playlist.system.false"
+      description="Status column"
+      defaultMessage="No"
+    />);
+  }
+});
+
 let PlaylistLink = React.createClass({
   render() {
-    var link = (<span>{this.props.rowData.name}</span>);
-
-    if (!this.props.rowData.system) {
-      link = (<Link to={`/playlist/${this.props.rowData.uuid}`}>
-        {this.props.rowData.name}
-      </Link>);
-    }
-
-    return link;
+    return (<Link to={`/playlist/${this.props.rowData.uuid}`}>
+      {this.props.rowData.name}
+    </Link>);
   }
 });
 
@@ -69,17 +77,17 @@ let PlaylistActions = React.createClass({
              defaultMessage="Copy"
            />
     </Button>
-    <Button
-      label=''
-      bsStyle=''
-      onClick={this.handleDeletePlayList}>
-      <i className="fa fa-trash"></i>
-      <FormattedMessage
-        id="app.button.delete"
-        description="Title"
-        defaultMessage="Delete"
-      />
-      </Button>
+        {!this.props.rowData.system ? <Button
+          label=''
+          bsStyle=''
+          onClick={this.handleDeletePlayList}>
+          <i className="fa fa-trash"></i>
+          <FormattedMessage
+            id="app.button.delete"
+            description="Title"
+            defaultMessage="Delete"
+          />
+        </Button> : null}
       </span>
     )
   }
@@ -100,7 +108,8 @@ export var PlaylistList = React.createClass({
 
     let columnMeta = [
       {columnName: 'name', displayName: 'Name', customComponent: PlaylistLink},
-      {columnName: 'c', displayName: 'Actions', customComponent: PlaylistActions}
+      {columnName: 'system', displayName: 'System playlist', customComponent: PlaylistSystemColumn},
+      {columnName: 'c', displayName: 'Actions', customComponent: PlaylistActions, cssClassName: "griddle-actions"}
     ];
 
     return (
@@ -135,7 +144,7 @@ export var PlaylistList = React.createClass({
           customPagerComponent={Pager}
           sortAscendingComponent={<span className='fa fa-sort-alpha-asc'></span>}
           sortDescendingComponent={<span className='fa fa-sort-alpha-desc'></span>}
-          columns={['name', 'c']}
+          columns={['name', 'system', 'c']}
           resultsPerPage='50'
           customFilterer={regexGridFilter}
           useCustomFilterer='true'

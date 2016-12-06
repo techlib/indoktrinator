@@ -26,7 +26,8 @@ export var SegmentEditModal = React.createClass({
   getInitialState() {
     return {
       'range': this.props.segment.range,
-      'date': this.props.segment.date
+      'date': this.props.segment.date,
+      'resolution': 'full'
     }
   },
 
@@ -37,7 +38,10 @@ export var SegmentEditModal = React.createClass({
       'state': p.segment.state,
       'date': p.segment.date,
       'playlist': p.segment.playlist,
-      'title': p.segment.state == StoreTypes.LOADED ? p.segment.playlist.name : 'New Segment'
+      'title': p.segment.state == StoreTypes.LOADED ? p.segment.playlist.name : 'New Segment',
+      'resolution': p.segment.resolution,
+      'url1': p.segment.url1,
+      'url2': p.segment.url2
     });
   },
 
@@ -69,7 +73,9 @@ export var SegmentEditModal = React.createClass({
       segment.date = this.state.date;
       segment.range = this.state.range;
       segment.playlist = this.state.playlist;
-
+      segment.resolution = this.state.resolution;
+      segment.url1 = this.state.url1;
+      segment.url2 = this.state.url2;
       this.props.saveHandler(segment);
     }
   },
@@ -106,6 +112,18 @@ export var SegmentEditModal = React.createClass({
         -moment().startOf('isoWeek').add(this.state.day, 'days').startOf('day').diff(value, 'seconds')
       ]
     });
+  },
+
+  handleChangeResolution(evt) {
+    this.setState({[evt.target.name]: evt.target.value});
+  },
+
+  handleUrl1(value) {
+    this.setState({url1: value.target.value})
+  },
+
+  handleUrl2(value) {
+    this.setState({url2: value.target.value})
   },
 
   handleChange(evt) {
@@ -179,6 +197,65 @@ export var SegmentEditModal = React.createClass({
                   {item.name}</option>
               })}
             </BootstrapSelect>
+          </div>
+
+          <div className="row">
+            <BootstrapSelect
+              label='Resolution'
+              name='resolution'
+              ref='resolution'
+              value={this.state.resolution}
+              onChange={this.handleChangeResolution}
+              {...this.commonProps}>
+
+              <option value='full'>Full</option>
+              <option value='right'>Right</option>
+              <option value='both'>Both</option>
+            </BootstrapSelect>
+          </div>
+
+          <div className="row">
+            <div className="form-group">
+              <div className="col-xs-2">
+                <label className="control-label">
+                  <FormattedMessage
+                    id="app.menu.segment.range.end"
+                    description="Right url"
+                    defaultMessage="Right URL"
+                  />
+                </label>
+              </div>
+              <div className="col-xs-10">
+                <input
+                  style={{width: 100}}
+                  showSecond={true}
+                  defaultValue={this.state.url1}
+                  onChange={this.handleUrl1}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="row">
+            <div className="form-group">
+              <div className="col-xs-2">
+                <label className="control-label">
+                  <FormattedMessage
+                    id="app.menu.segment.range.end"
+                    description="Bottom url"
+                    defaultMessage="Bottom URL"
+                  />
+                </label>
+              </div>
+              <div className="col-xs-10">
+                <input
+                  style={{width: 100}}
+                  showSecond={true}
+                  defaultValue={this.state.url2}
+                  onChange={this.handleUrl2}
+                />
+              </div>
+            </div>
           </div>
         </Modal.Body>
         <Modal.Footer>

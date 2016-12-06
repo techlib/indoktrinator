@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from txzmq import ZmqFactory, ZmqEndpointType, ZmqEndpoint
+from twisted.python import log
 from indoktrinator.router.router import Router
 
 
@@ -11,9 +12,11 @@ def make_router(db, manager, address, pool_size):
 
     router = Router(db, manager, zmq_factory, zmq_endpoint)
 
+    log.msg("Router: register callbacks")
     router.registerCallback('init', router.on_init)
     router.registerCallback('ping', router.on_ping)
     router.registerCallback('pong', router.on_pong)
+    router.registerCallback('status', router.on_status)
     router.checkClients()
 
     return router

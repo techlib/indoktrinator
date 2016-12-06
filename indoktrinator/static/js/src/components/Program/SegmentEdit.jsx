@@ -12,7 +12,6 @@ import moment from "moment";
 import "rc-time-picker/assets/index.css";
 import {Feedback} from "../../stores/Feedback";
 
-
 export var SegmentEdit = React.createClass({
 
   mixins: [],
@@ -25,7 +24,9 @@ export var SegmentEdit = React.createClass({
   getInitialState() {
     return {
       'range': this.props.segment.range,
-      'day': this.props.segment.day
+      'day': this.props.segment.day,
+      'playlist': this.props.segment.playlist ? this.props.segment.playlist : (this.props.playlist[0] ? this.props.playlist[0].uuid : ''),
+      'resolution': 'full',
     }
   },
 
@@ -40,6 +41,10 @@ export var SegmentEdit = React.createClass({
       r.push(`Format of range is [x < y]`);
     }
 
+    if (this.state.range[0] == this.state.range[1]) {
+      r.push(`Range can not be null`);
+    }
+
     return r;
   },
 
@@ -52,6 +57,10 @@ export var SegmentEdit = React.createClass({
       var segment = this.props.segment;
       segment.range = this.state.range;
       segment.playlist = this.state.playlist;
+
+      segment.resolution = this.state.resolution;
+      segment.url1 = this.state.url1;
+      segment.url2 = this.state.url2;
 
       this.props.saveHandler(segment);
     }
@@ -89,6 +98,18 @@ export var SegmentEdit = React.createClass({
         - moment().startOf('isoWeek').startOf('day').add(this.state.day, 'days').diff(value, 'seconds')
       ]
     });
+  },
+
+  handleChangeResolution(evt) {
+    this.setState({[evt.target.name]: evt.target.value});
+  },
+
+  handleUrl1(value) {
+    this.setState({url1: value.target.value})
+  },
+
+  handleUrl2(value) {
+    this.setState({url2: value.target.value})
   },
 
   handleChange(evt) {
@@ -162,6 +183,65 @@ export var SegmentEdit = React.createClass({
                   {item.name}</option>
               })}
             </BootstrapSelect>
+          </div>
+
+          <div className="row">
+            <BootstrapSelect
+              label='Resolution'
+              name='resolution'
+              ref='resolution'
+              value={this.state.resolution}
+              onChange={this.handleChangeResolution}
+              {...this.commonProps}>
+
+              <option value='full'>Full</option>
+              <option value='right'>Right</option>
+              <option value='both'>Both</option>
+            </BootstrapSelect>
+          </div>
+
+          <div className="row">
+            <div className="form-group">
+              <div className="col-xs-2">
+                <label className="control-label">
+                  <FormattedMessage
+                    id="app.menu.segment.range.end"
+                    description="Right url"
+                    defaultMessage="Right URL"
+                  />
+                </label>
+              </div>
+              <div className="col-xs-10">
+                <input
+                  style={{width: 100}}
+                  showSecond={true}
+                  defaultValue={this.state.url1}
+                  onChange={this.handleUrl1}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="row">
+            <div className="form-group">
+              <div className="col-xs-2">
+                <label className="control-label">
+                  <FormattedMessage
+                    id="app.menu.segment.range.end"
+                    description="Bottom url"
+                    defaultMessage="Bottom URL"
+                  />
+                </label>
+              </div>
+              <div className="col-xs-10">
+                <input
+                  style={{width: 100}}
+                  showSecond={true}
+                  defaultValue={this.state.url2}
+                  onChange={this.handleUrl2}
+                />
+              </div>
+            </div>
           </div>
         </Modal.Body>
         <Modal.Footer>

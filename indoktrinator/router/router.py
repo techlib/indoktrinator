@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
-import sys, traceback
+import sys
+import traceback
 import datetime
 from twisted.internet import reactor
+from twisted.python import log
 from txzmq import ZmqRouterConnection
 
 from json import loads, dumps
@@ -10,16 +12,22 @@ from jsonschema import validate
 from indoktrinator.router.schema import schema
 from uuid import uuid4
 
-
 from indoktrinator.router.planner import Planner
 
 
 class Router(ZmqRouterConnection):
+    '''
+    Router class implement communication with device
+    '''
     MESSAGE_COUNT = 0
     CLIENT_DICT = {}
     CALLBACK_REGISTER = {}
 
     def __init__(self, db, manager, factory, endpoint):
+        '''
+        Construtor for router endpoint
+
+        '''
         self.db = db
         self.manager = manager
         for device in self.manager.device.list():
@@ -34,10 +42,16 @@ class Router(ZmqRouterConnection):
         super(Router, self).__init__(factory, endpoint, identity=b'leader')
 
     def isExpired(self, date):
+        '''
+        CHeck if date is expired - meens older than 120 second
+        '''
         now = datetime.datetime.now()
         (now-date).seconds > 120
 
     def getClient(self, id_device):
+        '''
+        Get client from connected clients
+        '''
         if id_device not in Router.CLIENT_DICT:
             Router.CLIENT_DICT[id_device] = {
                 'date': datetime.datetime.now(),
@@ -59,6 +73,9 @@ class Router(ZmqRouterConnection):
         client['online'] = True
 
     def checkClients(self):
+        '''
+        Check client connection status and save
+        '''
         for client_id, client in Router.CLIENT_DICT.items():
             if client['change'] is False and self.isExpired(client['date']):
                 client['change'] = True
@@ -78,7 +95,11 @@ class Router(ZmqRouterConnection):
         reactor.callLater(5, self.checkClients)
 
     def gotMessage(self, id_device, raw, timestamp):
-        print(id_device, raw, timestamp)
+        '''
+        Receive message from client and call coresponding method
+        Use internal callback register
+        '''
+
         Router.MESSAGE_COUNT += 1
         self.updateClient(id_device)
 
@@ -94,9 +115,12 @@ class Router(ZmqRouterConnection):
             '''
             Log exception
             '''
-            print(e)
+            log.msg("Exception: %s" % e)
 
     def sendMsg(self, id_device, type, message, id=None):
+        '''
+        Send message to client
+        '''
         if isinstance(id_device, str):
             id_device = id_device.encode('utf8')
 
@@ -114,12 +138,18 @@ class Router(ZmqRouterConnection):
         return message['id']
 
     def registerCallback(self, action, method):
+        '''
+        Register action to received messages
+        '''
         if action not in Router.CALLBACK_REGISTER:
             Router.CALLBACK_REGISTER[action] = []
 
         Router.CALLBACK_REGISTER[action].append(method)
 
     def unregisterCallback(self, action, method):
+        '''
+        Unregister action to received messages
+        '''
         if action in Router.CALLBACK_REGISTER \
                 and method in Router.CALLBACK_REGISTER[action]:
             Router.CALLBACK_REGISTER[action].remove(method)
@@ -132,7 +162,11 @@ class Router(ZmqRouterConnection):
         client['ping'] = self.sendMsg(id_device, 'ping', {})
 
     def pong(self, id_device, id):
+        '''
+        Send pong message to device
+        '''
         self.sendMsg(id_device, 'pong', {}, id)
+        print("PONG", id_device)
 
     def plan(self, device_id):
         '''
@@ -140,10 +174,13 @@ class Router(ZmqRouterConnection):
         '''
         program = None
         plan = None
+        if not isinstance(device_id, str):
+            device_id = device_id.decode('utf8')
+
         program = self.manager.db.session.query(
             self.manager.device.e().program
         ).filter_by(
-            id=device_id.decode('utf8')
+            id=device_id
         ).one_or_none()
 
         if program is not None:
@@ -172,6 +209,9 @@ class Router(ZmqRouterConnection):
         self.sendMsg(id_device, 'powerOff', {})
 
     def play(self, id_device, type, url):
+        '''
+        Play url on device
+        '''
         self.sendMsg(id_device, 'play', {'play': {'uri': url, 'type': type}})
 
     def stop(self, id_device):
@@ -187,6 +227,9 @@ class Router(ZmqRouterConnection):
         self.sendMsg(id_device, 'resolution', {'resolution': {'type': type, 'urlRight': url1, 'urlBottom': url2}})
 
     def url(self, id_device, url1=None, url2=None):
+        '''
+        Set url mode for device
+        '''
         message = {}
         if url1:
             message['urlRight'] = url1
@@ -197,9 +240,15 @@ class Router(ZmqRouterConnection):
         self.sendMsg(id_device, 'url', message)
 
     def ok(self, id_device, message):
+        '''
+        Universal OK message to reply
+        '''
         self.sendMsg(id_device, 'ok', {}, id=message['id'])
 
     def error(self, id_device, message, code=None, reply=None):
+        '''
+        Universal Error message to reply
+        '''
         self.sendMsg(
             id_device,
             'error',
@@ -211,14 +260,32 @@ class Router(ZmqRouterConnection):
         )
 
     def on_ping(self, id_device, message):
+        '''
+        callback on ping message
+        '''
         self.pong(id_device, message['id'])
 
     def on_pong(self, id_device, message):
+        '''
+        callback on pong message
+        '''
         client = self.getClient(id_device)
         if client['ping'] != message['id']:
-            print("TODO: pong is wrong")
+            log.error("Pong is wrong")
 
     def on_init(self, id_device, message):
+        '''
+        Callback on init message
+        '''
+        id_device_str = id_device.decode('utf8')
+        try:
+            device = self.manager.device.get_item(id_device_str)
+        except:
+            device = self.manager.device.insert({
+                'id': id_device_str,
+                'name': id_device_str,
+            })
+
         self.ok(id_device, message)
         self.plan(id_device)
         self.resolution(
@@ -227,6 +294,10 @@ class Router(ZmqRouterConnection):
             url1='https://www.seznam.cz',
             url2='https://www.google.com'
         )
+
+    def on_status(self, id_device, message):
+        id_device_str = id_device.decode('utf8')
+        print(message)
 
     def on_ok(self, id_device, message):
         '''

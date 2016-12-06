@@ -19,4 +19,9 @@ class Event(Model):
         self.include_relations = {'item': ['_program', '_playlist'],
                                   'list': ['_program', '_playlist']}
 
+    def changed(self, key):
+        for device in self.manager.device.uuidByEvent(key):
+            device = item.id.encode('utf8')
+            self.manager.inotifier.addDevice(device)
+
 # vim:set sw=4 ts=4 et:

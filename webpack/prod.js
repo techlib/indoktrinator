@@ -8,17 +8,19 @@ module.exports = {
   },
   module: {
     loaders: [
-    {
-      test: /\.jsx?$/,
-      loader: 'babel',
-      query: {
-        presets: ['react', 'es2015'],
-        cacheDirectory: true,
-        plugins: ['transform-react-inline-elements']
+      {
+        test: /\.jsx?$/,
+        loader: 'babel',
+        query: {
+          presets: ['react', 'es2015'],
+          cacheDirectory: true,
+          plugins: ['transform-react-inline-elements']
+        },
+        exclude: /(node_modules|bower_components)/,
       },
-      exclude: /(node_modules|bower_components)/,
-    }
-    ]},
+      {test: /\.css$/, loader: "style-loader!css-loader"}
+    ]
+  },
   resolve: {
     extensions: ['', '.js', '.jsx']
   },
@@ -30,7 +32,7 @@ module.exports = {
       }
     }),
     new webpack.DefinePlugin({
-      'process.env':{
+      'process.env': {
         'NODE_ENV': JSON.stringify('production')
       }
     }),

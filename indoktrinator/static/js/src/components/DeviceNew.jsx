@@ -16,6 +16,7 @@ export var DeviceNew = React.createClass({
   },
 
   handleSave(data) {
+    delete data['preview'];
     DeviceActions.create(data, () => {
       BrowserHistory.push('/device/')
     });

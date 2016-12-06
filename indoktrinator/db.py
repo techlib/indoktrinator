@@ -67,6 +67,9 @@ class InetRangeType(UserDefinedType):
 
 
 class Int4RangeType(UserDefinedType):
+    '''
+    Int4Range behaviour definition
+    '''
     def get_col_spec(self):
         return 'INT4RANGE'
 
@@ -85,11 +88,14 @@ class Int4RangeType(UserDefinedType):
     def result_processor(self, dialect, coltype):
         def process(value):
             if value is not None:
-                return (value.lower, value.upper)
+                return (value.lower, value.upper-1)
         return process
 
 
 class ByteaType(UserDefinedType):
+    '''
+    bytea object behaviour definition
+    '''
     def get_col_spec(self):
         return 'BYTEA'
 
@@ -102,7 +108,7 @@ class ByteaType(UserDefinedType):
     def result_processor(self, dialect, coltype):
         def process(value):
             if value:
-                return (b'data:image/png;base64, ' + base64.b64encode(value))\
+                return (b'data:image/octet-stream;base64, ' + base64.b64encode(value))\
                     .decode('ascii')
 
         return process

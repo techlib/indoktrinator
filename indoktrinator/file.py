@@ -11,7 +11,7 @@ __all__ = ['File']
 
 class File(Model):
     def init(self):
-        self.changed = True
+        #self.changed = True
 
         self.table_name = 'file'
         # Primary key
@@ -19,5 +19,10 @@ class File(Model):
         # Relations
         #self.relate('_program', self.e('program'))
         #self.include_relations = {'item': ['_program'], 'list': ['_program']}
+
+    def changed(self, key):
+        for item in self.manager.device.uuidByFile(key):
+            device = item.id.encode('utf8')
+            self.manager.inotifier.addDevice(device)
 
 # vim:set sw=4 ts=4 et:

@@ -17,4 +17,9 @@ class Item(Model):
         self.relate('_file', self.e('file'))
         self.include_relations = {'item': ['_file'], 'list': ['_file']}
 
+    def changed(self, key):
+        for item in self.manager.device.uuidByItem(key):
+            device = item.id.encode('utf8')
+            self.manager.inotifier.addDevice(device)
+
 # vim:set sw=4 ts=4 et:

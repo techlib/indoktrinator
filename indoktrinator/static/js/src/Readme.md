@@ -9,6 +9,7 @@ Všechny texty na webu by se měly zapisovat pomocí:
 1. FormattedMessage
 2. FormattedHtmlMessage
 3. FormattedRelative
+4. ...
 
 Dokumentace https://github.com/AlexJozwicki/react-intl-es6 a https://github.com/yahoo/react-intl/.
 
@@ -42,9 +43,17 @@ popups:
 ...
 
 
-##Rozsiritelnost
+##Změna přiložených messages
 
-V budoucnu snadná rozšiřitelnost v dodání překladových souborů jako argument `messages` komponenty `IntlProvider` v souboru `App.jsx`.  Pro usnadnění možnost vyparsování všech textů nutných k překladu z kódu pomocí balíčku [babel-plugin-react-intl](https://github.com/yahoo/babel-plugin-react-intl). Aktuální lokalizace je nastavená v argumentu `locale` stejné komponenty.
+1. Vytvořit prázdné ( { } ) json soubory `cz.json` a `en-US.json` ve složce `dist/lang`.
+2. Pomocí příkazu `npm run generate-lang-files` vygenerovat všechny překlady z projektu do souborů roztříděných podle struktury projektu
+3. Pomocí příkazu z npm `npm run export-messages` vygenerování jazykových souborů pro vyjmenované lokalizace (en, cz, ..) z předgenerovaných souborů z kroku 2.
+
+Možné problémy:
+
+1. Při provádění bodu 2. doplňit stage-0 -> 1 do souboru `.babelrc`
+2. Při provádění bodu 2. smazat načítání souborů pomocí `json-loaderu` v komponentě `App.jsx`
+3. Při provádění bodu 2. ignorovat `node-modules`
 
 #Formáty pro zobrazování údajů
 

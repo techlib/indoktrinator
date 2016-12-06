@@ -33,7 +33,8 @@ class Playlist(object):
         '''
 
         result = []
-        while start < end:
+        while start < end and self.items:
+
             item = self.items[self.item]
             self.item = (self.item + 1) % len(self.items)
 
@@ -111,12 +112,15 @@ class Planner(object):
         '''
         Generate plan
         '''
+
+        # inicialize data
         result = []
         segment = None
         event = None
         time = 0
         end = 0
 
+        # nevered loop
         while True:
             if segment is None or segment[1] <= time:
                 segment = self.getSegment()
@@ -137,12 +141,17 @@ class Planner(object):
                     time = segment[0]
 
                 end = min(segment[1], event[0]) if event is not None else segment[1]
-                result += segment[2].getItems(time, end)
-                time = end
+                if time < end:
+                    result += segment[2].getItems(time, end)
+                    time = end
+                    continue
 
-            elif event is not None and (segment is None or event[0] < segment[0]):
+            # add event
+            if event is not None and (segment is None or event[0] == time):
                 end = event[1]
                 if event[0] > time:
                     time = event[0]
                 result += event[2].getItems(time, end)
                 time = event[1]
+                continue
+            time += 1

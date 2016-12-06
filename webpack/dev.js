@@ -16,15 +16,16 @@ module.exports = {
           "cacheDirectory": false,
           "plugins": [
             'transform-react-inline-elements'
-            ],
+          ],
           "presets": ['react', "es2015"]
         },
         exclude: /(node_modules|bower_components)/
-      }
+      },
+      {test: /\.css$/, loader: "style-loader!css-loader"}
     ]
   },
   resolve: {
-    extensions: ['', '.js', '.jsx']
+    extensions: ['', '.js', '.jsx', '.css']
   }
 };
 

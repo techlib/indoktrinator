@@ -21,11 +21,15 @@ export var Device = React.createClass({
   },
 
   componentWillReceiveProps(p) {
-    this.setState(p.device);
     this.setState(
       {
+        'id': p.device.id,
+        'photo': p.device.photo,
         'preview': p.device.photo,
-        'title': p.device.name
+        'name': p.device.name,
+        'title': p.device.name,
+        'state': p.device.state,
+        'program': p.device.program ? p.device.program : p.program[0] ? p.program[0].uuid : null
       }
     );
   },
@@ -56,7 +60,7 @@ export var Device = React.createClass({
   },
 
   save() {
-    var errors = this.validate()
+    var errors = this.validate();
 
     if (errors.length > 0) {
       FeedbackActions.set('error', 'Form contains invalid data:', errors)

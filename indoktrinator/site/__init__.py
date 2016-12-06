@@ -22,11 +22,15 @@ import re
 
 
 def make_site(db, manager, access_model, debug=False):
+    '''
+    Create wsgi site object
+    '''
     app = flask.Flask('.'.join(__name__.split('.')[:-1]))
     app.secret_key = os.urandom(16)
     app.debug = debug
     manager.app = app
 
+    # register methods
     @app.template_filter('to_alert')
     def category_to_alert(category):
         return {
@@ -115,8 +119,18 @@ def make_site(db, manager, access_model, debug=False):
     def device_handler(**kwargs):
         if 'GET' == flask.request.method:
             return flask.jsonify(result=manager.device.list())
+
         if 'POST' == flask.request.method:
-            return flask.jsonify(manager.device.insert(flask.request.get_json(force=True)))
+            device = flask.request.get_json(force=True)
+            try:
+                if 'photo' in device:
+                    start = device['photo'].find(',')
+                    if start < 0:
+                        start = 0
+                    device['photo'] = b64decode(device['photo'][start:])
+            except:
+                device['photo'] = None
+            return flask.jsonify(manager.device.insert(device))
 
     @app.route('/api/device/<id>', methods=['GET', 'DELETE', 'PATCH'])
     @authorized_only()
@@ -128,9 +142,14 @@ def make_site(db, manager, access_model, debug=False):
         if 'PATCH' == flask.request.method:
             device = flask.request.get_json(force=True)
             device['id'] = id
-            if 'photo' in device:
-                start = device['photo'].find(',')
-                device['photo'] = b64decode(device['photo'][start:])
+            try:
+                if 'photo' in device:
+                    start = device['photo'].find(',')
+                    if start < 0:
+                        start = 0
+                    device['photo'] = b64decode(device['photo'][start:])
+            except:
+                device['photo'] = None
 
             return flask.jsonify(manager.device.update(device))
 
@@ -152,9 +171,7 @@ def make_site(db, manager, access_model, debug=False):
     def file_handler(**kwargs):
         if 'GET' == flask.request.method:
             # TODO: Check, if cache is nesesery
-            if manager.file.changed:
-                file_handler.cache = flask.jsonify(result=manager.file.list())
-                manager.file.changed = False
+            return flask.jsonify(result=manager.file.list())
             return file_handler.cache
 
     @app.route('/api/file/<uuid>', methods=['GET'])
@@ -297,7 +314,6 @@ def make_site(db, manager, access_model, debug=False):
     @authorized_only()
     def segment_handler(**kwargs):
         if 'GET' == flask.request.method:
-            print(manager.segment.list())
             return flask.jsonify(result=manager.segment.list())
         if 'POST' == flask.request.method:
             return flask.jsonify(manager.segment.insert(
@@ -328,7 +344,6 @@ def make_site(db, manager, access_model, debug=False):
     @app.route('/media/<path:path>')
     def media(path):
         path = manager.config['path'] + '/' + path
-        print(path)
         os.path.exists(path)
         f = open(path, 'rb')
 

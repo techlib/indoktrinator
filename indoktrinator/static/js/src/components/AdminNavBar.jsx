@@ -4,7 +4,7 @@ import * as Reflux from "reflux";
 import {Nav, Navbar, NavItem} from "react-bootstrap";
 import {LinkContainer} from "react-router-bootstrap";
 import {FormattedMessage, FormattedDate} from "react-intl";
-
+import {LocaleSwitcher} from "./LocaleSwitcher";
 
 var Header = Navbar.Header;
 var Brand = Navbar.Brand;
@@ -85,6 +85,13 @@ export var AdminNavBar = React.createClass({
         </Header>
 
         <Nav className="nav navbar-nav navbar-utility">
+          <li>
+            <LocaleSwitcher
+              changeLocaleHandler={this.props.changeLocaleHandler}
+              defaultLanguage={this.props.defaultLanguage}
+              languages={this.props.languages}
+            />
+          </li>
           <li>
             <a href="#">
               <span className="pficon pficon-user"></span>

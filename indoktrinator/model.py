@@ -62,17 +62,21 @@ class Model(object):
 
     def update(self, item):
         assert item.get(self.pkey) is not None, 'Primary key is not set'
-        entity = self.e().filter_by(**{self.pkey: item.get(self.pkey)}).one()
+        key = item.get(self.pkey)
+        entity = self.e().filter_by(**{self.pkey: key}).one()
         for k, v in item.items():
             if k in self.get_relationships() or k == self.pkey:
                 continue
             setattr(entity, k, v)
         self.db.commit()
+        self.changed(key)
         return object_to_dict(entity)
 
     def replace(self, item):
         if item.get(self.pkey) is not None:
-            self.e().filter_by(**{self.pkey: item[self.pkey]}).delete()
+            key = item.get(self.pkey)
+            self.e().filter_by(**{self.pkey: key}).delete()
+            self.changed(key)
         return object_to_dict(self.insert(item))
 
     def insert(self, item):
@@ -82,11 +86,15 @@ class Model(object):
                 newVal[k] = v
         e = self.e().insert(**newVal)
         self.db.commit()
+        key = getattr(e, self.pkey)
+        print(key)
+        self.changed(key)
         return object_to_dict(e)
 
     def delete(self, key):
         rows = self.e().filter_by(**{self.pkey: key}).delete()
         self.db.commit()
+        self.changed(key)
         return {'deleted': rows}
 
     def e(self, table_name=None):
@@ -101,5 +109,8 @@ class Model(object):
     def get_relationships(self):
         mapper = class_mapper(self.e())
         return mapper.relationships.keys()
+
+    def changed(self, key):
+        pass
 
 # vim:set sw=4 ts=4 et:

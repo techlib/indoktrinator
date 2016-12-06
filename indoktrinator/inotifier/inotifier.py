@@ -1,8 +1,7 @@
 import datetime
 import re
 
-from twisted.python import filepath
-from twisted.python import log
+from twisted.python import filepath, log
 from twisted.internet import inotify
 from twisted.internet import reactor
 
@@ -22,6 +21,7 @@ class Inotifier(object):
 
     def __init__(self, db, manager, path, timeout):
         '''
+        inicialize variables
         '''
         self.db = db
         self.manager = manager
@@ -37,45 +37,95 @@ class Inotifier(object):
             recursive=True,
         )
         self._notifier.startReading()
-        self._to_check = {}
+        self._to_check_files = {}
+        self._to_check_folders = {}
+        self._to_check_devices = {}
 
         self.check()
 
     def notify(self, ignored, filepath, mask):
         '''
         '''
-        self._to_check[filepath] = datetime.datetime.now()
+        self.addFile(filepath)
+
+    def addDevice(self, id_device):
+        '''
+        Add device to notify list
+        '''
+        now = datetime.datetime.now()
+        if isinstance(id_device, str):
+            id_device = id_device.encode('utf8')
+
+        self._to_check_devices[id_device] = now
+
+    def addFile(self, filepath):
+        self._to_check_files[filepath] = datetime.datetime.now()
 
     def check(self):
         '''
+        Periodic tick function, that call
+        method after changes timeouts
         '''
         to_check = {}
 
-        while self._to_check:
+        # watch file from intotify and proces by FFMPEG class
+        while self._to_check_files:
             now = datetime.datetime.now()
-            filepath, item = self._to_check.popitem()
+            filepath, item = self._to_check_files.popitem()
 
             if (now - self.timeout) > item:
-                self.process(filepath)
+                self.processFile(filepath)
             else:
                 to_check[filepath] = item
+        self._to_check_files = to_check
 
-        self._to_check = to_check
+        # after change in directory
+        to_check = {}
+        while self._to_check_folders:
+            now = datetime.datetime.now()
+            folderpath, item = self._to_check_folders.popitem()
+            if (now - self.timeout) > item:
+                self.processFolder(folderpath)
+            else:
+                to_check[folderpath] = item
+        self._to_check_folders = to_check
+
+        # after playlist change
+        to_check = {}
+        while self._to_check_devices:
+            now = datetime.datetime.now()
+            device, item = self._to_check_devices.popitem()
+
+            if (now - self.timeout) > item and not self._to_check_folders \
+                    and not self._to_check_files:
+                print(device)
+                self.manager.router.plan(device)
+            else:
+                to_check[device] = item
+        self._to_check_devices = to_check
+
         reactor.callLater(self._timeout, self.check)
 
     def transformPath(self, path):
         '''
         '''
-        return path[len(self._path):].decode('utf8')
+        result = path[len(self._path):]
+        if not isinstance(result, str):
+            result = result.decode('utf8')
+        return result
 
-    def process(self, filepath):
+    def processFile(self, filepath):
         '''
         Process changed file
         '''
+        log.msg("Processing file: %s" % filepath.path)
+        now = datetime.datetime.now()
         path = filepath.path
         transform_path = self.transformPath(path)
         transform_dir = '/' + self.transformPath(filepath.dirname())
-        name = filepath.basename().decode('utf8')
+        name = filepath.basename()
+        if not isinstance(name, str):
+            name = name.decode('utf8')
 
         query = self.manager.file.e().filter_by(
             path=transform_path
@@ -97,7 +147,6 @@ class Inotifier(object):
                         name=name,
                         preview=ffmpeg.preview,
                     ))
-                    self.manager.file.changed = True
 
                 else:
                     self.manager.file.insert(dict(
@@ -109,23 +158,62 @@ class Inotifier(object):
                         name=name,
                         preview=ffmpeg.preview,
                     ))
-                    self.manager.file.changed = True
 
-                self.savePlaylist(transform_dir)
+                transform_dir = '/' + self.transformPath(filepath.dirname())
+                self._to_check_folders[transform_dir] = now
 
             elif path.endswith(Inotifier.INDEX):
                 self.refreshPlayList(transform_dir, path)
         else:
             query.delete()
-            self.manager.file.changed = True
             self.manager.db.commit()
-            self.savePlaylist(transform_dir)
+            self._to_check_folders[transform_dir] = now
 
-        # application version
+    def processFolder(self, transform_dir, playlist='/index.m3u8'):
+        '''
+        Save by actual database status
+        '''
+        devices = []
+        f = open(self._path + playlist, 'w')
+        f.write('#EXTM3U\r\n\r\n')
+
+        # Get file from DB and write to playlist
+        for result in self.manager.db.session.query(
+            self.manager.file.e().name,
+            self.manager.item.e().duration,
+        ).filter(
+            self.manager.file.e().uuid == self.manager.item.e().file,
+            self.manager.file.e().dir == transform_dir,
+            self.manager.playlist.e().uuid == self.manager.item.e().playlist,
+            self.manager.playlist.e().system == True,
+        ).order_by(
+            self.manager.item.e().position
+        ).group_by(
+            self.manager.file.e().uuid,
+            self.manager.file.e().name,
+            self.manager.item.e().duration,
+            self.manager.item.e().position,
+        ):
+            f.write('#EXTINF:%d,%s\r\n' % (result.duration, result.name))
+            f.write('%s\r\n\r\n' % result.name)
+
+        f.close()
+
+        # get all affected devices and store
+        for device in self.manager.device.e().join(
+            self.manager.program.e(),
+            self.manager.segment.e(),
+            self.manager.event.e(),
+            self.manager.playlist.e(),
+        ).filter(
+            self.manager.playlist.e().system==True,
+            self.manager.playlist.e().path==transform_dir,
+        ):
+            self.addDevice(device.id)
 
     def refreshPlayList(self, transform_dir, path):
         '''
-        TODO: move to DB trigger
+        Hook call after change of index (playlist) file
         '''
         f = open(path, 'r')
         lines = f.readlines()
@@ -165,29 +253,3 @@ class Inotifier(object):
 
         f.close()
 
-    def savePlaylist(self, transform_dir, playlist='/index.m3u8'):
-        '''
-        '''
-        f = open(self._path + playlist, 'w')
-        f.write('#EXTM3U\r\n\r\n')
-
-        for result in self.manager.db.session.query(
-            self.manager.file.e().name,
-            self.manager.item.e().duration,
-        ).filter(
-            self.manager.file.e().uuid == self.manager.item.e().file,
-            self.manager.file.e().dir == transform_dir,
-            self.manager.playlist.e().uuid == self.manager.item.e().playlist,
-            self.manager.playlist.e().system == True,
-        ).order_by(
-            self.manager.item.e().position
-        ).group_by(
-            self.manager.file.e().uuid,
-            self.manager.file.e().name,
-            self.manager.item.e().duration,
-            self.manager.item.e().position,
-        ):
-            f.write('#EXTINF:%d,%s\r\n' % (result.duration, result.name))
-            f.write('%s\r\n\r\n' % result.name)
-
-        f.close()

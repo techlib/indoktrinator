@@ -24,7 +24,8 @@ export var EventEdit = React.createClass({
   getInitialState() {
     return {
       'range': this.props.event.range,
-      'date': this.props.event.date
+      'date': this.props.event.date,
+      'playlist': this.props.event.playlist ? this.props.event.playlist : (this.props.playlist[0] ? this.props.playlist[0].uuid : ''),
     }
   },
 
@@ -37,6 +38,10 @@ export var EventEdit = React.createClass({
 
     if (this.state.range[0] > this.state.range[1]) {
       r.push(`Format of range required is [x < y]`);
+    }
+
+    if (this.state.range[0] == this.state.range[1]) {
+      r.push(`Range can not be null`);
     }
 
     if (!this.state.date) {

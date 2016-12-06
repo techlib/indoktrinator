@@ -21,4 +21,9 @@ class Segment(Model):
             'list': ['_program', '_playlist']
         }
 
+    def changed(self, key):
+        for device in self.manager.device.uuidBySegment(key):
+            device = item.id.encode('utf8')
+            self.manager.inotifier.addDevice(device)
+
 # vim:set sw=4 ts=4 et:

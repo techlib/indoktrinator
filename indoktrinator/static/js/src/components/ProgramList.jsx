@@ -70,7 +70,7 @@ export var ProgramList = React.createClass({
 
     let columnMeta = [
       {columnName: 'name', displayName: 'Name', customComponent: ProgramLink},
-      {columnName: 'c', displayName: 'Actions', customComponent: ProgramActions}
+      {columnName: 'c', displayName: 'Actions', customComponent: ProgramActions, cssClassName: "griddle-actions"}
     ];
 
     return (
