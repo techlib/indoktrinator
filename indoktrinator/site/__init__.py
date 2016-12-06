@@ -316,8 +316,10 @@ def make_site(db, manager, access_model, debug=False):
         if 'GET' == flask.request.method:
             return flask.jsonify(result=manager.segment.list())
         if 'POST' == flask.request.method:
+            segment = flask.request.get_json(force=True)
+            segment['day'] %= 7
             return flask.jsonify(manager.segment.insert(
-                flask.request.get_json(force=True)
+                segment
             ))
 
     @app.route('/api/segment/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
@@ -330,6 +332,7 @@ def make_site(db, manager, access_model, debug=False):
         if 'PATCH' == flask.request.method:
             segment = flask.request.get_json(force=True)
             segment['uuid'] = uuid
+            segment['day'] %= 7
             return flask.jsonify(manager.segment.update(segment))
 
     # Logged user info

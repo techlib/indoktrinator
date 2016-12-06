@@ -112,14 +112,14 @@ export var Program = React.createClass({
       var end = moment(slotInfo.end);
 
       segment.range = [start.diff(startDayMidnight, 'seconds'), end.diff(startDayMidnight, 'seconds')];
-      segment.day = start.weekday();
+      segment.day = start.weekday()+1; // WTF hack??
     } else {
       var now = moment();
 
-      segment.day = now.weekday();
+      segment.day = now.weekday()+1; // WTF hack??
       segment.range = [now.diff(startDayMidnight, 'seconds'), now.diff(startDayMidnight, 'seconds')];
-    }
 
+    }
     return segment;
   },
 
@@ -295,8 +295,13 @@ export var Program = React.createClass({
     this.state.segment.list.forEach((item) => {
 
       // +1 / -1 because  + 1, // cus bug of bigCalendar, events immediately behind yourselfs
-      var startMoment = moment(this.state.bigCalendarDate).startOf('week').add(item.day, 'days').seconds(item.range[0] + 1);
-      var endMoment = moment(this.state.bigCalendarDate).startOf('week').add(item.day, 'days').seconds(item.range[1] - 1);
+      var day = item.day;
+      if (day == 0)
+          day = 7;
+
+      var startMoment = moment(this.state.bigCalendarDate).startOf('week').add(day-1, 'days').seconds(item.range[0] + 1);
+      var endMoment = moment(this.state.bigCalendarDate).startOf('week').add(day-1, 'days').seconds(item.range[1] - 1);
+
 
       events.push({
         'title': item._playlist.name,

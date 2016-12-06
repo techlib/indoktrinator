@@ -20,8 +20,12 @@ class Event(Model):
                                   'list': ['_program', '_playlist']}
 
     def changed(self, key):
-        for device in self.manager.device.uuidByEvent(key):
+        for item in self.manager.device.uuidByEvent(key):
             device = item.id.encode('utf8')
             self.manager.inotifier.addDevice(device)
+
+    def delChanged(self, key):
+        obj = self.get_item(key)
+        self.manager.program.changed(obj['program'])
 
 # vim:set sw=4 ts=4 et:

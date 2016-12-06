@@ -54,12 +54,12 @@ export var CreateCalendarEventModal = React.createClass({
       var end = moment(slotInfo.end);
 
       segment.range = [start.diff(startDayMidnight, 'seconds'), end.diff(startDayMidnight, 'seconds')];
-      segment.day = start.weekday();
+      segment.day = start.isoWeekday();
     } else {
       var midnight = moment().startOf('day');
       var now = moment();
 
-      segment.day = now.weekday();
+      segment.day = now.isoWeekday();
       segment.range = [now.diff(midnight, 'seconds'), now.diff(midnight, 'seconds')];
     }
 

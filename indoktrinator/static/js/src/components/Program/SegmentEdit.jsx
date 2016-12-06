@@ -26,7 +26,9 @@ export var SegmentEdit = React.createClass({
       'range': this.props.segment.range,
       'day': this.props.segment.day,
       'playlist': this.props.segment.playlist ? this.props.segment.playlist : (this.props.playlist[0] ? this.props.playlist[0].uuid : ''),
-      'resolution': 'full',
+      'resolution': this.props.segment.resolution,
+      'url1': this.props.segment.url1,
+      'url2': this.props.segment.url2
     }
   },
 
@@ -200,7 +202,7 @@ export var SegmentEdit = React.createClass({
             </BootstrapSelect>
           </div>
 
-          <div className="row">
+          <div className="row" style={{display: (this.state.resolution == 'right' || this.state.resolution == 'both') ? 'block' : 'none'}}>
             <div className="form-group">
               <div className="col-xs-2">
                 <label className="control-label">
@@ -213,7 +215,7 @@ export var SegmentEdit = React.createClass({
               </div>
               <div className="col-xs-10">
                 <input
-                  style={{width: 100}}
+                  style={{width: '100%'}}
                   showSecond={true}
                   defaultValue={this.state.url1}
                   onChange={this.handleUrl1}
@@ -222,7 +224,7 @@ export var SegmentEdit = React.createClass({
             </div>
           </div>
 
-          <div className="row">
+          <div className="row" style={{display: (this.state.resolution == 'both') ? 'block' : 'none'}}>
             <div className="form-group">
               <div className="col-xs-2">
                 <label className="control-label">
@@ -235,7 +237,7 @@ export var SegmentEdit = React.createClass({
               </div>
               <div className="col-xs-10">
                 <input
-                  style={{width: 100}}
+                  style={{width: '100%'}}
                   showSecond={true}
                   defaultValue={this.state.url2}
                   onChange={this.handleUrl2}

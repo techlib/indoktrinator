@@ -16,4 +16,9 @@ class Program(Model):
         # Relations
         self.include_relations = {'item': [], 'list': []}
 
+    def changed(self, key):
+        for item in self.manager.device.uuidByProgram(key):
+            device = item.id.encode('utf8')
+            self.manager.inotifier.addDevice(device)
+
 # vim:set sw=4 ts=4 et:

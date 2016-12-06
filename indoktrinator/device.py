@@ -3,8 +3,8 @@
 
 from indoktrinator.model import Model
 from indoktrinator.utils import object_to_dict
-from sqlalchemy import and_
-
+from sqlalchemy import and_, text
+import datetime
 __all__ = ['Device']
 
 
@@ -81,6 +81,32 @@ class Device(Model):
             self.e('program'),
         ).join(
             self.e('event')
-        ).filter(self.e('playlist').uuid == uuid).all()
+        ).filter(self.e('event').uuid == uuid).all()
+
+    def uuidByProgram(self, uuid):
+        return self.manager.db.session.query(
+            self.e('device'),
+        ).join(
+            self.e('program'),
+        ).filter(self.e('program').uuid == uuid).all()
+
+    def getResolution(self, id):
+        now = datetime.datetime.now()
+        day = now.isoweekday()
+        midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        seconds = round((now - midnight).total_seconds())
+
+        query = self.e(
+            'segment'
+        ).join(
+            self.e('program')
+        ).join(
+            self.e('device')
+        ).filter(
+            self.e('device').id == id,
+            self.e('segment').day == day,
+            text('public.segment.range @> %d' % seconds),
+        )
+        return query.one_or_none()
 
 # vim:set sw=4 ts=4 et:

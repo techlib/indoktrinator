@@ -32,65 +32,64 @@ class Router(ZmqRouterConnection):
         self.manager = manager
         for device in self.manager.device.list():
             Router.CLIENT_DICT[device['id']] = {
+                'id': device['id'],
                 'date': datetime.datetime.now(),
-                'online': False,
-                'change': False,
+                'online': device['online'],
+                'power': device['power'],
                 'ping': None,
                 'messages': {},
             }
 
         super(Router, self).__init__(factory, endpoint, identity=b'leader')
 
-    def isExpired(self, date):
-        '''
-        CHeck if date is expired - meens older than 120 second
-        '''
-        now = datetime.datetime.now()
-        (now-date).seconds > 120
-
     def getClient(self, id_device):
         '''
         Get client from connected clients
         '''
-        if id_device not in Router.CLIENT_DICT:
-            Router.CLIENT_DICT[id_device] = {
+        id_device_str = id_device.decode('utf8')
+
+        if id_device_str not in Router.CLIENT_DICT:
+            Router.CLIENT_DICT[id_device_str] = {
+                'id': id_device_str,
                 'date': datetime.datetime.now(),
-                'online': True,
-                'change': True,
                 'ping': None,
+                'online': False,
+                'power': False,
                 'messages': {},
             }
 
-        return Router.CLIENT_DICT[id_device]
+        return Router.CLIENT_DICT[id_device_str]
 
     def updateClient(self, id_device):
         '''
         If client send some message, update current information
         '''
         client = self.getClient(id_device)
-        client['change'] = Router.CLIENT_DICT[id_device]['online'] is False
+
+        if client['online'] is not True:
+            client['online'] = True
+            self.manager.device.update({
+                'id': client['id'],
+                'online': True,
+                'power': True,
+            })
+
         client['date'] = datetime.datetime.now()
-        client['online'] = True
 
     def checkClients(self):
         '''
         Check client connection status and save
         '''
-        for client_id, client in Router.CLIENT_DICT.items():
-            if client['change'] is False and self.isExpired(client['date']):
-                client['change'] = True
-                client['online'] = False
+        now = datetime.datetime.now()
 
         for client_id, client in Router.CLIENT_DICT.items():
-            if client['online']:
-                self.ping(client_id)
-
-        online = []
-        for key, val in Router.CLIENT_DICT.items():
-            if val['online']:
-                online.append(key)
-
-            val['change'] = False
+            diff = now - client['date']
+            if diff.seconds > 300:
+                self.manager.device.update({
+                    'id': client_id,
+                    'online': False,
+                    'power': False,
+                })
 
         reactor.callLater(5, self.checkClients)
 
@@ -115,7 +114,7 @@ class Router(ZmqRouterConnection):
             '''
             Log exception
             '''
-            log.msg("Exception: %s" % e)
+            log.err()
 
     def sendMsg(self, id_device, type, message, id=None):
         '''
@@ -166,7 +165,7 @@ class Router(ZmqRouterConnection):
         Send pong message to device
         '''
         self.sendMsg(id_device, 'pong', {}, id)
-        print("PONG", id_device)
+        log.msg("PONG", id_device)
 
     def plan(self, device_id):
         '''
@@ -224,7 +223,14 @@ class Router(ZmqRouterConnection):
         '''
         set resolution on device
         '''
-        self.sendMsg(id_device, 'resolution', {'resolution': {'type': type, 'urlRight': url1, 'urlBottom': url2}})
+        msg = {'type': type}
+        if url1:
+            msg['urlRight'] = url1
+
+        if url2:
+            msg['urlBottom'] = url2
+
+        self.sendMsg(id_device, 'resolution', {'resolution': msg})
 
     def url(self, id_device, url1=None, url2=None):
         '''
@@ -288,16 +294,44 @@ class Router(ZmqRouterConnection):
 
         self.ok(id_device, message)
         self.plan(id_device)
-        self.resolution(
-            id_device,
-            'both',
-            url1='https://www.seznam.cz',
-            url2='https://www.google.com'
-        )
 
     def on_status(self, id_device, message):
-        id_device_str = id_device.decode('utf8')
-        print(message)
+        '''
+        Periodical report from client
+        '''
+        client = self.getClient(id_device)
+
+        device = {'id': client['id']}
+        update = False
+        if client['online'] is not True:
+            client['online'] = True
+            device['online'] = True
+            update = True
+
+        if client['power'] != message['status']['power']:
+            device['power'] = message['status']['power']
+            client['power'] = message['status']['power']
+            update = True
+
+        if update:
+            self.manager.device.update(device)
+
+        segment = self.manager.device.getResolution(client['id'])
+
+        if segment is None:
+            self.powerOff(id_device)
+
+        elif segment.resolution != message['status']['type'] \
+                or segment.url1 != message['status'].get('urlRight') \
+                or segment.url2 != message['status'].get('urlBottom'):
+            self.resolution(
+                id_device,
+                segment.resolution,
+                segment.url1,
+                segment.url2
+            )
+
+        self.ok(id_device, message)
 
     def on_ok(self, id_device, message):
         '''

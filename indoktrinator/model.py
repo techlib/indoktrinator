@@ -87,14 +87,13 @@ class Model(object):
         e = self.e().insert(**newVal)
         self.db.commit()
         key = getattr(e, self.pkey)
-        print(key)
         self.changed(key)
         return object_to_dict(e)
 
     def delete(self, key):
+        self.delChanged(key)
         rows = self.e().filter_by(**{self.pkey: key}).delete()
         self.db.commit()
-        self.changed(key)
         return {'deleted': rows}
 
     def e(self, table_name=None):
@@ -111,6 +110,9 @@ class Model(object):
         return mapper.relationships.keys()
 
     def changed(self, key):
+        pass
+
+    def delChanged(self, key):
         pass
 
 # vim:set sw=4 ts=4 et:
