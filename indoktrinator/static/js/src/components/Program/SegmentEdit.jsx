@@ -11,6 +11,7 @@ import {FormattedMessage} from "react-intl";
 import moment from "moment";
 import "rc-time-picker/assets/index.css";
 import {Feedback} from "../../stores/Feedback";
+import {getHtmlFormaFromSeconds, html5TimeToSecondsDiff} from './SegmentEditModal';
 
 export var SegmentEdit = React.createClass({
 
@@ -76,28 +77,22 @@ export var SegmentEdit = React.createClass({
     this.props.hideHandler();
   },
 
-  getStartDate() {
-    return moment().startOf('isoWeek').add(this.state.day, 'days').startOf('day').add(this.state.range[0], 'seconds');
-  },
-
-  getEndDate() {
-    return moment().startOf('isoWeek').add(this.state.day, 'days').startOf('day').add(this.state.range[1], 'seconds');
-  },
-
   handleChangeStartDate(value) {
+    const secondsDiff = html5TimeToSecondsDiff(value, this.state.day);
     this.setState({
       range: [
-        - moment().startOf('isoWeek').add(this.state.day, 'days').startOf('day').diff(value, 'seconds'),
+        - moment().startOf('isoWeek').add(this.state.day, 'days').startOf('day').diff(secondsDiff, 'seconds'),
         this.state.range[1]
       ]
     });
   },
 
   handleChangeEndDate(value) {
+    const secondsDiff = html5TimeToSecondsDiff(value, this.state.day);
     this.setState({
       range: [
         this.state.range[0],
-        - moment().startOf('isoWeek').startOf('day').add(this.state.day, 'days').diff(value, 'seconds')
+        - moment().startOf('isoWeek').startOf('day').add(this.state.day, 'days').diff(secondsDiff, 'seconds')
       ]
     });
   },
@@ -119,6 +114,8 @@ export var SegmentEdit = React.createClass({
   },
 
   render() {
+    const {range} = this.state;
+
     return (
       <div>
         <Modal.Body>
@@ -141,12 +138,15 @@ export var SegmentEdit = React.createClass({
                 </label>
               </div>
               <div className="col-xs-10">
-                <TimePicker
-                  style={{width: 100}}
-                  showSecond={true}
-                  defaultValue={this.getStartDate()}
-                  onChange={this.handleChangeStartDate}
-                />
+                {/*<TimePicker*/}
+                  {/*style={{width: 100}}*/}
+                  {/*showSecond={true}*/}
+                  {/*defaultValue={this.getStartDate()}*/}
+                  {/*onChange={this.handleChangeStartDate}*/}
+                {/*/>*/}
+                <input type="time" step="1"
+                       defaultValue={getHtmlFormaFromSeconds(range[0])}
+                       onChange={(e) => {this.handleChangeStartDate(e.target.value)}} />
               </div>
             </div>
           </div>
@@ -162,12 +162,15 @@ export var SegmentEdit = React.createClass({
                 </label>
               </div>
               <div className="col-xs-10">
-                <TimePicker
-                  style={{width: 100}}
-                  showSecond={true}
-                  defaultValue={this.getEndDate()}
-                  onChange={this.handleChangeEndDate}
-                />
+                {/*<TimePicker*/}
+                  {/*style={{width: 100}}*/}
+                  {/*showSecond={true}*/}
+                  {/*defaultValue={this.getEndDate()}*/}
+                  {/*onChange={this.handleChangeEndDate}*/}
+                {/*/>*/}
+                <input type="time" step="1"
+                       defaultValue={getHtmlFormaFromSeconds(range[1])}
+                       onChange={(e) => {this.handleChangeEndDate(e.target.value)}} />
               </div>
             </div>
           </div>

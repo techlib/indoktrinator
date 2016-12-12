@@ -6,6 +6,7 @@ import {RemoveButton} from "../form/button/RemoveButton";
 import {CancelButton} from "../form/button/CancelButton";
 import {add3Dots} from "../../util/string";
 import {FormattedMessage} from "react-intl";
+import {Types} from './Types';
 import {StoreTypes} from "./../../stores/StoreTypes";
 
 export var Item = React.createClass({
@@ -25,32 +26,20 @@ export var Item = React.createClass({
   },
 
   render() {
-    const opacity = this.props.isDragging || this.props.hide ? 0 : 1;
+    const {
+      type,
+      //React DnD
+      connectDragSource,
+      connectDropTarget} = this.props;
 
-    if (!this.props.file) {
-      return this.props.connectDragSource(this.props.connectDropTarget(
-        <div className="list-group-item" style={{opacity}}>
-          <div className="list-view-pf-main-info">
-            <div className="list-view-pf-body">
-              <div className="list-view-pf-description">
-                <div className="list-group-item-heading" style={{textAlign: 'center'}}>
-                  <FormattedMessage
-                    id="app.menu.event.item.dragAndDropExample"
-                    description="Text"
-                    defaultMessage="Drag and drop here!"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>))
-    } else {
-      return this.props.connectDragSource(this.props.connectDropTarget(
+    const opacity = (type === Types.SYNTH_ITEM && this.props.isDragging) || this.props.hide ? 0 : 1;
+
+    let item = (
         <div className="list-group-item" style={{opacity}}>
           <div className="list-view-pf-main-info">
             <div className="list-view-pf-left">
               <img src={this.props.file.preview} style={{height: 32, width: 32}}
-                alt="placeholder image"/>
+                   alt="placeholder image"/>
             </div>
             <div className="list-view-pf-body">
               <div className="list-view-pf-description">
@@ -72,12 +61,18 @@ export var Item = React.createClass({
               handler={this.delete}
             />
             {!this.props.state != StoreTypes.DEFAULT && this.props.state != StoreTypes.LOADED && this.props.added ?
-            <CancelButton
-              id={this.props.index}
-              handler={this.cancel}
-            />: null}
+              <CancelButton
+                id={this.props.index}
+                handler={this.cancel}
+              />: null}
           </div>
-        </div>))
+        </div>
+      );
+
+    if (type === Types.SYNTH_ITEM) {
+      item = connectDropTarget(item);
     }
+
+    return connectDragSource(item);
   }
 })

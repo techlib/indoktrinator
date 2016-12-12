@@ -11,6 +11,7 @@ import TimePicker from "rc-time-picker";
 import {FormattedMessage} from "react-intl";
 import moment from "moment";
 import "rc-time-picker/assets/index.css";
+import {html5TimeToSecondsDiff, getHtmlFormaFromSeconds} from './SegmentEditModal';
 
 export var EventEdit = React.createClass({
 
@@ -52,30 +53,44 @@ export var EventEdit = React.createClass({
   },
 
   handleChangeStartDate(value) {
+    const seconds = value.split(':')
+      .reverse()
+      .reduce((prev, curr, i, arr) =>
+        prev + curr * Math.pow(60, i+(3-arr.length))
+        , 0);
+
+    const secondsDiff = moment(this.state.date).startOf('day').add(seconds, 'seconds');
     this.setState({
       range: [
-        -moment(this.state.date).startOf('day').diff(value, 'seconds'),
+        -moment(this.state.date).startOf('day').diff(secondsDiff, 'seconds'),
         this.state.range[1]
       ]
     });
   },
 
   handleChangeEndDate(value) {
+    const seconds = value.split(':')
+      .reverse()
+      .reduce((prev, curr, i, arr) =>
+        prev + curr * Math.pow(60, i+(3-arr.length))
+        , 0);
+
+    const secondsDiff = moment(this.state.date).startOf('day').add(seconds, 'seconds');
     this.setState({
       range: [
         this.state.range[0],
-        -moment(this.state.date).startOf('day').diff(value, 'seconds')
+        -moment(this.state.date).startOf('day').diff(secondsDiff, 'seconds')
       ]
     });
   },
 
-  getStartDate() {
-    return moment(this.state.date).startOf('day').add(this.state.range[0], 'seconds');
-  },
-
-  getEndDate() {
-    return moment(this.state.date).startOf('day').add(this.state.range[1], 'seconds');
-  },
+  // getStartDate() {
+  //   return moment(this.state.date).startOf('day').add(this.state.range[0], 'seconds');
+  // },
+  //
+  // getEndDate() {
+  //   return moment(this.state.date).startOf('day').add(this.state.range[1], 'seconds');
+  // },
 
   handleChange(evt) {
     this.setState({[evt.target.name]: evt.target.value})
@@ -105,6 +120,8 @@ export var EventEdit = React.createClass({
   },
 
   render() {
+    const {range} = this.state;
+
     return (
       <div>
         <Modal.Body>
@@ -127,12 +144,15 @@ export var EventEdit = React.createClass({
                 </label>
               </div>
               <div className="col-xs-10">
-                <TimePicker
-                  style={{width: 100}}
-                  showSecond={true}
-                  defaultValue={this.getStartDate()}
-                  onChange={this.handleChangeStartDate}
-                />
+                {/*<TimePicker*/}
+                  {/*style={{width: 100}}*/}
+                  {/*showSecond={true}*/}
+                  {/*defaultValue={this.getStartDate()}*/}
+                  {/*onChange={this.handleChangeStartDate}*/}
+                {/*/>*/}
+                <input type="time" step="1"
+                       defaultValue={getHtmlFormaFromSeconds(range[0])}
+                       onChange={(e) => {this.handleChangeStartDate(e.target.value)}} />
               </div>
             </div>
           </div>
@@ -148,12 +168,15 @@ export var EventEdit = React.createClass({
                 </label>
               </div>
               <div className="col-xs-10">
-                <TimePicker
-                  style={{width: 100}}
-                  showSecond={true}
-                  defaultValue={this.getEndDate()}
-                  onChange={this.handleChangeEndDate}
-                />
+                {/*<TimePicker*/}
+                  {/*style={{width: 100}}*/}
+                  {/*showSecond={true}*/}
+                  {/*defaultValue={this.getEndDate()}*/}
+                  {/*onChange={this.handleChangeEndDate}*/}
+                {/*/>*/}
+                <input type="time" step="1"
+                       defaultValue={getHtmlFormaFromSeconds(range[1])}
+                       onChange={(e) => {this.handleChangeEndDate(e.target.value)}} />
               </div>
             </div>
           </div>

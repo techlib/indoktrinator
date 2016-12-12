@@ -2,6 +2,7 @@ import * as React from "react";
 import * as Reflux from "reflux";
 import {FeedbackStore} from "../stores/Feedback";
 import {Message} from "./Message";
+import {confirmModal} from "./ModalConfirmMixin";
 
 export var Feedback = React.createClass({
   mixins: [Reflux.connect(FeedbackStore, 'data')],
@@ -9,7 +10,7 @@ export var Feedback = React.createClass({
   data: {},
 
   render() {
-    if (!this.state.data) {
+    if (!this.state.data || this.state.data && this.state.data.type === 'error') {
       return null
     }
 

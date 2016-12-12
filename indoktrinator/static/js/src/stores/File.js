@@ -4,6 +4,7 @@ import * as Reflux from "reflux";
 import {FileActions, FeedbackActions} from "../actions";
 import {ErrorMixin} from "./Mixins";
 import {StoreTypes} from "./StoreTypes";
+import {API_URL} from './config';
 
 export var FileStore = Reflux.createStore({
   mixins: [ErrorMixin],
@@ -12,7 +13,7 @@ export var FileStore = Reflux.createStore({
 
   onRead(uuid, callbackDone) {
     $.ajax({
-      url: `/api/file/${uuid}`,
+      url: `${API_URL}/api/file/${uuid}`,
       success: result => {
         this.data.errors = []
         this.data.file.state = StoreTypes.LOADED
@@ -29,7 +30,7 @@ export var FileStore = Reflux.createStore({
 
   onList(callbackDone) {
     $.ajax({
-      url: '/api/file/', success: result => {
+      url: `${API_URL}/api/file/`, success: result => {
         this.data.errors = []
         this.data.list = result.result
         this.trigger(this.data)

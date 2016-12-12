@@ -18,6 +18,7 @@ export var Confirm = React.createClass({
       'confirmClass': 'primary',
       'abortClass': 'default',
       'show': true,
+      canAbort: true
     }
   },
 
@@ -46,13 +47,15 @@ export var Confirm = React.createClass({
     var clsConfirm = classNames('btn', 'btn-' + this.props.confirmClass)
     var clsAbort = classNames('btn', 'btn-' + this.props.abortClass)
 
+    const {canAbort} = this.props;
+
     return (
       <Footer>
         <div className='text-right'>
-          <button role='abort' className={clsAbort}
+          {canAbort && <button role='abort' className={clsAbort}
             onClick={this.abort}>
             {this.props.abortLabel}
-          </button>
+          </button>}
           <button role='confirm' className={clsConfirm}
             ref='confirm'
             onClick={this.confirm}>
@@ -93,7 +96,7 @@ export function confirmModal(title, text, others) {
   var wrapper = document.body.appendChild(document.createElement('div'));
   var component = ReactDOM.render(modal, wrapper);
   component.promise.always(() => {
-    ReactDOM.render(getModal(null, null, null, false), wrapper);
+    ReactDOM.render(getModal(null, null, others, false), wrapper);
     setTimeout(() => {
       ReactDOM.unmountComponentAtNode(wrapper);
       wrapper.remove()

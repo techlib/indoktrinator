@@ -18,7 +18,7 @@ class Playlist(Model):
         self.include_relations = {'item': ['items', 'item__file'], 'list': ['items']}
 
     def get_item(self, uuid):
-        query = self.manager.db.session.query(
+        q = self.manager.db.session.query(
             self.e('playlist'),
             self.e('item'),
             self.e('file')
@@ -30,7 +30,12 @@ class Playlist(Model):
         ).join(
             self.e('file'),
             isouter=True,
-        ).all()
+        ).order_by(
+            self.e('item').position
+        )
+        print(q)
+        query = q.all()
+
         result = {}
         if len(query) > 0:
             result = {

@@ -14,6 +14,24 @@ let Header = Modal.Header;
 let Body = Modal.Body;
 let Footer = Modal.Footer;
 
+export function html5TimeToSecondsDiff(value, day){
+  // from hh:mm:ss, hh:mm, hh -> to seconds
+  const seconds = value.split(':')
+    .reverse()
+    .reduce((prev, curr, i, arr) =>
+      prev + curr * Math.pow(60, i+(3-arr.length))
+      , 0);
+
+
+  return moment().startOf('isoWeek').add(day, 'days').startOf('day').add(seconds, 'seconds');
+}
+
+export function getHtmlFormaFromSeconds(seconds){
+  return moment().startOf('isoWeek').startOf('day')
+    .seconds(seconds)
+    .format('HH:mm:ss');
+}
+
 export var SegmentEditModal = React.createClass({
 
   mixins: [],
@@ -90,28 +108,22 @@ export var SegmentEditModal = React.createClass({
     this.props.hideHandler();
   },
 
-  getStartDate() {
-    return moment().startOf('isoWeek').add(this.state.day, 'days').startOf('day').add(this.state.range[0], 'seconds');
-  },
-
-  getEndDate() {
-    return moment().startOf('isoWeek').add(this.state.day, 'days').startOf('day').add(this.state.range[1], 'seconds');
-  },
-
   handleChangeStartDate(value) {
+    const secondsDiff = html5TimeToSecondsDiff(value, this.state.day);
     this.setState({
       range: [
-        -moment().startOf('isoWeek').add(this.state.day, 'days').startOf('day').diff(value, 'seconds'),
+        -moment().startOf('isoWeek').add(this.state.day, 'days').startOf('day').diff(secondsDiff, 'seconds'),
         this.state.range[1]
       ]
     });
   },
 
   handleChangeEndDate(value) {
+    const secondsDiff = html5TimeToSecondsDiff(value, this.state.day);
     this.setState({
       range: [
         this.state.range[0],
-        -moment().startOf('isoWeek').add(this.state.day, 'days').startOf('day').diff(value, 'seconds')
+        -moment().startOf('isoWeek').add(this.state.day, 'days').startOf('day').diff(secondsDiff, 'seconds')
       ]
     });
   },
@@ -133,6 +145,8 @@ export var SegmentEditModal = React.createClass({
   },
 
   render() {
+    const {range} = this.state;
+
     return (
       <Modal
         show={this.props.show}
@@ -155,12 +169,9 @@ export var SegmentEditModal = React.createClass({
                 </label>
               </div>
               <div className="col-xs-10">
-                <TimePicker
-                  style={{width: 100}}
-                  showSecond={true}
-                  defaultValue={this.getStartDate()}
-                  onChange={this.handleChangeStartDate}
-                />
+                <input type="time" step="1"
+                       defaultValue={getHtmlFormaFromSeconds(range[0])}
+                       onChange={(e) => {this.handleChangeStartDate(e.target.value)}} />
               </div>
             </div>
           </div>
@@ -176,12 +187,9 @@ export var SegmentEditModal = React.createClass({
                 </label>
               </div>
               <div className="col-xs-10">
-                <TimePicker
-                  style={{width: 100}}
-                  showSecond={true}
-                  defaultValue={this.getEndDate()}
-                  onChange={this.handleChangeEndDate}
-                />
+                <input type="time" step="1"
+                       defaultValue={getHtmlFormaFromSeconds(range[1])}
+                       onChange={(e) => {this.handleChangeEndDate(e.target.value)}} />
               </div>
             </div>
           </div>

@@ -2,6 +2,7 @@ import * as React from "react";
 import {AdminNavBar} from "./AdminNavBar";
 import {IntlProvider, addLocaleData} from "react-intl";
 import enLocaleData from "react-intl/locale-data/en";
+import {ErrorFeedback} from './ErrorFeedback';
 
 addLocaleData(enLocaleData);
 
@@ -47,6 +48,7 @@ export var App = React.createClass({
   render() {
     return <IntlProvider locale={this.state.language} defaultLocale={this.state.defaultLanguage} messages={this.state.messages}>
       <div>
+        <ErrorFeedback/>
         <AdminNavBar
           changeLocaleHandler={this.handleChangeLang}
           defaultLanguage={this.state.defaultLanguage}

@@ -3,7 +3,7 @@ import * as Reflux from "reflux";
 import {PlaylistActions, ItemActions, FeedbackActions, BrowserHistory} from "../actions";
 import update from "react/lib/update";
 import {AutoItem} from "./PlaylistCreator/AutoItem";
-import {SyntheticItem} from "./PlaylistCreator/SyntheticItem";
+import PlaceholderForInitialDrag, {SyntheticItem}  from "./PlaylistCreator/SyntheticItem";
 import {DragDropContext} from "react-dnd";
 import HTML5Backend from "react-dnd-html5-backend";
 import {map, filter} from "lodash";
@@ -16,7 +16,10 @@ import {PlaylistStore} from "../stores/Playlist";
 import {ItemStore} from "../stores/Item";
 import {FileStore} from "../stores/File";
 import {confirmModal} from "./ModalConfirmMixin";
+import {getItems} from './PlaylistEdit';
 import {StoreTypes} from "./../stores/StoreTypes";
+import {v4} from 'uuid'
+
 
 var Component = React.createClass({
 
@@ -53,42 +56,7 @@ var Component = React.createClass({
     }
   },
 
-  getItems(playlist) {
-    var items = [];
-
-    if (playlist.items && playlist.items.length > 0) {
-      playlist.items.forEach((item, index) => {
-        items.push({
-          uuid: item.uuid,
-          index: index,
-          type: Types.SYNTH_ITEM,
-          state: StoreTypes.LOADED,
-          file: {
-            name: item.file_name,
-            hash: item.file_hash,
-            duration: item.file_duration,
-            path: item.file_path,
-            preview: item.file_preview,
-            type: item.file_type,
-            uuid: item.file_uuid
-          },
-          hide: false,
-          editable: !playlist.system
-        });
-      });
-    } else {
-      return [{uuid: null, type: Types.DEFAULT, path: '', editable: false, name: 'Drag and drop here!'}];
-    }
-
-    return items;
-  },
-
   moveCard(dragIndex, hoverIndex) {
-    console.log('2 - drag', dragIndex, 'hover', hoverIndex);
-
-    var test = this.state.items;
-    console.log(test);
-
     const cards = this.state.items;
     const dragCard = cards[dragIndex];
 
@@ -100,9 +68,6 @@ var Component = React.createClass({
         ]
       }
     }));
-
-    var test2 = this.state.items;
-    console.log(test2);
   },
 
   addToSynth(obj, pos) {
@@ -215,11 +180,10 @@ var Component = React.createClass({
     if (item.hasOwnProperty('index')) {
       delete item.index;
     }
-    console.log(index);
 
     return <SyntheticItem
       index={index}
-      key={item.uuid}
+      key={item.reactKey}
       hide={item.hide}
       file={item.file}
       editable={item.editable}
@@ -227,6 +191,7 @@ var Component = React.createClass({
       cancelItemHandler={this.cancelItemHandler}
       moveCard={this.moveCard}
       addToSynth={this.addToSynth}
+      type={Types.SYNTH_ITEM}
       {...item} />
   },
 
@@ -239,16 +204,18 @@ var Component = React.createClass({
   getAutoItem(file, index) {
     return <AutoItem
       index={index}
+      key={index}
       file={file}
       moveCard={this.moveCard}
       addToSynth={this.addToSynth}
       cancelDrop={this.cancelDrop}
       finalizeDrop={this.finalizeDrop}
+      type={Types.AUTO_ITEM}
     />
   },
 
   reloadItems(playlist) {
-    this.setState({items: this.getItems(playlist)});
+    this.setState({items: getItems(playlist)});
   },
 
   cancelItemHandler(index) {
@@ -311,6 +278,7 @@ var Component = React.createClass({
                   defaultMessage="Playlist"
                 />
               </div>
+
               <div className='panel-body'>
                 <div className="form-horizontal">
                   <Input
@@ -325,6 +293,7 @@ var Component = React.createClass({
                     {this.state.items.map((item, i) => {
                       return (this.getSyntheticItem(item, i))
                     })}
+                    {!this.state.items.length && <PlaceholderForInitialDrag addToSynth={this.addToSynth}/>}
                   </div>
                 </div>
               </div>
@@ -356,7 +325,7 @@ var Component = React.createClass({
                 </div>
                 <div className='panel-body'>
                   <div className="form-horizontal">
-                    <input onChange={this.handleFilter} type="text" ref="filter"></input>
+                    <input onChange={this.handleFilter} type="text" ref="filter"/>
                     <div className="list-group list-view-pf list-view-pf-view playlist">
                       {this.getFilteredAvailableFiles().map((item, i) => {
                           return (this.getAutoItem(item, i))

@@ -4,6 +4,7 @@ import * as Reflux from "reflux";
 import {SegmentActions, FeedbackActions} from "../actions";
 import {ErrorMixin} from "./Mixins";
 import {StoreTypes} from "./StoreTypes";
+import {API_URL} from './config';
 
 export var SegmentStore = Reflux.createStore({
   mixins: [ErrorMixin],
@@ -12,7 +13,7 @@ export var SegmentStore = Reflux.createStore({
 
   onRead(uuid, callbackDone) {
     $.ajax({
-      url: `/api/segment/${uuid}`,
+      url: `${API_URL}/api/segment/${uuid}`,
       success: result => {
         this.data.errors = []
         this.data.segment = result
@@ -29,7 +30,7 @@ export var SegmentStore = Reflux.createStore({
 
   onDelete(uuid, callbackDone) {
     return $.ajax({
-      url: `/api/segment/${uuid}`,
+      url: `${API_URL}/api/segment/${uuid}`,
       method: 'DELETE',
       dataType: 'json',
       contentType: 'application/json',
@@ -47,7 +48,7 @@ export var SegmentStore = Reflux.createStore({
 
   onUpdate(segment, callbackDone) {
     $.ajax({
-      url: `/api/segment/${segment.uuid}`,
+      url: `${API_URL}/api/segment/${segment.uuid}`,
       method: 'PATCH',
       dataType: 'json',
       contentType: 'application/json',
@@ -65,7 +66,7 @@ export var SegmentStore = Reflux.createStore({
 
   onCreate(segment, callbackDone) {
     $.ajax({
-      url: '/api/segment/',
+      url: `${API_URL}/api/segment/`,
       method: 'POST',
       dataType: 'json',
       contentType: 'application/json',
@@ -83,7 +84,7 @@ export var SegmentStore = Reflux.createStore({
 
   onList(callbackDone) {
     $.ajax({
-      url: '/api/segment/', success: result => {
+      url: `${API_URL}/api/segment/`, success: result => {
         this.data.errors = []
         this.data.list = result.result
         this.trigger(this.data)

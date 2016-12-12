@@ -3,6 +3,7 @@
 import * as Reflux from "reflux";
 import {UserInfoActions} from "../actions";
 import * as _ from "lodash";
+import {API_URL} from './config';
 
 export var UserInfoStore = Reflux.createStore({
 
@@ -15,7 +16,7 @@ export var UserInfoStore = Reflux.createStore({
 
   onRead() {
     $.ajax({
-      url: '/user-info/',
+      url: `${API_URL}/user-info/`,
       success: result => {
         this.data = result
         this.processNetworks()

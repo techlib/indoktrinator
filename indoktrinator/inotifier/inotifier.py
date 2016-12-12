@@ -174,8 +174,8 @@ class Inotifier(object):
         Save by actual database status
         '''
         devices = []
-        f = open(self._path + playlist, 'w')
-        f.write('#EXTM3U\r\n\r\n')
+        first = True
+        f = None
 
         # Get file from DB and write to playlist
         for result in self.manager.db.session.query(
@@ -194,6 +194,11 @@ class Inotifier(object):
             self.manager.item.e().duration,
             self.manager.item.e().position,
         ):
+            if first:
+                first = False
+                f = open(self._path + playlist, 'w')
+                f.write('#EXTM3U\r\n\r\n')
+
             f.write('#EXTINF:%d,%s\r\n' % (result.duration, result.name))
             f.write('%s\r\n\r\n' % result.name)
 

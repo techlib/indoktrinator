@@ -4,6 +4,7 @@ import * as Reflux from "reflux";
 import {PlaylistActions, FeedbackActions} from "../actions";
 import {ErrorMixin} from "./Mixins";
 import {StoreTypes} from "./StoreTypes";
+import {API_URL} from './config';
 
 export var PlaylistStore = Reflux.createStore({
   mixins: [ErrorMixin],
@@ -12,7 +13,7 @@ export var PlaylistStore = Reflux.createStore({
 
   onRead(uuid, callbackDone) {
     $.ajax({
-      url: `/api/playlist/${uuid}`,
+      url: `${API_URL}/api/playlist/${uuid}`,
       success: result => {
         this.data.errors = []
         this.data.playlist.state = StoreTypes.LOADED
@@ -29,7 +30,7 @@ export var PlaylistStore = Reflux.createStore({
 
   onDelete(id, callbackDone) {
     $.ajax({
-      url: `/api/playlist/${id}`,
+      url: `${API_URL}/api/playlist/${id}`,
       method: 'DELETE',
       dataType: 'json',
       contentType: 'application/json',
@@ -46,7 +47,7 @@ export var PlaylistStore = Reflux.createStore({
 
   onUpdate(playlist, callbackDone) {
     $.ajax({
-      url: `/api/playlist/${playlist.uuid}`,
+      url: `${API_URL}/api/playlist/${playlist.uuid}`,
       method: 'PATCH',
       dataType: 'json',
       contentType: 'application/json',
@@ -64,7 +65,7 @@ export var PlaylistStore = Reflux.createStore({
 
   onCopy(uuid, callbackDone) {
     $.ajax({
-      url: `/api/playlist/${uuid}/copy`,
+      url: `${API_URL}/api/playlist/${uuid}/copy`,
       success: result => {
         this.data.errors = []
         this.data.playlist.state = StoreTypes.LOADED
@@ -81,7 +82,7 @@ export var PlaylistStore = Reflux.createStore({
 
   onCreate(playlist, callbackDone) {
     $.ajax({
-      url: '/api/playlist/',
+      url: `${API_URL}/api/playlist/`,
       method: 'POST',
       dataType: 'json',
       contentType: 'application/json',
@@ -99,7 +100,7 @@ export var PlaylistStore = Reflux.createStore({
 
   onList(callbackDone) {
     $.ajax({
-      url: '/api/playlist/', success: result => {
+      url: `${API_URL}/api/playlist/`, success: result => {
         this.data.errors = []
         this.data.list = result.result
         this.trigger(this.data)

@@ -12,22 +12,26 @@ from base64 import b64decode
 
 
 from sqlalchemy import desc
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from datetime import date, datetime, timedelta
 from xml.sax.saxutils import escape
-
+from flask_cors import CORS
 import flask
 import os
 import re
 
 
-def make_site(db, manager, access_model, debug=False):
+def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     '''
     Create wsgi site object
     '''
     app = flask.Flask('.'.join(__name__.split('.')[:-1]))
     app.secret_key = os.urandom(16)
     app.debug = debug
+
+    if cors:
+        CORS(app)
+
     manager.app = app
 
     # register methods
@@ -56,8 +60,9 @@ def make_site(db, manager, access_model, debug=False):
         return roles
 
     def has_privilege(privilege):
+        if auth:
+            return access_model.have_privilege(privilege, get_roles())
         return True
-        return access_model.have_privilege(privilege, get_roles())
 
     def pass_user_info(fn):
         @wraps(fn)
@@ -266,17 +271,22 @@ def make_site(db, manager, access_model, debug=False):
     @app.route('/api/playlist/<uuid>/copy', methods=['GET'])
     @authorized_only()
     def playlist_item_copy_handler(uuid, **kwargs):
-        playlist_item_copy_handler.copy = getattr(
-            playlist_item_copy_handler, 'copy', 0
-        ) + 1
-
         if 'GET' == flask.request.method:
             old_playlist = manager.playlist.get_item(uuid)
             new_playlist = old_playlist.copy()
             new_playlist['uuid'] = None
-            new_playlist['name'] += ' Copy %d' % playlist_item_copy_handler.copy
+
+            i = 0
             new_playlist['system'] = False
-            new = manager.playlist.insert(new_playlist)
+            while i < 100:
+                i += 1
+                try:
+                    new_playlist['name'] = '%s Copy %d' % (old_playlist['name'], i)
+                    new = manager.playlist.insert(new_playlist)
+                    break
+                except:
+                    db.rollback()
+
             new['items'] = []
 
             for item in old_playlist['items']:
@@ -318,9 +328,15 @@ def make_site(db, manager, access_model, debug=False):
         if 'POST' == flask.request.method:
             segment = flask.request.get_json(force=True)
             segment['day'] %= 7
-            return flask.jsonify(manager.segment.insert(
-                segment
-            ))
+            try:
+                return flask.jsonify(manager.segment.insert(
+                    segment
+                ))
+            except IntegrityError as e:
+                response = flask.jsonify({'message': 'Invalid intersection'})
+                response.status_code = 500
+                db.rollback()
+                return response
 
     @app.route('/api/segment/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
     @authorized_only()

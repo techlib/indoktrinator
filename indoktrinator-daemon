@@ -43,6 +43,8 @@ if __name__ == '__main__':
         http_port = config.getint('http', 'port', fallback=5000)
         http_pool = config.getint('http', 'pool_size', fallback=4)
         http_url = config.get('http', 'url', fallback='http://localhost:7070/media')
+        http_auth = config.getboolean('http', 'auth', fallback=False)
+        http_cors = config.getboolean('http', 'cors', fallback=False)
         zmq_address = config.get('router', 'address', fallback='ipc:///tmp/zmq_server.sock')
         zmq_pool = config.getint('router', 'pool_size', fallback=4)
         inotifier_path = config.get('inotifier', 'path', fallback='/media')
@@ -72,7 +74,7 @@ if __name__ == '__main__':
         manager.config['path'] = inotifier_path
 
         # Prepare the website that will get exposed to the users.
-        site = make_site(db, manager, access_model, debug=http_debug)
+        site = make_site(db, manager, access_model, auth=http_auth, debug=http_debug, cors=http_cors)
         router = make_router(db, manager, zmq_address, zmq_pool)
         inotifier = make_inotifier(db, manager, inotifier_path, inotifier_timeout)
         manager.site = site

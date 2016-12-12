@@ -4,6 +4,7 @@ import * as Reflux from "reflux";
 import {DeviceActions, FeedbackActions} from "../actions";
 import {ErrorMixin} from "./Mixins";
 import {StoreTypes} from "./StoreTypes";
+import {API_URL} from './config';
 
 export var DeviceStore = Reflux.createStore({
   mixins: [ErrorMixin],
@@ -12,7 +13,7 @@ export var DeviceStore = Reflux.createStore({
 
   onRead(id, callbackDone) {
     $.ajax({
-      url: `/api/device/${id}`,
+      url: `${API_URL}/api/device/${id}`,
       success: result => {
         this.data.errors = []
         this.data.device = result
@@ -31,7 +32,7 @@ export var DeviceStore = Reflux.createStore({
 
   onDelete(id, callbackDone) {
     $.ajax({
-      url: `/api/device/${id}`,
+      url: `${API_URL}/api/device/${id}`,
       method: 'DELETE',
       dataType: 'json',
       contentType: 'application/json',
@@ -51,7 +52,7 @@ export var DeviceStore = Reflux.createStore({
 
   onUpdate(device, callbackDone) {
     $.ajax({
-      url: `/api/device/${device.id}`,
+      url: `${API_URL}/api/device/${device.id}`,
       method: 'PATCH',
       dataType: 'json',
       contentType: 'application/json',
@@ -69,7 +70,7 @@ export var DeviceStore = Reflux.createStore({
 
   onCreate(device, callbackDone) {
     $.ajax({
-      url: '/api/device/',
+      url: `${API_URL}/api/device/`,
       method: 'POST',
       dataType: 'json',
       contentType: 'application/json',
@@ -87,7 +88,7 @@ export var DeviceStore = Reflux.createStore({
 
   onList(callbackDone) {
     $.ajax({
-      url: '/api/device/', success: result => {
+      url: `${API_URL}/api/device/`, success: result => {
         this.data.errors = []
         this.data.list = result.result
         this.trigger(this.data)
