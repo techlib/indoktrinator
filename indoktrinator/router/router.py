@@ -185,11 +185,20 @@ class Router(ZmqRouterConnection):
         if program is not None:
             planner = Planner(self.manager, program[0])
             plan = []
+
             for item in planner.plan:
+                type = 'unknown'
+                if item[3] == 1:
+                    type = 'video'
+                elif item[3] == 2:
+                    type = 'image'
+                elif item[3] == 3:
+                    type = 'audiovideo'
+
                 plan.append({
                     'start': item[1],
                     'end': item[2],
-                    'type': 'video' if item[3] == 1 else 'image',
+                    'type': type,
                     'uri': item[0],
                 })
 

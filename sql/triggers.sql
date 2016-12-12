@@ -29,7 +29,7 @@ BEGIN
                     system
                 )
                 VALUES (
-                    NEW.dir,
+                    regexp_replace(NEW.dir, '/+', ' '),
                     NEW.duration,
                     NEW.dir,
                     TRUE

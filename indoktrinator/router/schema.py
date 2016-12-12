@@ -27,7 +27,7 @@ oneOf:
           properties:
             start: {type: number}
             end: {type: number}
-            type: {enum: [image, video]}
+            type: {enum: [image, video, audiovideo]}
             uri: {type: string, pattern: '://'}
 
   - type: object
@@ -62,7 +62,7 @@ oneOf:
         additionalProperties: false
         required: [type, uri]
         properties:
-          type: {enum: [image, video]}
+          type: {enum: [image, video, audiovideo]}
           uri: {type: string, pattern: '://'}
 
   - type: object

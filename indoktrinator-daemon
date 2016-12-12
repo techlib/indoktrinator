@@ -49,6 +49,8 @@ if __name__ == '__main__':
         zmq_pool = config.getint('router', 'pool_size', fallback=4)
         inotifier_path = config.get('inotifier', 'path', fallback='/media')
         inotifier_timeout = config.getint('inotifier', 'timeout', fallback=5)
+        inotifier_ffprobe = config.get('inotifier', 'ffprobe', fallback='/usr/bin/ffprobe')
+        inotifier_ffmpeg = config.get('inotifier', 'ffmpeg', fallback='/usr/bin/ffmpeg')
 
         # Read role mappings.
         access_model = AccessModel(config.items('access'))
@@ -76,7 +78,14 @@ if __name__ == '__main__':
         # Prepare the website that will get exposed to the users.
         site = make_site(db, manager, access_model, auth=http_auth, debug=http_debug, cors=http_cors)
         router = make_router(db, manager, zmq_address, zmq_pool)
-        inotifier = make_inotifier(db, manager, inotifier_path, inotifier_timeout)
+        inotifier = make_inotifier(
+            db,
+            manager,
+            inotifier_path,
+            inotifier_timeout,
+            ffmpeg=inotifier_ffmpeg,
+            ffprobe=inotifier_ffprobe
+        )
         manager.site = site
         manager.router = router
         manager.inotifier = inotifier

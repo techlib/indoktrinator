@@ -33,7 +33,6 @@ class Playlist(Model):
         ).order_by(
             self.e('item').position
         )
-        print(q)
         query = q.all()
 
         result = {}

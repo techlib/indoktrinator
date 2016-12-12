@@ -19,7 +19,15 @@ class Inotifier(object):
                 b'/index.txt',
     )
 
-    def __init__(self, db, manager, path, timeout):
+    def __init__(
+        self,
+        db,
+        manager,
+        path,
+        timeout,
+        ffmpeg='/usr/bin/ffmpeg',
+        ffprobe='/usr/bin/ffprobe',
+    ):
         '''
         inicialize variables
         '''
@@ -30,6 +38,8 @@ class Inotifier(object):
         self._path = path
         self.path = filepath.FilePath(path)
         self._notifier = inotify.INotify()
+        self._ffmpeg = ffmpeg
+        self._ffprobe = ffprobe
         self._notifier.watch(
             self.path,
             autoAdd=True,
@@ -132,7 +142,7 @@ class Inotifier(object):
         )
 
         if filepath.exists():
-            ffmpeg = FFMpeg(path)
+            ffmpeg = FFMpeg(path, ffprobe=self._ffprobe, ffmpeg=self._ffmpeg)
 
             if ffmpeg.isMultimedia():
 

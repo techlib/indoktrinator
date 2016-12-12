@@ -192,9 +192,15 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
         if 'GET' == flask.request.method:
             return flask.jsonify(result=manager.event.list())
         if 'POST' == flask.request.method:
-            return flask.jsonify(manager.event.insert(
-                flask.request.get_json(force=True)
-            ))
+            try:
+                return flask.jsonify(manager.event.insert(
+                    flask.request.get_json(force=True)
+                ))
+            except IntegrityError as e:
+                response = flask.jsonify({'message': 'Invalid intersection'})
+                response.status_code = 500
+                db.rollback()
+                return response
 
     @app.route('/api/event/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
     @authorized_only()
@@ -204,9 +210,15 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
         if 'DELETE' == flask.request.method:
             return flask.jsonify(manager.event.delete(uuid))
         if 'PATCH' == flask.request.method:
-            event = flask.request.get_json(force=True)
-            event['uuid'] = uuid
-            return flask.jsonify(manager.event.update(event))
+            try:
+                event = flask.request.get_json(force=True)
+                event['uuid'] = uuid
+                return flask.jsonify(manager.event.update(event))
+            except IntegrityError as e:
+                response = flask.jsonify({'message': 'Invalid intersection'})
+                response.status_code = 500
+                db.rollback()
+                return response
 
     # Items
     @app.route('/api/item/', methods=['GET', 'POST'])
@@ -328,6 +340,18 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
         if 'POST' == flask.request.method:
             segment = flask.request.get_json(force=True)
             segment['day'] %= 7
+            if 'url1' in segment \
+                    and segment['url1'] \
+                    and not segment['url1'].startswith('http://') \
+                    and not segment['url1'].startswith('https://'):
+                segment['url1'] = 'http://' + segment['url1']
+
+            if 'url2' in segment \
+                    and segment['url2'] \
+                    and not segment['url2'].startswith('http://') \
+                    and not segment['url2'].startswith('https://'):
+                segment['url2'] = 'http://' + segment['url2']
+
             try:
                 return flask.jsonify(manager.segment.insert(
                     segment
@@ -347,9 +371,27 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             return flask.jsonify(manager.segment.delete(uuid))
         if 'PATCH' == flask.request.method:
             segment = flask.request.get_json(force=True)
-            segment['uuid'] = uuid
-            segment['day'] %= 7
-            return flask.jsonify(manager.segment.update(segment))
+            if 'url1' in segment \
+                    and segment['url1'] \
+                    and not segment['url1'].startswith('http://') \
+                    and not segment['url1'].startswith('https://'):
+                segment['url1'] = 'http://' + segment['url1']
+
+            if 'url2' in segment \
+                    and segment['url2'] \
+                    and not segment['url2'].startswith('http://') \
+                    and not segment['url2'].startswith('https://'):
+                segment['url2'] = 'http://' + segment['url2']
+
+            try:
+                segment['uuid'] = uuid
+                segment['day'] %= 7
+                return flask.jsonify(manager.segment.update(segment))
+            except IntegrityError as e:
+                response = flask.jsonify({'message': 'Invalid intersection'})
+                response.status_code = 500
+                db.rollback()
+                return response
 
     # Logged user info
     @app.route('/api/user-info/', methods=['GET'])
