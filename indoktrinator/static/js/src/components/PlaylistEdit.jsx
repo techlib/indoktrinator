@@ -46,8 +46,12 @@ export var PlaylistEdit = React.createClass({
     Reflux.connect(FileStore, 'file')
   ],
 
+  getInitialState() {
+    return {loaded: false}
+  },
+
   componentDidMount() {
-    PlaylistActions.read(this.props.params.uuid);
+    PlaylistActions.read(this.props.params.uuid, () => this.setState({loaded: true}));
     FileActions.list();
     PlaylistActions.list();
   },
@@ -60,6 +64,10 @@ export var PlaylistEdit = React.createClass({
   },
 
   render() {
+    if (!this.state.loaded){
+      return <div>Loading...</div>;
+    }
+
     return <div>{this.state.playlist.playlist.system ?
        <PlaylistDetail
          uuid={this.state.playlist.playlist.uuid}
