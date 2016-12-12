@@ -46,6 +46,7 @@ var Component = React.createClass({
 
   getInitialState() {
     return {
+      'saveInProgress': false,
       'playlist': {list: []},
       'newCounter': 0,
       'filter': '',
@@ -93,10 +94,18 @@ var Component = React.createClass({
 
   save() {
     var errors = this.validate();
+    const {saveInProgress} = this.state;
+
+    if (saveInProgress === true){
+       console.warn('Saving is in progress');
+       return false;
+    }
 
     if (errors.length > 0) {
       FeedbackActions.set('error', 'Form contains invalid data:', errors)
     } else {
+
+      this.setState({saveInProgress: true});
 
       // clone items
       var itemsCache = this.state.items;
@@ -215,7 +224,7 @@ var Component = React.createClass({
   },
 
   reloadItems(playlist) {
-    this.setState({items: getItems(playlist)});
+    this.setState({saveInProgress: false, items: getItems(playlist)});
   },
 
   cancelItemHandler(index) {

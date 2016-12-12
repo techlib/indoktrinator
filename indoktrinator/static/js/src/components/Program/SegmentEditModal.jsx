@@ -56,6 +56,7 @@ export var SegmentEditModal = React.createClass({
       'uuid': p.segment.uuid,
       'range': p.segment.range,
       'state': p.segment.state,
+      'day': p.segment.day,
       'date': p.segment.date,
       'playlist': p.segment.playlist,
       'title': p.segment.state == StoreTypes.LOADED ? p.segment.playlist.name : 'New Segment',
@@ -96,6 +97,7 @@ export var SegmentEditModal = React.createClass({
       segment.resolution = this.state.resolution;
       segment.url1 = this.state.url1;
       segment.url2 = this.state.url2;
+      segment.day = this.state.day;
       this.props.saveHandler(segment);
     }
   },
@@ -116,6 +118,10 @@ export var SegmentEditModal = React.createClass({
         this.state.range[1]
       ]
     });
+  },
+
+  handleChangeDate({target: {value}}) {
+    this.setState({day: +value});
   },
 
   handleChangeEndDate(value) {
@@ -157,6 +163,31 @@ export var SegmentEditModal = React.createClass({
           <h2>
             {this.state.title}
           </h2>
+          <div className="row">
+            <div className="form-group">
+              <div className="col-xs-2">
+                <label className="control-label">
+                  <FormattedMessage
+                    id="app.menu.event.date"
+                    description="Title"
+                    defaultMessage="Date"
+                  />
+                </label>
+              </div>
+              <div className="col-xs-10">
+                {/*<DatePicker*/}
+                {/*value={this.state.date}*/}
+                {/*onChange={this.handleChangeDate}*/}
+                {/*showClearButton="false"*/}
+                {/*/>*/}
+                <select defaultValue={this.state.day} onChange={this.handleChangeDate}>
+                  {/*lame translations by Moment*/}
+                  {[1,2,3,4,5,6].map((v) =>
+                    <option value={v} key={v}>{moment().startOf('isoWeek').add(v - 1, 'days').format('dddd')}</option>)}
+                </select>
+              </div>
+            </div>
+          </div>
           <div className="row">
             <div className="form-group">
               <div className="col-xs-2">

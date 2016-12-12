@@ -104,7 +104,10 @@ export var EventEditModal = React.createClass({
   // },
 
   handleChangeDate(date) {
-    this.setState({date: moment(date).toDate()});
+    // I absolutely don't get it why I have to here increment 1 day here.
+    // But I have to. I suppose that's some magic due to broken TimePicker component. :(
+
+    this.setState({date: moment(date).add(1, 'day').toDate()});
   },
 
   handleChange(evt) {
@@ -160,10 +163,14 @@ export var EventEditModal = React.createClass({
                 </label>
               </div>
               <div className="col-xs-10">
-                <DatePicker
-                  value={this.state.date}
-                  onChange={this.handleChangeDate}
-                  showClearButton="false"
+                {/*<DatePicker*/}
+                  {/*value={this.state.date}*/}
+                  {/*onChange={this.handleChangeDate}*/}
+                  {/*showClearButton="false"*/}
+                {/*/>*/}
+                <input type="date"
+                       defaultValue={moment(this.state.date).format('YYYY-MM-DD')}
+                       onChange={(e) => {this.handleChangeDate(e.target.value)}}
                 />
               </div>
             </div>
