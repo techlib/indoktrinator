@@ -185,6 +185,7 @@ class Inotifier(object):
         '''
         devices = []
         first = True
+        f_open = False
         f = None
 
         # Get file from DB and write to playlist
@@ -205,6 +206,7 @@ class Inotifier(object):
             self.manager.item.e().position,
         ):
             if first:
+                f_open = True
                 first = False
                 f = open(self._path + playlist, 'w')
                 f.write('#EXTM3U\r\n\r\n')
@@ -212,7 +214,8 @@ class Inotifier(object):
             f.write('#EXTINF:%d,%s\r\n' % (result.duration, result.name))
             f.write('%s\r\n\r\n' % result.name)
 
-        f.close()
+        if f_open:
+            f.close()
 
         # get all affected devices and store
         for device in self.manager.device.e().join(
