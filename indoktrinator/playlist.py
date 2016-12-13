@@ -65,6 +65,9 @@ class Playlist(Model):
 
         return result
 
+    def list(self):
+        return super(Playlist, self).list(order_by=['name'])
+
     def changed(self, key):
         for item in self.manager.device.uuidByPlaylist(key):
             device = item.id.encode('utf8')
