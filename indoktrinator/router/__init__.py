@@ -18,6 +18,7 @@ def make_router(db, manager, address, pool_size):
     router.registerCallback('pong', router.on_pong)
     router.registerCallback('status', router.on_status)
     router.checkClients()
+    router.midnight()
 
     return router
 

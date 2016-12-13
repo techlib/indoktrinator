@@ -38,6 +38,7 @@ class Router(ZmqRouterConnection):
                 'power': device['power'],
                 'ping': None,
                 'messages': {},
+                'db': True,
             }
 
         super(Router, self).__init__(factory, endpoint, identity=b'leader')
@@ -56,6 +57,7 @@ class Router(ZmqRouterConnection):
                 'online': False,
                 'power': False,
                 'messages': {},
+                'db': False,
             }
 
         return Router.CLIENT_DICT[id_device_str]
@@ -68,11 +70,20 @@ class Router(ZmqRouterConnection):
 
         if client['online'] is not True:
             client['online'] = True
-            self.manager.device.update({
-                'id': client['id'],
-                'online': True,
-                'power': True,
-            })
+
+            if client['db']:
+                self.manager.device.update({
+                    'id': client['id'],
+                    'online': True,
+                    'power': True,
+                })
+            else:
+                self.manager.device.insert({
+                    'id': client['id'],
+                    'name': client['id'],
+                    'online': True,
+                    'power': True,
+                })
 
         client['date'] = datetime.datetime.now()
 
@@ -92,6 +103,14 @@ class Router(ZmqRouterConnection):
                 })
 
         reactor.callLater(5, self.checkClients)
+
+    def midnight(self):
+        now = datetime.datetime.now()
+        reactor.callLater(86400 - 3600*now.hour - 60*now.minute - now.second, self.midnight)
+
+        if now.hour == 0 and now.minute == 0:
+            for device_id in Router.CLIENT_DICT.keys():
+                self.plan(device_id)
 
     def gotMessage(self, id_device, raw, timestamp):
         '''
