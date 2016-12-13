@@ -182,7 +182,7 @@ export var SegmentEditModal = React.createClass({
                 {/*/>*/}
                 <select defaultValue={this.state.day} onChange={this.handleChangeDate}>
                   {/*lame translations by Moment*/}
-                  {[1,2,3,4,5,6].map((v) =>
+                  {[1,2,3,4,5,6,0].map((v) =>
                     <option value={v} key={v}>{moment().startOf('isoWeek').add(v - 1, 'days').format('dddd')}</option>)}
                 </select>
               </div>
