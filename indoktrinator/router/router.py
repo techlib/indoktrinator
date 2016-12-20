@@ -2,6 +2,7 @@
 import sys
 import traceback
 import datetime
+import time
 from twisted.internet import reactor
 from twisted.python import log
 from txzmq import ZmqRouterConnection
@@ -145,7 +146,7 @@ class Router(ZmqRouterConnection):
         message['type'] = type
         message['id'] = id or str(uuid4())
         raw = dumps(message).encode('utf8')
-        timestamp = datetime.datetime.now().isoformat().encode('utf8')
+        timestamp = str(int(time.time())).encode('utf8')
 
         data = [raw, timestamp]
 
@@ -327,7 +328,28 @@ class Router(ZmqRouterConnection):
         '''
         Periodical report from client
         '''
+
         client = self.getClient(id_device)
+
+        # Begin temporary hack
+        #
+        # Protocol is being reworked and the 'init' message is going away.
+        # This makes sure that 'status' will trigger DB write and the device
+        # gets its initial schedule without a special message type.
+        #
+        # Still, the logic is broken because it won't get the problem after
+        # reconnect. A session id or something similar is needed to do that.
+        #
+
+        if not client['db']:
+            self.on_init(id_device, message)
+
+        if not client.get('has_plan'):
+            client['has_plan'] = True
+            self.plan(id_device)
+
+        #
+        # End temporary hack
 
         device = {'id': client['id']}
         update = False
