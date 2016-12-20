@@ -5,18 +5,13 @@ from twisted.python import log
 from indoktrinator.router.router import Router
 
 
-def make_router(db, manager, address, pool_size):
+def make_router(manager, address, pool_size):
     zmq_factory = ZmqFactory()
     zmq_factory.ioThreads = pool_size
     zmq_endpoint = ZmqEndpoint(ZmqEndpointType.bind, address)
 
-    router = Router(db, manager, zmq_factory, zmq_endpoint)
-
-    log.msg("Router: register callbacks")
-    router.registerCallback('init', router.on_init)
-    router.registerCallback('status', router.on_status)
-    router.checkClients()
-    router.midnight()
+    router = Router(manager, zmq_factory, zmq_endpoint)
+    router.start()
 
     return router
 

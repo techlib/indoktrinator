@@ -158,18 +158,6 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
 
             return flask.jsonify(manager.device.update(device))
 
-    @app.route('/api/device/<id>/url', methods=['GET'])
-    @authorized_only()
-    def device_item_url(id):
-        manager.router.url(id, url1=flask.request.args.get('url1'), url2=flask.request.args.get('url2'))
-        return flask.jsonify(True)
-
-    @app.route('/api/device/<id>/play', methods=['GET'])
-    @authorized_only()
-    def device_item_play(id):
-        manager.router.play(id, flask.request.args.get('type'), flask.request.args.get('url'))
-        return flask.jsonify(True)
-
     # Files
     @app.route('/api/file/', methods=['GET'])
     @authorized_only()

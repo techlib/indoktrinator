@@ -77,7 +77,7 @@ if __name__ == '__main__':
 
         # Prepare the website that will get exposed to the users.
         site = make_site(db, manager, access_model, auth=http_auth, debug=http_debug, cors=http_cors)
-        router = make_router(db, manager, zmq_address, zmq_pool)
+        router = make_router(manager, zmq_address, zmq_pool)
         inotifier = make_inotifier(
             db,
             manager,

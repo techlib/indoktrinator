@@ -1,182 +1,181 @@
+#!/usr/bin/python3 -tt
 # -*- coding: utf-8 -*-
-import sys
-import traceback
-import datetime
-import time
+
+from twisted.internet.task import LoopingCall
 from twisted.internet import reactor
 from twisted.python import log
+
 from txzmq import ZmqRouterConnection
 
-from json import loads, dumps
-from jsonschema import validate
-
-from indoktrinator.router.schema import schema
+from jsonschema import validate, ValidationError
+from json import loads, dumps, JSONDecodeError
 from uuid import uuid4
 
+from indoktrinator.router.schema import schema
 from indoktrinator.router.planner import Planner
+
+from datetime import datetime
+from time import time
+
+
+__all__ = ['Router']
 
 
 class Router(ZmqRouterConnection):
-    '''
-    Router class implement communication with device
-    '''
-    MESSAGE_COUNT = 0
-    CLIENT_DICT = {}
-    CALLBACK_REGISTER = {}
+    def __init__(self, manager, factory, endpoint):
+        super().__init__(factory, endpoint, identity=b'leader')
 
-    def __init__(self, db, manager, factory, endpoint):
-        '''
-        Construtor for router endpoint
-
-        '''
-        self.db = db
         self.manager = manager
-        for device in self.manager.device.list():
-            Router.CLIENT_DICT[device['id']] = {
-                'id': device['id'],
-                'date': datetime.datetime.now(),
-                'online': device['online'],
-                'power': device['power'],
-                'messages': {},
-                'db': True,
-            }
+        self.devices = {}
 
-        super(Router, self).__init__(factory, endpoint, identity=b'leader')
+    def start(self):
+        log.msg('Starting offline device check loop...')
+        self.check_devices_loop = LoopingCall(self.check_devices)
+        self.check_devices_loop.start(15)
 
-    def getClient(self, id_device):
-        '''
-        Get client from connected clients
-        '''
-        id_device_str = id_device.decode('utf8')
+        log.msg('Midnight!')
+        self.midnight()
 
-        if id_device_str not in Router.CLIENT_DICT:
-            Router.CLIENT_DICT[id_device_str] = {
-                'id': id_device_str,
-                'date': datetime.datetime.now(),
+        log.msg('Router started.')
+
+    def maybe_create_device(self, device_id, status):
+        """
+        Look up the device record or create a new one.
+        """
+
+        if device_id not in self.devices:
+            try:
+                # Device not in memory. Try to load it from the database.
+                db_device = self.manager.device.get_item(device_id)
+
+                self.devices[device_id] = {
+                    'session': uuid4().hex,
+                    'last_seen': time(),
+                    'power': db_device['power'],
+                }
+
+            except:
+                self.manager.device.insert({
+                    'id': device_id,
+                    'name': device_id,
+                    'online': True,
+                    'power': status['power'],
+                })
+
+                self.devices[device_id] = {
+                    'session': uuid4().hex,
+                    'last_seen': time(),
+                    'power': status['power'],
+                }
+
+        return self.devices[device_id]
+
+    def maybe_update_device(self, device_id, status):
+        """
+        Update device information both in memory and in the database.
+        """
+
+        # FIXME: We should not be saving online status in
+        #        the database at all. Just create the device and
+        #        let the UI take all info it needs from here.
+
+        device = self.maybe_create_device(device_id, status)
+
+        if device['power'] != status['power'] or device['last_seen'] + 300 < time():
+            self.manager.device.update({
+                'id': device_id,
+                'online': True,
+                'power': status['power'],
+            })
+
+        device.update({
+            'session': status['session'],
+            'last_seen': time(),
+            'power': status['power'],
+        })
+
+    def check_devices(self):
+        """
+        Update devices in the database.
+        """
+
+        for db_device in self.manager.device.list():
+            if db_device['online']:
+                if db_device['id'] in self.devices:
+                    device = self.devices[db_device['id']]
+                    if device['last_seen'] + 300 >= time():
+                        # The device record is still good.
+                        continue
+
+            self.manager.device.update({
+                'id': db_device['id'],
                 'online': False,
                 'power': False,
-                'messages': {},
-                'db': False,
-            }
-
-        return Router.CLIENT_DICT[id_device_str]
-
-    def updateClient(self, id_device):
-        '''
-        If client send some message, update current information
-        '''
-        client = self.getClient(id_device)
-
-        if client['online'] is not True:
-            client['online'] = True
-
-            if client['db']:
-                self.manager.device.update({
-                    'id': client['id'],
-                    'online': True,
-                    'power': True,
-                })
-            else:
-                self.manager.device.insert({
-                    'id': client['id'],
-                    'name': client['id'],
-                    'online': True,
-                    'power': True,
-                })
-
-        client['date'] = datetime.datetime.now()
-
-    def checkClients(self):
-        '''
-        Check client connection status and save
-        '''
-        now = datetime.datetime.now()
-
-        for client_id, client in Router.CLIENT_DICT.items():
-            diff = now - client['date']
-            if diff.seconds > 300:
-                self.manager.device.update({
-                    'id': client_id,
-                    'online': False,
-                    'power': False,
-                })
-
-        reactor.callLater(5, self.checkClients)
+            })
 
     def midnight(self):
-        now = datetime.datetime.now()
+        now = datetime.now()
         reactor.callLater(86400 - 3600*now.hour - 60*now.minute - now.second, self.midnight)
 
         if now.hour == 0 and now.minute == 0:
-            for device_id in Router.CLIENT_DICT.keys():
+            for device_id in self.devices.keys():
                 self.plan(device_id)
 
-    def gotMessage(self, id_device, raw, timestamp):
-        '''
-        Receive message from client and call coresponding method
-        Use internal callback register
-        '''
+    def gotMessage(self, sender, bstr, ts):
+        """
+        Handle incoming message from a client.
 
-        Router.MESSAGE_COUNT += 1
-        self.updateClient(id_device)
+        Validates the message against the `message-schema.yaml` and
+        passes its contents to a correct method (called `on_<type>`).
+        """
 
         try:
-            message = loads(raw.decode('utf8'))
+            message = loads(bstr.decode('utf8'))
             validate(message, schema)
+        except JSONDecodeError:
+            log.err('Invalid message received (cannot decode)')
+            return
+        except ValidationError as e:
+            log.err('Invalid message received: {}'.format(repr(message)))
+            return
 
-            if 'type' in message \
-                    and message['type'] in Router.CALLBACK_REGISTER:
-                for method in Router.CALLBACK_REGISTER[message['type']]:
-                    method(id_device, message)
-        except Exception as e:
-            '''
-            Log exception
-            '''
-            log.err()
+        mtype = message['type']
 
-    def sendMsg(self, id_device, type, message, id=None):
-        '''
-        Send message to client
-        '''
-        if isinstance(id_device, str):
-            id_device = id_device.encode('utf8')
+        log.msg('Received {} message from {}...'.format(mtype, sender))
+        handler = 'on_' + message['type']
 
-        message['type'] = type
-        message['id'] = id or str(uuid4())
-        raw = dumps(message).encode('utf8')
-        timestamp = str(int(time.time())).encode('utf8')
+        if hasattr(self, handler):
+            payload = message.get(mtype, {})
+            reactor.callLater(0, getattr(self, handler), payload, sender)
+        else:
+            log.err('Message {} not implemented.'.format(mtype))
 
-        data = [raw, timestamp]
+    def send_message(self, device_id, type, payload):
+        """
+        Send message to specified client.
+        """
 
-        self.sendMultipart(
-            id_device,
-            data
-        )
-        return message['id']
+        if isinstance(device_id, str):
+            device_id = device_id.encode('utf8')
 
-    def registerCallback(self, action, method):
-        '''
-        Register action to received messages
-        '''
-        if action not in Router.CALLBACK_REGISTER:
-            Router.CALLBACK_REGISTER[action] = []
+        ts = str(int(time())).encode('utf8')
 
-        Router.CALLBACK_REGISTER[action].append(method)
+        bstr = dumps({
+            'id': uuid4().hex,
+            'type': type,
+            type: payload,
+        }).encode('utf8')
 
-    def unregisterCallback(self, action, method):
-        '''
-        Unregister action to received messages
-        '''
-        if action in Router.CALLBACK_REGISTER \
-                and method in Router.CALLBACK_REGISTER[action]:
-            Router.CALLBACK_REGISTER[action].remove(method)
+        self.sendMultipart(device_id, [bstr, ts])
 
     def plan(self, device_id):
-        '''
-        Send plan to the device
-        '''
-        program = None
+        """
+        Calculate and send plan to a device.
+        """
+
         plan = None
+        program = None
+
         if not isinstance(device_id, str):
             device_id = device_id.decode('utf8')
 
@@ -191,141 +190,62 @@ class Router(ZmqRouterConnection):
             plan = []
 
             for item in planner.plan:
-                type = 'unknown'
+                itype = 'unknown'
+
                 if item[3] == 1:
-                    type = 'video'
+                    itype = 'video'
                 elif item[3] == 2:
-                    type = 'image'
+                    itype = 'image'
                 elif item[3] == 3:
-                    type = 'audiovideo'
+                    itype = 'audiovideo'
 
                 plan.append({
                     'start': item[1],
                     'end': item[2],
-                    'type': type,
+                    'type': itype,
                     'uri': item[0],
                 })
 
-            self.sendMsg(device_id, 'plan', {'plan': plan})
+            self.send_message(device_id, 'plan', plan)
 
-    def powerOff(self, id_device):
-        '''
-        Power of device
-        '''
-        self.sendMsg(id_device, 'powerOff', {})
+    def on_status(self, status, sender):
+        """
+        Client is still alive and reporting its status.
 
-    def powerOn(self, id_device):
-        '''
-        PowerOn device
-        '''
-        self.sendMsg(id_device, 'powerOff', {})
+        This message gets usually sent about every 15 seconds from
+        each device alive.
+        """
 
-    def play(self, id_device, type, url):
-        '''
-        Play url on device
-        '''
-        self.sendMsg(id_device, 'play', {'play': {'uri': url, 'type': type}})
+        # Device identifier is a string, but 0MQ uses byte arrays.
+        # The identifier is a hex-encoded number, so no big deal.
+        device_id = sender.decode('utf8')
 
-    def stop(self, id_device):
-        '''
-        stop playing on device
-        '''
-        pass
+        # Look the device up in the memory, in the database and
+        # possibly create it when not found. Does not update it.
+        device = self.maybe_create_device(device_id, status)
 
-    def resolution(self, id_device, type, url1=None, url2=None):
-        '''
-        set resolution on device
-        '''
-        msg = {'type': type}
-        if url1:
-            msg['urlRight'] = url1
+        # If the device has been restarted, it probably does not have
+        # the current plan. We should re-send it after we finish here.
+        if status['session'] != device['session']:
+            reactor.callLater(0, self.plan, device_id)
 
-        if url2:
-            msg['urlBottom'] = url2
+        # Update the device status both in memory and in the database.
+        # Since update is not usually required, it is frequently skipped.
+        self.maybe_update_device(device_id, status)
 
-        self.sendMsg(id_device, 'resolution', {'resolution': msg})
+        # FIXME: Changing the resolution should be part of the plan,
+        #        not an additional message that changes things post-ex.
 
-    def url(self, id_device, url1=None, url2=None):
-        '''
-        Set url mode for device
-        '''
-        message = {}
-        if url1:
-            message['urlRight'] = url1
+        segment = self.manager.device.getResolution(device_id)
+        if segment is not None:
+            cur = (status['type'], status.get('urlRight'), status.get('urlBottom'))
+            new = (segment.resolution, segment.url1, segment.url2)
 
-        if url2:
-            message['urlBottom'] = url2
+            if cur != new:
+                self.send_message(device_id, 'resolution', {
+                    'type': segment.resolution,
+                    'urlRight': segment.url1,
+                    'urlBottom': segment.url2,
+                })
 
-        self.sendMsg(id_device, 'url', message)
-
-    def on_init(self, id_device, message):
-        '''
-        Callback on init message
-        '''
-        id_device_str = id_device.decode('utf8')
-        try:
-            device = self.manager.device.get_item(id_device_str)
-        except:
-            device = self.manager.device.insert({
-                'id': id_device_str,
-                'name': id_device_str,
-            })
-
-        self.plan(id_device)
-
-    def on_status(self, id_device, message):
-        '''
-        Periodical report from client
-        '''
-
-        client = self.getClient(id_device)
-
-        # Begin temporary hack
-        #
-        # Protocol is being reworked and the 'init' message is going away.
-        # This makes sure that 'status' will trigger DB write and the device
-        # gets its initial schedule without a special message type.
-        #
-        # Still, the logic is broken because it won't get the problem after
-        # reconnect. A session id or something similar is needed to do that.
-        #
-
-        if not client['db']:
-            self.on_init(id_device, message)
-
-        if not client.get('has_plan'):
-            client['has_plan'] = True
-            self.plan(id_device)
-
-        #
-        # End temporary hack
-
-        device = {'id': client['id']}
-        update = False
-        if client['online'] is not True:
-            client['online'] = True
-            device['online'] = True
-            update = True
-
-        if client['power'] != message['status']['power']:
-            device['power'] = message['status']['power']
-            client['power'] = message['status']['power']
-            update = True
-
-        if update:
-            self.manager.device.update(device)
-
-        segment = self.manager.device.getResolution(client['id'])
-
-        if segment is None:
-            self.powerOff(id_device)
-
-        elif segment.resolution != message['status']['type'] \
-                or segment.url1 != message['status'].get('urlRight') \
-                or segment.url2 != message['status'].get('urlBottom'):
-            self.resolution(
-                id_device,
-                segment.resolution,
-                segment.url1,
-                segment.url2
-            )
+# vim:set sw=4 ts=4 et:
