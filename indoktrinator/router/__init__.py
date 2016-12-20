@@ -14,8 +14,6 @@ def make_router(db, manager, address, pool_size):
 
     log.msg("Router: register callbacks")
     router.registerCallback('init', router.on_init)
-    router.registerCallback('ping', router.on_ping)
-    router.registerCallback('pong', router.on_pong)
     router.registerCallback('status', router.on_status)
     router.checkClients()
     router.midnight()

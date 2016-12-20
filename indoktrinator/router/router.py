@@ -37,7 +37,6 @@ class Router(ZmqRouterConnection):
                 'date': datetime.datetime.now(),
                 'online': device['online'],
                 'power': device['power'],
-                'ping': None,
                 'messages': {},
                 'db': True,
             }
@@ -54,7 +53,6 @@ class Router(ZmqRouterConnection):
             Router.CLIENT_DICT[id_device_str] = {
                 'id': id_device_str,
                 'date': datetime.datetime.now(),
-                'ping': None,
                 'online': False,
                 'power': False,
                 'messages': {},
@@ -173,20 +171,6 @@ class Router(ZmqRouterConnection):
                 and method in Router.CALLBACK_REGISTER[action]:
             Router.CALLBACK_REGISTER[action].remove(method)
 
-    def ping(self, id_device, id=None):
-        '''
-        Send ping to the device
-        '''
-        client = self.getClient(id_device)
-        client['ping'] = self.sendMsg(id_device, 'ping', {})
-
-    def pong(self, id_device, id):
-        '''
-        Send pong message to device
-        '''
-        self.sendMsg(id_device, 'pong', {}, id)
-        log.msg("PONG", id_device)
-
     def plan(self, device_id):
         '''
         Send plan to the device
@@ -274,40 +258,6 @@ class Router(ZmqRouterConnection):
 
         self.sendMsg(id_device, 'url', message)
 
-    def ok(self, id_device, message):
-        '''
-        Universal OK message to reply
-        '''
-        self.sendMsg(id_device, 'ok', {}, id=message['id'])
-
-    def error(self, id_device, message, code=None, reply=None):
-        '''
-        Universal Error message to reply
-        '''
-        self.sendMsg(
-            id_device,
-            'error',
-            {
-                'code': code,
-                'message': reply,
-            },
-            id=message['id']
-        )
-
-    def on_ping(self, id_device, message):
-        '''
-        callback on ping message
-        '''
-        self.pong(id_device, message['id'])
-
-    def on_pong(self, id_device, message):
-        '''
-        callback on pong message
-        '''
-        client = self.getClient(id_device)
-        if client['ping'] != message['id']:
-            log.error("Pong is wrong")
-
     def on_init(self, id_device, message):
         '''
         Callback on init message
@@ -321,7 +271,6 @@ class Router(ZmqRouterConnection):
                 'name': id_device_str,
             })
 
-        self.ok(id_device, message)
         self.plan(id_device)
 
     def on_status(self, id_device, message):
@@ -380,17 +329,3 @@ class Router(ZmqRouterConnection):
                 segment.url1,
                 segment.url2
             )
-
-        self.ok(id_device, message)
-
-    def on_ok(self, id_device, message):
-        '''
-        Mark as read
-        '''
-        pass
-
-    def on_error(self, id_device, message):
-        '''
-        Log error
-        '''
-        pass

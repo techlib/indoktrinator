@@ -1,2 +1,3 @@
 include indoktrinator/templates/*.html
 include indoktrinator/static/*/*
+include indoktrinator/router/schema.yaml

@@ -1,0 +1,33 @@
+# JSON Schema <http://json-schema.org/>
+#
+# Describes messages received from Telescreen.
+#
+---
+oneOf:
+  # init
+  - type: object
+    additionalProperties: false
+    required: [id, type]
+    properties:
+      id: {type: string}
+      type: {enum: [init]}
+      device: {type: string}
+
+  # status
+  - type: object
+    additionalProperties: false
+    required: [id, type]
+    properties:
+      id: {type: string}
+      type: {enum: [status]}
+      status:
+        type: object
+        additionalProperties: false
+        required: [power, type]
+        properties:
+          power: {type: boolean}
+          type: {enum: [full, right, both]}
+          urlRight: {type: string, pattern: '://'}
+          urlBottom: {type: string, pattern: '://'}
+
+# EOF
