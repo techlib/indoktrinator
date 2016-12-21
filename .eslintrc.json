@@ -1,0 +1,17 @@
+{
+    "rules": {
+        "object-curly-spacing": "off",
+        "comma-dangle": "off",
+        "array-bracket-spacing": "off",
+        "react/jsx-quotes": "off",
+        "react/jsx-uses-vars": "error",
+        "react/wrap-multilines": "off"
+    },
+    "plugins": [
+        "react"
+    ],
+    "env": {
+        "browser": true,
+        "jquery": true
+    }
+}
