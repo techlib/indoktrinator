@@ -36,26 +36,20 @@ definitions:
       layout: {$ref: '#/definitions/layout'}
 
   layout:
-    oneOf:
-      - type: object
-        additionalProperties: false
-        required: [mode]
-        properties:
-          mode: {enum: [full]}
+    type: object
+    additionalProperties: false
+    required: [mode]
+    properties:
+      mode: {enum: [full, sidebar, panel]}
 
-      - type: object
-        additionalProperties: false
-        required: [mode, sidebar]
-        properties:
-          mode: {enum: [sidebar]}
-          sidebar: {$ref: '#/definitions/url'}
+      sidebar:
+        oneOf:
+          - enum: [null]
+          - {$ref: '#/definitions/url'}
 
-      - type: object
-        additionalProperties: false
-        required: [mode, sidebar, panel]
-        properties:
-          mode: {enum: [panel]}
-          sidebar: {$ref: '#/definitions/url'}
-          panel: {$ref: '#/definitions/url'}
+      panel:
+        oneOf:
+          - enum: [null]
+          - {$ref: '#/definitions/url'}
 
 # EOF
