@@ -40,8 +40,7 @@ let ProgramActions = React.createClass({
       label=''
       bsStyle=''
       onClick={this.handleDeleteProgram}>
-      <i className="fa fa-trash"></i>
-      <FormattedMessage
+      <i className="fa fa-trash"></i> <FormattedMessage
         id="app.button.delete"
         description="Title"
         defaultMessage="Delete"
@@ -87,8 +86,7 @@ export var ProgramList = React.createClass({
           </div>
           <div className="col-xs-12 col-sm-2 h1 text-right">
             <a className='btn btn-success' href='#/program/new'>
-              <i className='fa fa-plus'></i>
-              <FormattedMessage
+              <i className='fa fa-plus'></i> <FormattedMessage
                 id="app.menu.program.new"
                 description="Title"
                 defaultMessage="New Program"

@@ -70,8 +70,7 @@ let PlaylistActions = React.createClass({
           label=''
           bsStyle=''
           onClick={this.handleCopyPlayList}>
-      <i className="fa fa-files-o"></i>
-           <FormattedMessage
+      <i className="fa fa-files-o"></i> <FormattedMessage
              id="app.button.copy"
              description="Title"
              defaultMessage="Copy"
@@ -81,8 +80,7 @@ let PlaylistActions = React.createClass({
           label=''
           bsStyle=''
           onClick={this.handleDeletePlayList}>
-          <i className="fa fa-trash"></i>
-          <FormattedMessage
+          <i className="fa fa-trash"></i> <FormattedMessage
             id="app.button.delete"
             description="Title"
             defaultMessage="Delete"
@@ -126,8 +124,7 @@ export var PlaylistList = React.createClass({
           </div>
           <div className="col-xs-12 col-sm-2 h1 text-right">
             <a className='btn btn-success' href='#/playlist/new'>
-              <i className='fa fa-plus'></i>
-              <FormattedMessage
+              <i className='fa fa-plus'></i> <FormattedMessage
                 id="app.menu.playlist.new"
                 description="Title"
                 defaultMessage="New playlist"
