@@ -18,8 +18,8 @@ export var EventEdit = React.createClass({
   mixins: [],
 
   commonProps: {
-    labelClassName: 'col-xs-2',
-    wrapperClassName: 'col-xs-10',
+    labelClassName: 'col-xs-3',
+    wrapperClassName: 'col-xs-9',
   },
 
   getInitialState() {
@@ -134,7 +134,7 @@ export var EventEdit = React.createClass({
           </h2>
           <div className="row">
             <div className="form-group">
-              <div className="col-xs-2">
+              <div className="col-xs-3">
                 <label className="control-label">
                   <FormattedMessage
                     id="app.menu.event.range.start"
@@ -143,7 +143,7 @@ export var EventEdit = React.createClass({
                   />
                 </label>
               </div>
-              <div className="col-xs-10">
+              <div className="col-xs-9">
                 {/*<TimePicker*/}
                   {/*style={{width: 100}}*/}
                   {/*showSecond={true}*/}
@@ -158,7 +158,7 @@ export var EventEdit = React.createClass({
           </div>
           <div className="row">
             <div className="form-group">
-              <div className="col-xs-2">
+              <div className="col-xs-3">
                 <label className="control-label">
                   <FormattedMessage
                     id="app.menu.segment.range.end"
@@ -167,7 +167,7 @@ export var EventEdit = React.createClass({
                   />
                 </label>
               </div>
-              <div className="col-xs-10">
+              <div className="col-xs-9">
                 {/*<TimePicker*/}
                   {/*style={{width: 100}}*/}
                   {/*showSecond={true}*/}

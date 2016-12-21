@@ -18,8 +18,8 @@ export var SegmentEdit = React.createClass({
   mixins: [],
 
   commonProps: {
-    labelClassName: 'col-xs-2',
-    wrapperClassName: 'col-xs-10',
+    labelClassName: 'col-xs-3',
+    wrapperClassName: 'col-xs-9',
   },
 
   getInitialState() {
@@ -128,7 +128,7 @@ export var SegmentEdit = React.createClass({
           </h2>
           <div className="row">
             <div className="form-group">
-              <div className="col-xs-2">
+              <div className="col-xs-3">
                 <label className="control-label">
                   <FormattedMessage
                     id="app.menu.segment.range.start"
@@ -137,7 +137,7 @@ export var SegmentEdit = React.createClass({
                   />
                 </label>
               </div>
-              <div className="col-xs-10">
+              <div className="col-xs-9">
                 {/*<TimePicker*/}
                   {/*style={{width: 100}}*/}
                   {/*showSecond={true}*/}
@@ -152,7 +152,7 @@ export var SegmentEdit = React.createClass({
           </div>
           <div className="row">
             <div className="form-group">
-              <div className="col-xs-2">
+              <div className="col-xs-3">
                 <label className="control-label">
                   <FormattedMessage
                     id="app.menu.segment.range.end"
@@ -161,7 +161,7 @@ export var SegmentEdit = React.createClass({
                   />
                 </label>
               </div>
-              <div className="col-xs-10">
+              <div className="col-xs-9">
                 {/*<TimePicker*/}
                   {/*style={{width: 100}}*/}
                   {/*showSecond={true}*/}
@@ -207,7 +207,7 @@ export var SegmentEdit = React.createClass({
 
           <div className="row" style={{display: (this.state.mode == 'sidebar' || this.state.mode == 'panel') ? 'block' : 'none'}}>
             <div className="form-group">
-              <div className="col-xs-2">
+              <div className="col-xs-3">
                 <label className="control-label">
                   <FormattedMessage
                     id="app.menu.segment.range.end"
@@ -216,7 +216,7 @@ export var SegmentEdit = React.createClass({
                   />
                 </label>
               </div>
-              <div className="col-xs-10">
+              <div className="col-xs-9">
                 <input
                   style={{width: '100%'}}
                   showSecond={true}
@@ -229,7 +229,7 @@ export var SegmentEdit = React.createClass({
 
           <div className="row" style={{display: (this.state.mode == 'panel') ? 'block' : 'none'}}>
             <div className="form-group">
-              <div className="col-xs-2">
+              <div className="col-xs-3">
                 <label className="control-label">
                   <FormattedMessage
                     id="app.menu.segment.range.end"
@@ -238,7 +238,7 @@ export var SegmentEdit = React.createClass({
                   />
                 </label>
               </div>
-              <div className="col-xs-10">
+              <div className="col-xs-9">
                 <input
                   style={{width: '100%'}}
                   showSecond={true}
