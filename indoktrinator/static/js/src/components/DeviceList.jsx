@@ -34,8 +34,7 @@ export var DeviceList = React.createClass({
           </div>
           <div className="col-xs-12 col-sm-2 h1 text-right">
             <a className='btn btn-success' href='#/device/new'>
-              <i className='fa fa-plus'></i>
-              <FormattedMessage
+              <i className='fa fa-plus'></i> <FormattedMessage
                 id="app.menu.device.new"
                 description="Title"
                 defaultMessage="New device"
