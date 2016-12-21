@@ -147,7 +147,7 @@ CREATE TABLE file (
     path character varying NOT NULL,
     hash character varying(32) NOT NULL,
     type integer DEFAULT 0 NOT NULL,
-    duration integer DEFAULT 0 NOT NULL,
+    duration real DEFAULT 0 NOT NULL,
     name character varying,
     preview bytea,
     dir character varying NOT NULL
@@ -176,7 +176,7 @@ COMMENT ON COLUMN file.preview IS 'preview of file (if is video)';
 CREATE TABLE item (
     uuid uuid DEFAULT uuid_generate_v4() NOT NULL,
     playlist uuid NOT NULL,
-    duration integer NOT NULL,
+    duration real NOT NULL,
     "position" integer NOT NULL,
     file uuid NOT NULL,
     CONSTRAINT item_position_valid CHECK (("position" >= 0))
@@ -194,7 +194,7 @@ COMMENT ON COLUMN item.file IS 'FIXME: Ditch the whole ''file'' table and move r
 CREATE TABLE playlist (
     uuid uuid DEFAULT uuid_generate_v4() NOT NULL,
     name character varying NOT NULL,
-    duration integer,
+    duration real,
     path character varying,
     system boolean DEFAULT false NOT NULL,
     CONSTRAINT playlist_name_valid CHECK ((length((name)::text) > 0))
