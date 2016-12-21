@@ -48,7 +48,6 @@ class FFMpeg(object):
         self._path = path
         self._hash = None
         self._format = None
-        self._audio = None
         self._duration = None
         self._preview = None
 
@@ -188,36 +187,7 @@ class FFMpeg(object):
         return self._preview
 
     @property
-    def audio(self):
-        '''
-        Get information audio present
-        '''
-        if self._audio is not None:
-            return self._audio
-
-        try:
-            args = [
-                self.ffprobe,
-                '-v', 'error',
-                '-show_entries', 'stream=codec_type',
-                '-of', 'default=nw=1',
-                self._path
-            ]
-            proc = Popen(args, stdout=PIPE, stderr=PIPE)
-            out, err = proc.communicate()
-
-            self._audio = b'audio' in out.lower()
-        except Exception as e:
-            log.msg("audio", e)
-            self._audio = e
-
-        return self._audio
-
-    @property
     def type(self):
-        if self.isVideo() and self.isAudioVideo():
-            return 3
-
         if self.isVideo():
             return 1
 
@@ -235,6 +205,3 @@ class FFMpeg(object):
 
     def isImage(self):
         return self.format in self.IMAGE_FORMAT
-
-    def isAudioVideo(self):
-        return self.audio

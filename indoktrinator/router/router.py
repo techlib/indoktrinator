@@ -196,8 +196,9 @@ class Router(ZmqRouterConnection):
                     itype = 'video'
                 elif item[3] == 2:
                     itype = 'image'
-                elif item[3] == 3:
-                    itype = 'audiovideo'
+
+                # FIXME: It is possible to send an invalid message with
+                #        item type being 'unknown'. Fix in database.
 
                 plan.append({
                     'start': item[1],
