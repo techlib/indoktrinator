@@ -203,7 +203,7 @@ class Router(ZmqRouterConnection):
                     'start': item[1],
                     'end': item[2],
                     'type': itype,
-                    'uri': item[0],
+                    'url': item[0],
                 })
 
             self.send_message(device_id, 'plan', plan)
@@ -236,16 +236,18 @@ class Router(ZmqRouterConnection):
         # FIXME: Changing the resolution should be part of the plan,
         #        not an additional message that changes things post-ex.
 
+        layout = status['layout']
         segment = self.manager.device.getResolution(device_id)
+
         if segment is not None:
-            cur = (status['type'], status.get('urlRight'), status.get('urlBottom'))
-            new = (segment.resolution, segment.url1, segment.url2)
+            cur = (layout['mode'], layout.get('sidebar'), layout.get('panel'))
+            new = (segment.mode, segment.sidebar, segment.panel)
 
             if cur != new:
-                self.send_message(device_id, 'resolution', {
-                    'type': segment.resolution,
-                    'urlRight': segment.url1,
-                    'urlBottom': segment.url2,
+                self.send_message(device_id, 'layout', {
+                    'mode': segment.mode,
+                    'sidebar': segment.sidebar,
+                    'panel': segment.panel,
                 })
 
 # vim:set sw=4 ts=4 et:

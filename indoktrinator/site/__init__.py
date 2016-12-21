@@ -328,17 +328,17 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
         if 'POST' == flask.request.method:
             segment = flask.request.get_json(force=True)
             segment['day'] %= 7
-            if 'url1' in segment \
-                    and segment['url1'] \
-                    and not segment['url1'].startswith('http://') \
-                    and not segment['url1'].startswith('https://'):
-                segment['url1'] = 'http://' + segment['url1']
+            if 'sidebar' in segment \
+                    and segment['sidebar'] \
+                    and not segment['sidebar'].startswith('http://') \
+                    and not segment['sidebar'].startswith('https://'):
+                segment['sidebar'] = 'http://' + segment['sidebar']
 
-            if 'url2' in segment \
-                    and segment['url2'] \
-                    and not segment['url2'].startswith('http://') \
-                    and not segment['url2'].startswith('https://'):
-                segment['url2'] = 'http://' + segment['url2']
+            if 'panel' in segment \
+                    and segment['panel'] \
+                    and not segment['panel'].startswith('http://') \
+                    and not segment['panel'].startswith('https://'):
+                segment['panel'] = 'http://' + segment['panel']
 
             try:
                 return flask.jsonify(manager.segment.insert(
@@ -359,17 +359,17 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             return flask.jsonify(manager.segment.delete(uuid))
         if 'PATCH' == flask.request.method:
             segment = flask.request.get_json(force=True)
-            if 'url1' in segment \
-                    and segment['url1'] \
-                    and not segment['url1'].startswith('http://') \
-                    and not segment['url1'].startswith('https://'):
-                segment['url1'] = 'http://' + segment['url1']
+            if 'sidebar' in segment \
+                    and segment['sidebar'] \
+                    and not segment['sidebar'].startswith('http://') \
+                    and not segment['sidebar'].startswith('https://'):
+                segment['sidebar'] = 'http://' + segment['sidebar']
 
-            if 'url2' in segment \
-                    and segment['url2'] \
-                    and not segment['url2'].startswith('http://') \
-                    and not segment['url2'].startswith('https://'):
-                segment['url2'] = 'http://' + segment['url2']
+            if 'panel' in segment \
+                    and segment['panel'] \
+                    and not segment['panel'].startswith('http://') \
+                    and not segment['panel'].startswith('https://'):
+                segment['panel'] = 'http://' + segment['panel']
 
             try:
                 segment['uuid'] = uuid

@@ -27,9 +27,9 @@ export var SegmentEdit = React.createClass({
       'range': this.props.segment.range,
       'day': this.props.segment.day,
       'playlist': this.props.segment.playlist ? this.props.segment.playlist : (this.props.playlist[0] ? this.props.playlist[0].uuid : ''),
-      'resolution': this.props.segment.resolution,
-      'url1': this.props.segment.url1,
-      'url2': this.props.segment.url2
+      'mode': this.props.segment.mode,
+      'sidebar': this.props.segment.sidebar,
+      'panel': this.props.segment.panel,
     }
   },
 
@@ -61,9 +61,9 @@ export var SegmentEdit = React.createClass({
       segment.range = this.state.range;
       segment.playlist = this.state.playlist;
 
-      segment.resolution = this.state.resolution;
-      segment.url1 = this.state.url1;
-      segment.url2 = this.state.url2;
+      segment.mode = this.state.mode;
+      segment.sidebar = this.state.sidebar;
+      segment.panel = this.state.panel;
 
       this.props.saveHandler(segment);
     }
@@ -97,16 +97,16 @@ export var SegmentEdit = React.createClass({
     });
   },
 
-  handleChangeResolution(evt) {
+  handleChangeMode(evt) {
     this.setState({[evt.target.name]: evt.target.value});
   },
 
-  handleUrl1(value) {
-    this.setState({url1: value.target.value})
+  handleSidebar(value) {
+    this.setState({sidebar: value.target.value})
   },
 
-  handleUrl2(value) {
-    this.setState({url2: value.target.value})
+  handlePanel(value) {
+    this.setState({panel: value.target.value})
   },
 
   handleChange(evt) {
@@ -192,27 +192,27 @@ export var SegmentEdit = React.createClass({
 
           <div className="row">
             <BootstrapSelect
-              label='Resolution'
-              name='resolution'
-              ref='resolution'
-              value={this.state.resolution}
-              onChange={this.handleChangeResolution}
+              label='Layout Mode'
+              name='mode'
+              ref='mode'
+              value={this.state.mode}
+              onChange={this.handleChangeMode}
               {...this.commonProps}>
 
               <option value='full'>Full</option>
-              <option value='right'>Right</option>
-              <option value='both'>Both</option>
+              <option value='sidebar'>Sidebar</option>
+              <option value='panel'>Sidebar + Panel</option>
             </BootstrapSelect>
           </div>
 
-          <div className="row" style={{display: (this.state.resolution == 'right' || this.state.resolution == 'both') ? 'block' : 'none'}}>
+          <div className="row" style={{display: (this.state.mode == 'sidebar' || this.state.mode == 'panel') ? 'block' : 'none'}}>
             <div className="form-group">
               <div className="col-xs-2">
                 <label className="control-label">
                   <FormattedMessage
                     id="app.menu.segment.range.end"
-                    description="Right url"
-                    defaultMessage="Right URL"
+                    description="Sidebar URL"
+                    defaultMessage="Sidebar URL"
                   />
                 </label>
               </div>
@@ -220,21 +220,21 @@ export var SegmentEdit = React.createClass({
                 <input
                   style={{width: '100%'}}
                   showSecond={true}
-                  defaultValue={this.state.url1}
-                  onChange={this.handleUrl1}
+                  defaultValue={this.state.sidebar}
+                  onChange={this.handleSidebar}
                 />
               </div>
             </div>
           </div>
 
-          <div className="row" style={{display: (this.state.resolution == 'both') ? 'block' : 'none'}}>
+          <div className="row" style={{display: (this.state.mode == 'panel') ? 'block' : 'none'}}>
             <div className="form-group">
               <div className="col-xs-2">
                 <label className="control-label">
                   <FormattedMessage
                     id="app.menu.segment.range.end"
-                    description="Bottom url"
-                    defaultMessage="Bottom URL"
+                    description="Panel URL"
+                    defaultMessage="Panel URL"
                   />
                 </label>
               </div>
@@ -242,8 +242,8 @@ export var SegmentEdit = React.createClass({
                 <input
                   style={{width: '100%'}}
                   showSecond={true}
-                  defaultValue={this.state.url2}
-                  onChange={this.handleUrl2}
+                  defaultValue={this.state.panel}
+                  onChange={this.handlePanel}
                 />
               </div>
             </div>

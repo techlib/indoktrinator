@@ -4,24 +4,58 @@
 #
 ---
 oneOf:
-  # status
+  # Message: status
   - type: object
     additionalProperties: false
-    required: [id, type]
+    required: [id, type, status]
     properties:
-      id: &UUID
-        type: string
-        pattern: '^[0-9a-f]{32}$'
+      id: {$ref: '#/definitions/uuid'}
       type: {enum: [status]}
-      status:
-        type: object
+      status: {$ref: '#/definitions/status'}
+
+
+definitions:
+  uuid:
+    type: string
+    pattern: '^[0-9a-f]{32}$'
+
+  url:
+    type: string
+    pattern: '://'
+
+  power:
+    type: boolean
+
+  status:
+    type: object
+    additionalProperties: false
+    required: [session, power, layout]
+    properties:
+      session: {$ref: '#/definitions/uuid'}
+      power: {$ref: '#/definitions/power'}
+      layout: {$ref: '#/definitions/layout'}
+
+  layout:
+    oneOf:
+      - type: object
         additionalProperties: false
-        required: [session, power, type]
+        required: [mode]
         properties:
-          session: *UUID
-          power: {type: boolean}
-          type: {enum: [full, right, both]}
-          urlRight: {type: string, pattern: '://'}
-          urlBottom: {type: string, pattern: '://'}
+          mode: {enum: [full]}
+
+      - type: object
+        additionalProperties: false
+        required: [mode, sidebar]
+        properties:
+          mode: {enum: [sidebar]}
+          sidebar: {$ref: '#/definitions/url'}
+
+      - type: object
+        additionalProperties: false
+        required: [mode, sidebar, panel]
+        properties:
+          mode: {enum: [panel]}
+          sidebar: {$ref: '#/definitions/url'}
+          panel: {$ref: '#/definitions/url'}
 
 # EOF
