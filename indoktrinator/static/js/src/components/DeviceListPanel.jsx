@@ -65,11 +65,7 @@ export var DeviceListPanel = React.createClass({
                 {this.props.program ?
                   <strong>
                     <Link to={`/program/${this.props.program}`}>
-                      <FormattedMessage
-                        id="app.menu.link"
-                        description="Program"
-                        defaultMessage="Program"
-                      />
+                      {this.props._program.name}
                     </Link>
                   </strong> : null}
               </li>
