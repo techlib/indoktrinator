@@ -240,6 +240,10 @@ export var EventEditModal = React.createClass({
           </div>
         </Modal.Body>
         <Modal.Footer>
+          <Button
+            onClick={this.hide}
+          >Close</Button>
+
           <SaveButton
             handler={this.save}
           />
@@ -247,9 +251,6 @@ export var EventEditModal = React.createClass({
             id={this.props.event.uuid}
             handler={this.delete}
           /> : null }
-          <Button
-            onClick={this.hide}
-          >Close</Button>
         </Modal.Footer>
       </Modal>);
   }

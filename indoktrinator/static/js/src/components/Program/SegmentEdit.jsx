@@ -250,9 +250,6 @@ export var SegmentEdit = React.createClass({
           </div>
         </Modal.Body>
         <Modal.Footer>
-          <SaveButton
-            handler={this.save}
-          />
           { this.props.segment.state == StoreTypes.LOADED ? <DeleteButton
             id={this.props.segment.uuid}
             handler={this.delete}
@@ -260,6 +257,10 @@ export var SegmentEdit = React.createClass({
           <Button
             onClick={this.hide}
           >Close</Button>
+          <SaveButton
+            handler={this.save}
+          />
+
         </Modal.Footer>
       </div>);
   }

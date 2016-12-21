@@ -4,7 +4,7 @@ import {FormattedMessage} from "react-intl";
 export var SaveButton = React.createClass({
   render() {
     return (
-      <button className='btn btn-primary pull-left'
+      <button className='btn btn-primary'
         onClick={this.props.handler}>
         <FormattedMessage
           id="app.buttons.save"

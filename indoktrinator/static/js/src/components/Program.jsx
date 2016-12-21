@@ -390,15 +390,15 @@ export var Program = React.createClass({
               <div className='panel-footer'>
                 <div className="row">
                   <div className="col-xs-6">
-                    <SaveButton
-                      handler={this.save}
-                    />
-                  </div>
-                  <div className="col-xs-6">
-                    { this.state.state == StoreTypes.LOADED ? <DeleteButton
+                  { this.state.state == StoreTypes.LOADED ? <DeleteButton
                       id={this.state.uuid}
                       handler={this.delete}
                     /> : null }
+                  </div>
+                  <div className="col-xs-6 text-right">
+                    <SaveButton
+                      handler={this.save}
+                    />
                   </div>
                 </div>
               </div>
