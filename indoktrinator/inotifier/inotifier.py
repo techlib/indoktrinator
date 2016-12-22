@@ -151,7 +151,7 @@ class Inotifier(object):
 
                     self.manager.file.update(dict(
                         uuid=item.uuid,
-                        hash=ffmpeg.hash,
+                        token=ffmpeg.token,
                         type=ffmpeg.type,
                         duration=ffmpeg.duration,
                         name=name,
@@ -162,7 +162,7 @@ class Inotifier(object):
                     self.manager.file.insert(dict(
                         path=transform_path,
                         dir=transform_dir,
-                        hash=ffmpeg.hash,
+                        token=ffmpeg.token,
                         type=ffmpeg.type,
                         duration=ffmpeg.duration,
                         name=name,

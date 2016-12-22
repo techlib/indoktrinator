@@ -145,7 +145,7 @@ COMMENT ON COLUMN event.range IS 'Range in seconds of that particular day when t
 CREATE TABLE file (
     uuid uuid DEFAULT uuid_generate_v4() NOT NULL,
     path character varying NOT NULL,
-    hash character varying(32) NOT NULL,
+    token character varying(32) NOT NULL,
     type integer DEFAULT 0 NOT NULL,
     duration real DEFAULT 0 NOT NULL,
     name character varying,
@@ -160,7 +160,7 @@ COMMENT ON COLUMN file.uuid IS 'Simple identificator of file';
 
 COMMENT ON COLUMN file.path IS 'Identificator of file';
 
-COMMENT ON COLUMN file.hash IS 'Hash of file';
+COMMENT ON COLUMN file.token IS 'Token for unique identification of the file';
 
 COMMENT ON COLUMN file.type IS 'file type
 0 - unknown
@@ -254,7 +254,7 @@ COPY device (id, name, program, photo, online, power) FROM stdin;
 COPY event (uuid, program, playlist, date, range) FROM stdin;
 \.
 
-COPY file (uuid, path, hash, type, duration, name, preview, dir) FROM stdin;
+COPY file (uuid, path, token, type, duration, name, preview, dir) FROM stdin;
 \.
 
 COPY item (uuid, playlist, duration, "position", file) FROM stdin;

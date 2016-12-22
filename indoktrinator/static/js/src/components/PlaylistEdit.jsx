@@ -23,7 +23,7 @@ export function getItems(playlist) {
       state: StoreTypes.LOADED,
       file: {
         name: item.file_name,
-        hash: item.file_hash,
+        token: item.file_token,
         duration: item.file_duration,
         path: item.file_path,
         preview: item.file_preview,

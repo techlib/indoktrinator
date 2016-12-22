@@ -2,7 +2,6 @@ import sys
 import os
 import io
 import re
-import hashlib
 from PIL import Image
 from subprocess import Popen, PIPE
 from twisted.python import log
@@ -46,30 +45,23 @@ class FFMpeg(object):
         self.preview_scale = preview_scale
 
         self._path = path
-        self._hash = None
+        self._token = None
         self._format = None
         self._duration = None
         self._preview = None
 
     @property
-    def hash(self):
-        if self._hash is not None:
-            return self._hash
+    def token(self):
+        if self._token is not None:
+            return self._token
 
         try:
-            md5 = hashlib.md5()
-            with open(self._path, 'rb') as f:
-                chunk = f.read(4096)
-                while len(chunk) > 0:
-                    md5.update(chunk)
-                    chunk = f.read(4096)
-
-            self._hash = md5.hexdigest()
+            st = os.stat(self._path)
+            self._token = '{}:{}:{}'.format(st.st_dev, st.st_ino, st.st_size)
         except Exception as e:
-            log.msg("hash", e)
-            self._hash = None
+            log.err('Failed to stat file: {}'.format(e))
 
-        return self._hash
+        return self._token
 
     @property
     def duration(self):

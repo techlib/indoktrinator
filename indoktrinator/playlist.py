@@ -56,7 +56,7 @@ class Playlist(Model):
                     'file_uuid': item.MappedFile.uuid,
                     'file_duration': item.MappedFile.duration,
                     'file_path': item.MappedFile.path,
-                    'file_hash': item.MappedFile.hash,
+                    'file_token': item.MappedFile.token,
                     'file_type': item.MappedFile.type,
                     'file_name': item.MappedFile.name,
                     'file_preview': item.MappedFile.preview,
