@@ -1,8 +1,9 @@
 #!/usr/bin/python3 -tt
 # -*- coding: utf-8 -*-
 
-__all__ = ['Manager']
 import os
+import os.path
+
 from twisted.internet.threads import deferToThread
 from twisted.internet import task, reactor
 from twisted.python import log, filepath
@@ -14,6 +15,9 @@ from indoktrinator.item import Item
 from indoktrinator.playlist import Playlist
 from indoktrinator.program import Program
 from indoktrinator.segment import Segment
+
+
+__all__ = ['Manager']
 
 
 class Manager(object):
@@ -48,7 +52,9 @@ class Manager(object):
 
         # get all files from DB and create a dict by path
         for file in self.file.list():
-            db_dict[os.path.normpath('%s/%s' % (self.config['path'], file['path'])).encode('utf8')] = False
+            path = os.path.join(self.config['path'], file['path'])
+            normpath = os.path.normpath(path)
+            db_dict[normpath.encode('utf8')] = False
 
         # recursive function to traverse dirrectory
         def recursion(path):
@@ -60,7 +66,8 @@ class Manager(object):
 
                 file_dict[full_path] = full_path in db_dict
 
-                self.inotifier.addFile(filepath.FilePath(full_path.encode('utf8')))
+                add_file = filepath.FilePath(full_path.encode('utf8'))
+                self.inotifier.addFile(add_file)
 
         # call recursion
         recursion(self.config['path'])

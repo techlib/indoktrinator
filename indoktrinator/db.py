@@ -1,14 +1,15 @@
 #!/usr/bin/python3 -tt
 # -*- coding: utf-8 -*-
 
-__all__ = []
-
 from psycopg2.extras import DateTimeRange, Range, RangeCaster
 from psycopg2.extensions import AsIs
 from sqlalchemy.types import UserDefinedType
 from sqlalchemy.dialects.postgresql.base import ischema_names
+
 import binascii
 import base64
+
+__all__ = []
 
 
 class TSRangeType(UserDefinedType):
@@ -108,14 +109,15 @@ class ByteaType(UserDefinedType):
     def result_processor(self, dialect, coltype):
         def process(value):
             if value:
-                return (b'data:image/octet-stream;base64, ' + base64.b64encode(value))\
-                    .decode('ascii')
+                data = base64.b64encode(value)
+                bstr = (b'data:image/octet-stream;base64, ' + data)
+                return bstr.decode('ascii')
 
         return process
 
 
-ischema_names['tsrange']   = TSRangeType
-ischema_names['range']     = RangeType
+ischema_names['tsrange'] = TSRangeType
+ischema_names['range'] = RangeType
 ischema_names['inetrange'] = InetRangeType
 ischema_names['int4range'] = Int4RangeType
 ischema_names['bytea'] = ByteaType

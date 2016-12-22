@@ -1,6 +1,10 @@
-
+#!/usr/bin/python3 -tt
+# -*- coding: utf-8 -*-
 
 import datetime
+
+
+__all__ = ['Playlist', 'Planner']
 
 
 class Playlist(object):
@@ -62,13 +66,15 @@ class Planner(object):
         self.event_playlist = {}
 
         if weekday is None:
-            weekday = (datetime.datetime.now().isoweekday()%7)
+            weekday = (datetime.datetime.now().isoweekday() % 7)
 
         if date is None:
             date = datetime.datetime.now().date()
 
         self.segment_list = [
-            (segment.range[0], segment.range[1], Playlist(manager, segment.playlist))
+            (segment.range[0],
+             segment.range[1],
+             Playlist(manager, segment.playlist))
             for segment in manager.segment.e().filter(
                 manager.segment.e().program == id_program,
                 manager.segment.e().day == weekday,
@@ -78,7 +84,9 @@ class Planner(object):
         ]
 
         self.event_list = [
-            (event.range[0], event.range[1], Playlist(manager, event.playlist))
+            (event.range[0],
+             event.range[1],
+             Playlist(manager, event.playlist))
             for event in manager.event.e().filter(
                 manager.event.e().program == id_program,
                 manager.event.e().date == date,
@@ -155,3 +163,5 @@ class Planner(object):
                 time = event[1]
                 continue
             time += 1
+
+# vim:set sw=4 ts=4 et:

@@ -1,14 +1,15 @@
 #!/usr/bin/python3 -tt
 # -*- coding: utf-8 -*-
 
-__all__ = ['internal_origin_only']
-
 from urllib.parse import urlparse
 from functools import wraps
 from werkzeug.exceptions import Forbidden
 
 import flask
 import re
+
+
+__all__ = ['internal_origin_only']
 
 
 def internal_origin_only(fn):

@@ -1,4 +1,3 @@
-
 #!/usr/bin/python3 -tt
 # -*- coding: utf-8 -*-
 

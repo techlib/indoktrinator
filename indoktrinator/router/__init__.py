@@ -1,3 +1,4 @@
+#!/usr/bin/python3 -tt
 # -*- coding: utf-8 -*-
 
 from txzmq import ZmqFactory, ZmqEndpointType, ZmqEndpoint

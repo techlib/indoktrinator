@@ -1,7 +1,11 @@
-import sys
+#!/usr/bin/python3 -tt
+# -*- coding: utf-8 -*-
+
 import os
+import os.path
 import io
 import re
+
 from PIL import Image
 from subprocess import Popen, PIPE
 from twisted.python import log
@@ -197,3 +201,5 @@ class FFMpeg(object):
 
     def isImage(self):
         return self.format in self.IMAGE_FORMAT
+
+# vim:set sw=4 ts=4 et:

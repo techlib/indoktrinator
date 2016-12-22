@@ -1,9 +1,12 @@
 #!/usr/bin/python3 -tt
 # -*- coding: utf-8 -*-
-import sys, traceback
+
+import sys
+
 from indoktrinator.model import Model
 from indoktrinator.utils import object_to_dict
 from sqlalchemy import and_
+
 
 __all__ = ['Playlist']
 
@@ -15,7 +18,10 @@ class Playlist(Model):
         self.pkey = 'uuid'
         # Relations
         self.relate('items', self.e('item'))
-        self.include_relations = {'item': ['items', 'item__file'], 'list': ['items']}
+        self.include_relations = {
+            'item': ['items', 'item__file'],
+            'list': ['items'],
+        }
 
     def get_item(self, uuid):
         q = self.manager.db.session.query(
@@ -23,7 +29,7 @@ class Playlist(Model):
             self.e('item'),
             self.e('file')
         ).filter(
-            self.e('playlist').uuid==uuid,
+            self.e('playlist').uuid == uuid,
         ).join(
             self.e('item'),
             isouter=True,

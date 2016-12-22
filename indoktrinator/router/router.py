@@ -81,7 +81,8 @@ class Router(ZmqRouterConnection):
 
         device = self.maybe_create_device(device_id, status)
 
-        if device['power'] != status['power'] or device['last_seen'] + 300 < time():
+        if device['power'] != status['power'] or \
+           device['last_seen'] + 300 < time():
             self.manager.device.update({
                 'id': device_id,
                 'online': True,
@@ -115,7 +116,8 @@ class Router(ZmqRouterConnection):
 
     def midnight(self):
         now = datetime.now()
-        reactor.callLater(86400 - 3600*now.hour - 60*now.minute - now.second, self.midnight)
+        midnight_in = 86400 - 3600 * now.hour - 60 * now.minute - now.second
+        reactor.callLater(midnight_in, self.midnight)
 
         if now.hour == 0 and now.minute == 0:
             for device_id in self.devices.keys():

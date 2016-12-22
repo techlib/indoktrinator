@@ -1,24 +1,27 @@
 #!/usr/bin/python3 -tt
 # -*- coding: utf-8 -*-
 
-__all__ = ['make_site']
-
 from sqlalchemy import *
 from sqlalchemy.exc import *
 from werkzeug.exceptions import *
-from indoktrinator.site.util import *
+
 from functools import wraps
 from base64 import b64decode
-
 
 from sqlalchemy import desc
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from datetime import date, datetime, timedelta
 from xml.sax.saxutils import escape
 from flask_cors import CORS
+
+from indoktrinator.site.util import *
+
 import flask
 import os
 import re
+
+
+__all__ = ['make_site']
 
 
 def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
@@ -109,13 +112,14 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
 
     @app.route('/custom')
     def custom():
-        return flask.render_template('custom.html', get=flask.request.args.get('get'))
+        nonlocal has_privilege
+        get = flask.request.args.get('get')
+        return flask.render_template('custom.html', **locals())
 
     @app.route('/')
     @authorized_only(privilege='user')
     def index():
         nonlocal has_privilege
-
         return flask.render_template('index.html', **locals())
 
     # Devices
@@ -215,7 +219,9 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
         if 'GET' == flask.request.method:
             return flask.jsonify(result=manager.item.list())
         if 'POST' == flask.request.method:
-            return flask.jsonify(manager.item.insert(flask.request.get_json(force=True)))
+            data = flask.request.get_json(force=True)
+            item = manager.item.insert(data)
+            return flask.jsonify(item)
 
     @app.route('/api/item/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
     @authorized_only()
