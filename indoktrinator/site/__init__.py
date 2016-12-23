@@ -387,18 +387,11 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
 
     @app.route('/media/<path:path>')
     def media(path):
-        path = manager.config['path'] + '/' + path
-        os.path.exists(path)
-        f = open(path, 'rb')
-
-        def generate():
-            data = f.read(2048)
-            while data:
-                yield data
-                data = f.read(2048)
-            f.close()
-
-        return flask.Response(generate(), mimetype="application/octet-stream")
+        # NOTE: This should never be used outside development.
+        #       There should be an actual web server in front of the
+        #       application that serves the /media directory faster.
+        return flask.send_from_directory(manager.config['path'], path,
+                                         mimetype='application/octet-stream')
 
     return app
 
