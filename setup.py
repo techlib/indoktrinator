@@ -2,30 +2,25 @@
 # -*- coding: utf-8 -*-
 
 from setuptools import setup, find_packages
-import os.path
+
+from os.path import *
+
+def read_requires(path=None):
+    if path is None:
+        path = join(dirname(__file__), 'requirements.txt')
+        print(path)
+
+    with open(path) as fp:
+        return [l.strip() for l in fp.readlines()]
 
 setup(
     name = 'indoktrinator',
     version = '1',
     author = 'NTK',
-    description = ('PDNS, Kea and FreeRADIUS Configuration Tool'),
+    description = ('Digital signage server for Telescreen'),
     license = 'MIT',
-    keywords = 'pdns DNS DHCP Kea FreeRADIUS configuration',
+    keywords = 'video image slideshow telescreen',
     url = 'http://github.com/techlib/indoktrinator',
-    install_requires = [
-        'Twisted',
-        'Pillow',
-        'Werkzeug',
-        'Flask',
-        'SQLAlchemy',
-        'SQLSoup',
-        'psycopg2',
-        'txpostgres',
-        'requests',
-        'txZMQ',
-        'pyyaml',
-        'jsonschema',
-    ],
     include_package_data = True,
     package_data = {
         '': ['*.png', '*.js', '*.html'],
@@ -34,7 +29,8 @@ setup(
     classifiers = [
         'License :: OSI Approved :: MIT License',
     ],
-    scripts = ['indoktrinator-daemon']
+    scripts = ['bin/indoktrinator'],
+    install_requires = read_requires(),
 )
 
 

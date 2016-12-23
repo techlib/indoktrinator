@@ -11,5 +11,3 @@ __pycache__
 /config/indoktrinator.local.ini
 
 node_modules
-bin/
-lib/
