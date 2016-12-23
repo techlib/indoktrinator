@@ -15,9 +15,4 @@ class File(Model):
         self.pkey = 'uuid'
         # Relations
 
-    def changed(self, key):
-        for item in self.manager.device.uuidByFile(key):
-            device = item.id.encode('utf8')
-            self.manager.inotifier.addDevice(device)
-
 # vim:set sw=4 ts=4 et:

@@ -75,9 +75,4 @@ class Playlist(Model):
     def list(self):
         return super(Playlist, self).list(order_by=['name'])
 
-    def changed(self, key):
-        for item in self.manager.device.uuidByPlaylist(key):
-            device = item.id.encode('utf8')
-            self.manager.inotifier.addDevice(device)
-
 # vim:set sw=4 ts=4 et:

@@ -50,9 +50,6 @@ if __name__ == '__main__':
         http_cors = config.getboolean('http', 'cors', fallback=False)
         endpoint = config.get('zmq', 'endpoint', fallback='tcp://0.0.0.0:5001')
         media_path = config.get('media', 'path', fallback='/var/lib/indoktrinator')
-        inotifier_timeout = config.getint('inotifier', 'timeout', fallback=5)
-        inotifier_ffprobe = config.get('inotifier', 'ffprobe', fallback='/usr/bin/ffprobe')
-        inotifier_ffmpeg = config.get('inotifier', 'ffmpeg', fallback='/usr/bin/ffmpeg')
 
         # Read role mappings.
         access_model = AccessModel(config.items('access'))
@@ -78,18 +75,10 @@ if __name__ == '__main__':
 
         # Prepare the website that will get exposed to the users.
         site = make_site(db, manager, access_model, auth=http_auth, debug=http_debug, cors=http_cors)
+
         router = make_router(manager, endpoint)
-        inotifier = make_inotifier(
-            db,
-            manager,
-            media_path,
-            inotifier_timeout,
-            ffmpeg=inotifier_ffmpeg,
-            ffprobe=inotifier_ffprobe
-        )
         manager.site = site
         manager.router = router
-        manager.inotifier = inotifier
 
         # Prepare WSGI site with a separate thread pool.
         # define reactor thread
