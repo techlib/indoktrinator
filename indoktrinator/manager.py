@@ -21,13 +21,12 @@ __all__ = ['Manager']
 
 
 class Manager(object):
-    def __init__(self, db, checkFiles=True, **kwargs):
+    def __init__(self, db, url):
         self.db = db
-        self.items = kwargs
         self.router = None
         self.app = None
         self.inotifier = None
-        self.url = kwargs.get('url')
+        self.url = url
 
         # Something like models
         self.device = Device(self)
@@ -39,8 +38,7 @@ class Manager(object):
         self.segment = Segment(self)
         self.config = {}
 
-        if checkFiles:
-            reactor.callLater(0, self.checkFiles)
+        reactor.callLater(0, self.checkFiles)
 
     def checkFiles(self):
         '''

@@ -6,9 +6,8 @@ from twisted.python import log
 from indoktrinator.router.router import Router
 
 
-def make_router(manager, address, pool_size):
+def make_router(manager, address):
     zmq_factory = ZmqFactory()
-    zmq_factory.ioThreads = pool_size
     zmq_endpoint = ZmqEndpoint(ZmqEndpointType.bind, address)
 
     router = Router(manager, zmq_factory, zmq_endpoint)
