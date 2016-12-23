@@ -52,7 +52,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             'error': 'pficon-error-circle-o',
         }[category]
 
-    def get_roles():
+    def has_privilege(privilege):
         roles = flask.request.headers.get('X-Roles', '')
 
         if not roles or '(null)' == roles:
@@ -60,28 +60,17 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
         else:
             roles = re.findall(r'\w+', roles)
 
-        return roles
-
-    def has_privilege(privilege):
-        if auth:
-            return access_model.have_privilege(privilege, get_roles())
-        return True
+        return access_model.have_privilege(privilege, roles)
 
     def pass_user_info(fn):
         @wraps(fn)
         def wrapper(*args, **kwargs):
             uid = flask.request.headers.get('X-User-Id', '0')
             username = flask.request.headers.get('X-Full-Name', 'Someone')
-            roles = get_roles()
-            privs = []
-
-            for role in roles:
-                privs.extend(access_model.privileges(role))
 
             kwargs.update({
                 'uid': int(uid),
                 'username': username.encode('latin1').decode('utf8'),
-                'privileges': privs
             })
 
             return fn(*args, **kwargs)
@@ -117,14 +106,14 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
         return flask.render_template('custom.html', **locals())
 
     @app.route('/')
-    @authorized_only(privilege='user')
+    @authorized_only('user')
     def index():
         nonlocal has_privilege
         return flask.render_template('index.html', **locals())
 
     # Devices
     @app.route('/api/device/', methods=['GET', 'POST'])
-    @authorized_only()
+    @authorized_only('user')
     def device_handler(**kwargs):
         if 'GET' == flask.request.method:
             return flask.jsonify(result=manager.device.list())
@@ -142,12 +131,14 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             return flask.jsonify(manager.device.insert(device))
 
     @app.route('/api/device/<id>', methods=['GET', 'DELETE', 'PATCH'])
-    @authorized_only()
+    @authorized_only('user')
     def device_item_handler(id, **kwargs):
         if 'GET' == flask.request.method:
             return flask.jsonify(manager.device.get_item(id))
+
         if 'DELETE' == flask.request.method:
             return flask.jsonify(manager.device.delete(id))
+
         if 'PATCH' == flask.request.method:
             device = flask.request.get_json(force=True)
             device['id'] = id
@@ -162,45 +153,46 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
 
             return flask.jsonify(manager.device.update(device))
 
-    # Files
     @app.route('/api/file/', methods=['GET'])
-    @authorized_only()
+    @authorized_only('user')
     def file_handler(**kwargs):
         if 'GET' == flask.request.method:
-            # TODO: Check, if cache is nesesery
             return flask.jsonify(result=manager.file.list())
-            return file_handler.cache
 
     @app.route('/api/file/<uuid>', methods=['GET'])
-    @authorized_only()
+    @authorized_only('user')
     def file_item_handler(uuid, **kwargs):
         if 'GET' == flask.request.method:
             return flask.jsonify(manager.file.get_item(uuid))
 
-    # Events
     @app.route('/api/event/', methods=['GET', 'POST'])
-    @authorized_only()
+    @authorized_only('user')
     def event_handler(**kwargs):
         if 'GET' == flask.request.method:
             return flask.jsonify(result=manager.event.list())
+
         if 'POST' == flask.request.method:
             try:
                 return flask.jsonify(manager.event.insert(
                     flask.request.get_json(force=True)
                 ))
             except IntegrityError as e:
+                # FIXME: Use some generic DB error handling infrastructure.
+                #        Plus this is definitely not a 500 error.
                 response = flask.jsonify({'message': 'Invalid intersection'})
                 response.status_code = 500
                 db.rollback()
                 return response
 
     @app.route('/api/event/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
-    @authorized_only()
+    @authorized_only('user')
     def event_item_handler(uuid, **kwargs):
         if 'GET' == flask.request.method:
             return flask.jsonify(manager.event.get_item(uuid))
+
         if 'DELETE' == flask.request.method:
             return flask.jsonify(manager.event.delete(uuid))
+
         if 'PATCH' == flask.request.method:
             try:
                 event = flask.request.get_json(force=True)
@@ -212,55 +204,59 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
                 db.rollback()
                 return response
 
-    # Items
     @app.route('/api/item/', methods=['GET', 'POST'])
-    @authorized_only()
+    @authorized_only('user')
     def item_handler(**kwargs):
         if 'GET' == flask.request.method:
             return flask.jsonify(result=manager.item.list())
+
         if 'POST' == flask.request.method:
             data = flask.request.get_json(force=True)
             item = manager.item.insert(data)
             return flask.jsonify(item)
 
     @app.route('/api/item/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
-    @authorized_only()
+    @authorized_only('user')
     def item_item_handler(uuid, **kwargs):
         if 'GET' == flask.request.method:
             return flask.jsonify(manager.item.get_item(uuid))
+
         if 'DELETE' == flask.request.method:
             return flask.jsonify(manager.item.delete(uuid))
+
         if 'PATCH' == flask.request.method:
             item = flask.request.get_json(force=True)
             item['uuid'] = uuid
             return flask.jsonify(manager.item.update(item))
 
-    # Playlists
     @app.route('/api/playlist/', methods=['GET', 'POST'])
-    @authorized_only()
+    @authorized_only('user')
     def playlist_handler(**kwargs):
         if 'GET' == flask.request.method:
             return flask.jsonify(result=manager.playlist.list())
+
         if 'POST' == flask.request.method:
             playlist = flask.request.get_json(force=True)
             playlist['system'] = False
             return flask.jsonify(manager.playlist.insert(playlist))
 
     @app.route('/api/playlist/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
-    @authorized_only()
+    @authorized_only('user')
     def playlist_item_handler(uuid, **kwargs):
         if 'GET' == flask.request.method:
             return flask.jsonify(manager.playlist.get_item(uuid))
-        if 'DELETE' == flask.request.method:
-            # TODO: bug v triggeru pri zmene itemu
-            return flask.jsonify(manager.playlist.delete(uuid))
-        if 'PATCH' == flask.request.method:
 
+        if 'DELETE' == flask.request.method:
+            return flask.jsonify(manager.playlist.delete(uuid))
+
+        if 'PATCH' == flask.request.method:
             playlist = flask.request.get_json(force=True)
             playlist['uuid'] = uuid
+
             tmp = manager.playlist.get_item(uuid)
             if tmp['system']:
                 return Forbidden('System playlist can not be modified')
+
             tmp['system'] = False
 
             if 'path' in playlist and playlist['path']:
@@ -269,23 +265,26 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             return flask.jsonify(manager.playlist.update(playlist))
 
     @app.route('/api/playlist/<uuid>/items', methods=['GET'])
-    @authorized_only()
+    @authorized_only('user')
     def playlist_item_items_handler(uuid, **kwargs):
         if 'GET' == flask.request.method:
             return flask.jsonify(manager.item.list({'playlist': uuid}))
 
+
     @app.route('/api/playlist/<uuid>/copy', methods=['GET'])
-    @authorized_only()
+    @authorized_only('user')
     def playlist_item_copy_handler(uuid, **kwargs):
+        # FIXME: Should not be a GET, since it has an effect.
+        #        Better call it COPY and require a Destination header.
         if 'GET' == flask.request.method:
             old_playlist = manager.playlist.get_item(uuid)
             new_playlist = old_playlist.copy()
             new_playlist['uuid'] = None
-
-            i = 0
             new_playlist['system'] = False
-            while i < 100:
-                i += 1
+
+            # FIXME: This is a horrible way to pick a new name.
+            #        User should give us one before we start!
+            for i in range(1, 101):
                 try:
                     new_playlist['name'] = '%s Copy %d' % (old_playlist['name'], i)
                     new = manager.playlist.insert(new_playlist)
@@ -302,24 +301,26 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
 
             return flask.jsonify(new)
 
-    # Programs
     @app.route('/api/program/', methods=['GET', 'POST'])
-    @authorized_only()
+    @authorized_only('user')
     def program_handler(**kwargs):
         if 'GET' == flask.request.method:
             return flask.jsonify(result=manager.program.list())
+
         if 'POST' == flask.request.method:
             return flask.jsonify(manager.program.insert(
                 flask.request.get_json(force=True)
             ))
 
     @app.route('/api/program/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
-    @authorized_only()
+    @authorized_only('user')
     def program_item_handler(uuid, **kwargs):
         if 'GET' == flask.request.method:
             return flask.jsonify(manager.program.get_item(uuid))
+
         if 'DELETE' == flask.request.method:
             return flask.jsonify(manager.program.delete(uuid))
+
         if 'PATCH' == flask.request.method:
             program = flask.request.get_json(force=True)
             program['uuid'] = uuid
@@ -327,29 +328,23 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
 
     # Segments
     @app.route('/api/segment/', methods=['GET', 'POST'])
-    @authorized_only()
+    @authorized_only('user')
     def segment_handler(**kwargs):
         if 'GET' == flask.request.method:
             return flask.jsonify(result=manager.segment.list())
+
         if 'POST' == flask.request.method:
             segment = flask.request.get_json(force=True)
             segment['day'] %= 7
-            if 'sidebar' in segment \
-                    and segment['sidebar'] \
-                    and not segment['sidebar'].startswith('http://') \
-                    and not segment['sidebar'].startswith('https://'):
+
+            if segment.get('sidebar') and '://' not in segment['sidebar']:
                 segment['sidebar'] = 'http://' + segment['sidebar']
 
-            if 'panel' in segment \
-                    and segment['panel'] \
-                    and not segment['panel'].startswith('http://') \
-                    and not segment['panel'].startswith('https://'):
+            if segment.get('panel') and '://' not in segment['panel']:
                 segment['panel'] = 'http://' + segment['panel']
 
             try:
-                return flask.jsonify(manager.segment.insert(
-                    segment
-                ))
+                return flask.jsonify(manager.segment.insert(segment))
             except IntegrityError as e:
                 response = flask.jsonify({'message': 'Invalid intersection'})
                 response.status_code = 500
@@ -357,29 +352,27 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
                 return response
 
     @app.route('/api/segment/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
-    @authorized_only()
+    @authorized_only('user')
     def segment_item_handler(uuid, **kwargs):
         if 'GET' == flask.request.method:
             return flask.jsonify(manager.segment.get_item(uuid))
+
         if 'DELETE' == flask.request.method:
             return flask.jsonify(manager.segment.delete(uuid))
+
         if 'PATCH' == flask.request.method:
             segment = flask.request.get_json(force=True)
-            if 'sidebar' in segment \
-                    and segment['sidebar'] \
-                    and not segment['sidebar'].startswith('http://') \
-                    and not segment['sidebar'].startswith('https://'):
+
+            segment['uuid'] = uuid
+            segment['day'] %= 7
+
+            if segment.get('sidebar') and '://' not in segment['sidebar']:
                 segment['sidebar'] = 'http://' + segment['sidebar']
 
-            if 'panel' in segment \
-                    and segment['panel'] \
-                    and not segment['panel'].startswith('http://') \
-                    and not segment['panel'].startswith('https://'):
+            if segment.get('panel') and '://' not in segment['panel']:
                 segment['panel'] = 'http://' + segment['panel']
 
             try:
-                segment['uuid'] = uuid
-                segment['day'] %= 7
                 return flask.jsonify(manager.segment.update(segment))
             except IntegrityError as e:
                 response = flask.jsonify({'message': 'Invalid intersection'})
@@ -387,14 +380,10 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
                 db.rollback()
                 return response
 
-    # Logged user info
     @app.route('/api/user-info/', methods=['GET'])
     @pass_user_info
     def userinfo_handler(**kwargs):
-        return ''
-        info = kwargs
-        info['networks'] = manager.network.network_acls(kwargs['privileges'])
-        return flask.jsonify(**info)
+        return flask.jsonify(kwargs)
 
     @app.route('/media/<path:path>')
     def media(path):
