@@ -27,7 +27,10 @@ from sys import argv, stderr
 from configparser import ConfigParser
 
 # Import all the application handles.
-from indoktrinator import make_site, make_router, make_inotifier, Manager, AccessModel
+from indoktrinator.manager import Manager
+from indoktrinator.site import make_site
+from indoktrinator.router import make_router
+from indoktrinator.rbac import AccessModel
 
 if __name__ == '__main__':
     def do_start(config):
