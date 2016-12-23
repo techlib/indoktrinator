@@ -390,7 +390,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
         # NOTE: This should never be used outside development.
         #       There should be an actual web server in front of the
         #       application that serves the /media directory faster.
-        return flask.send_from_directory(manager.config['path'], path,
+        return flask.send_from_directory(manager.media_path, path,
                                          mimetype='application/octet-stream')
 
     return app

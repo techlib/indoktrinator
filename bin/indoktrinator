@@ -46,7 +46,7 @@ if __name__ == '__main__':
         http_auth = config.getboolean('http', 'auth', fallback=False)
         http_cors = config.getboolean('http', 'cors', fallback=False)
         endpoint = config.get('zmq', 'endpoint', fallback='tcp://0.0.0.0:5001')
-        inotifier_path = config.get('inotifier', 'path', fallback='/media')
+        media_path = config.get('media', 'path', fallback='/var/lib/indoktrinator')
         inotifier_timeout = config.getint('inotifier', 'timeout', fallback=5)
         inotifier_ffprobe = config.get('inotifier', 'ffprobe', fallback='/usr/bin/ffprobe')
         inotifier_ffmpeg = config.get('inotifier', 'ffmpeg', fallback='/usr/bin/ffmpeg')
@@ -71,8 +71,7 @@ if __name__ == '__main__':
         reactor.suggestThreadPoolSize(manager_pool)
 
         # Prepare the manager that runs in an exclusive thread.
-        manager = Manager(db, **manager_opts)
-        manager.config['path'] = inotifier_path
+        manager = Manager(db, media_path=media_path, **manager_opts)
 
         # Prepare the website that will get exposed to the users.
         site = make_site(db, manager, access_model, auth=http_auth, debug=http_debug, cors=http_cors)
@@ -80,7 +79,7 @@ if __name__ == '__main__':
         inotifier = make_inotifier(
             db,
             manager,
-            inotifier_path,
+            media_path,
             inotifier_timeout,
             ffmpeg=inotifier_ffmpeg,
             ffprobe=inotifier_ffprobe

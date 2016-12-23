@@ -21,12 +21,14 @@ __all__ = ['Manager']
 
 
 class Manager(object):
-    def __init__(self, db, url):
+    def __init__(self, db, media_path, url):
         self.db = db
+        self.media_path = media_path
+        self.url = url
+
         self.router = None
         self.app = None
         self.inotifier = None
-        self.url = url
 
         # Something like models
         self.device = Device(self)
@@ -36,7 +38,6 @@ class Manager(object):
         self.playlist = Playlist(self)
         self.program = Program(self)
         self.segment = Segment(self)
-        self.config = {}
 
         reactor.callLater(0, self.checkFiles)
 
@@ -50,7 +51,7 @@ class Manager(object):
 
         # get all files from DB and create a dict by path
         for file in self.file.list():
-            path = os.path.join(self.config['path'], file['path'])
+            path = os.path.join(self.media_path, file['path'])
             normpath = os.path.normpath(path)
             db_dict[normpath.encode('utf8')] = False
 
@@ -68,7 +69,7 @@ class Manager(object):
                 self.inotifier.addFile(add_file)
 
         # call recursion
-        recursion(self.config['path'])
+        recursion(self.media_path)
 
         # check all files from db if exists
         for path, value in db_dict.items():
