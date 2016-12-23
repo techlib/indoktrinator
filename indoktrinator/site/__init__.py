@@ -35,8 +35,6 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     if cors:
         CORS(app)
 
-    manager.app = app
-
     # register methods
     @app.template_filter('to_alert')
     def category_to_alert(category):

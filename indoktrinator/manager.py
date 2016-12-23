@@ -27,7 +27,6 @@ class Manager(object):
         self.url = url
 
         self.router = None
-        self.app = None
         self.inotifier = None
 
         # Something like models
