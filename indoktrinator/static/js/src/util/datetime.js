@@ -1,4 +1,4 @@
-import {moment} from 'moment';
+import {moment} from 'moment'
 
 /**
  *
@@ -12,9 +12,9 @@ import {moment} from 'moment';
  * @returns {string|*}
  */
 export function datetimeToString(val, locale) {
-  var m = moment(val);
-  m.locale(locale);
-  return m.format('LLL');
+  var m = moment(val)
+  m.locale(locale)
+  return m.format('LLL')
 }
 
 /**
@@ -26,7 +26,7 @@ export function datetimeToString(val, locale) {
  * @returns {string|*}
  */
 export function dateToString(val) {
-  return val;
+  return val
 }
 
 /**
@@ -40,10 +40,10 @@ export function dateToString(val) {
  * @returns {string|*}
  */
 export function secondsToString(s) {
-  /*var d = moment(s, "seconds").format('hh:mm:ss');
-  d.format('hh:mm:ss');
+  /*var d = moment(s, "seconds").format('hh:mm:ss')
+  d.format('hh:mm:ss')
   return d;*/
-  return moment.duration(s, 'seconds').format('m:ss', {trim: false});
+  return moment.duration(s, 'seconds').format('m:ss', {trim: false})
 }
 
 /**
@@ -57,10 +57,10 @@ export function secondsToString(s) {
  * @returns {int}
  */
 export function stringDayToInt(val, locale) {
-  var m = moment();
-  m.locale(locale);
-  m.day(val);
-  return (m.format('e') - 1);
+  var m = moment()
+  m.locale(locale)
+  m.day(val)
+  return (m.format('e') - 1)
 }
 
 /**
@@ -74,10 +74,10 @@ export function stringDayToInt(val, locale) {
  * @returns {string}
  */
 export function intDayToString(val, locale) {
-  var m = moment();
-  m.locale(locale);
-  m.weekday(val + 1);
-  return m.format('dddd');
+  var m = moment()
+  m.locale(locale)
+  m.weekday(val + 1)
+  return m.format('dddd')
 }
 
 /**
@@ -88,9 +88,9 @@ export function intDayToString(val, locale) {
  * @returns {array}
  */
 export function getWeekDays(locale) {
-  var result = [];
+  var result = []
   for (var i=0; i<7; i++) {
-    result.push(intDayToString(i, locale));
+    result.push(intDayToString(i, locale))
   }
-  return result;
+  return result
 }

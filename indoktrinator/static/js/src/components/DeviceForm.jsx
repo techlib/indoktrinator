@@ -1,10 +1,10 @@
-import * as React from "react";
-import {BootstrapSelect} from "./Select";
-import {Input} from "react-bootstrap";
-import {DateRangePicker} from "./DateRangePicker";
-import * as _ from "lodash";
-import {minLen} from "../util/simple-validators";
-import moment from "moment";
+import * as React from "react"
+import {BootstrapSelect} from "./Select"
+import {Input} from "react-bootstrap"
+import {DateRangePicker} from "./DateRangePicker"
+import * as _ from "lodash"
+import {minLen} from "../util/simple-validators"
+import moment from "moment"
 
 export var DeviceForm = React.createClass({
 

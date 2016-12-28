@@ -1,5 +1,5 @@
-import * as React from "react";
-import {Alert} from "react-bootstrap";
+import * as React from "react"
+import {Alert} from "react-bootstrap"
 
 function AlertNotice(level, message, code) {
   this.level = level

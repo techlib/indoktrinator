@@ -1,9 +1,9 @@
 'use strict'
 
-import * as Reflux from "reflux";
-import {UserInfoActions} from "../actions";
-import * as _ from "lodash";
-import {API_URL} from './config';
+import * as Reflux from "reflux"
+import {UserInfoActions} from "../actions"
+import * as _ from "lodash"
+import {API_URL} from './config'
 
 export var UserInfoStore = Reflux.createStore({
 

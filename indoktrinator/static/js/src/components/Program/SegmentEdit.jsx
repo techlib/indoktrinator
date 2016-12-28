@@ -1,17 +1,17 @@
-import * as React from "react";
-import {Tabs, Tab} from "react-bootstrap-tabs";
-import {Modal, Button} from "react-bootstrap";
-import {FeedbackActions} from "../../actions";
-import {BootstrapSelect} from "../Select";
-import {SaveButton} from "../form/button/SaveButton";
-import {DeleteButton} from "../form/button/DeleteButton";
-import {StoreTypes} from "../../stores/StoreTypes";
-import TimePicker from "rc-time-picker";
-import {FormattedMessage} from "react-intl";
-import moment from "moment";
-import "rc-time-picker/assets/index.css";
-import {Feedback} from "../../stores/Feedback";
-import {getHtmlFormaFromSeconds, html5TimeToSecondsDiff} from './SegmentEditModal';
+import * as React from "react"
+import {Tabs, Tab} from "react-bootstrap-tabs"
+import {Modal, Button} from "react-bootstrap"
+import {FeedbackActions} from "../../actions"
+import {BootstrapSelect} from "../Select"
+import {SaveButton} from "../form/button/SaveButton"
+import {DeleteButton} from "../form/button/DeleteButton"
+import {StoreTypes} from "../../stores/StoreTypes"
+import TimePicker from "rc-time-picker"
+import {FormattedMessage} from "react-intl"
+import moment from "moment"
+import "rc-time-picker/assets/index.css"
+import {Feedback} from "../../stores/Feedback"
+import {getHtmlFormaFromSeconds, html5TimeToSecondsDiff} from './SegmentEditModal'
 
 export var SegmentEdit = React.createClass({
 
@@ -34,71 +34,71 @@ export var SegmentEdit = React.createClass({
   },
 
   validate() {
-    var r = [];
+    var r = []
 
     if (!this.state.playlist) {
       r.push(`Playlist is required`)
     }
 
     if (this.state.range[0] > this.state.range[1]) {
-      r.push(`Format of range is [x < y]`);
+      r.push(`Format of range is [x < y]`)
     }
 
     if (this.state.range[0] == this.state.range[1]) {
-      r.push(`Range can not be null`);
+      r.push(`Range can not be null`)
     }
 
-    return r;
+    return r
   },
 
   save() {
-    var errors = this.validate();
+    var errors = this.validate()
 
     if (errors.length > 0) {
       FeedbackActions.set('error', 'Form contains invalid data:', errors)
     } else {
-      var segment = this.props.segment;
-      segment.range = this.state.range;
-      segment.playlist = this.state.playlist;
+      var segment = this.props.segment
+      segment.range = this.state.range
+      segment.playlist = this.state.playlist
 
-      segment.mode = this.state.mode;
-      segment.sidebar = this.state.sidebar;
-      segment.panel = this.state.panel;
+      segment.mode = this.state.mode
+      segment.sidebar = this.state.sidebar
+      segment.panel = this.state.panel
 
-      this.props.saveHandler(segment);
+      this.props.saveHandler(segment)
     }
   },
 
   delete() {
-    this.props.deleteHandler(this.state.uuid);
+    this.props.deleteHandler(this.state.uuid)
   },
 
   hide() {
-    this.props.hideHandler();
+    this.props.hideHandler()
   },
 
   handleChangeStartDate(value) {
-    const secondsDiff = html5TimeToSecondsDiff(value, this.state.day);
+    const secondsDiff = html5TimeToSecondsDiff(value, this.state.day)
     this.setState({
       range: [
         - moment().startOf('isoWeek').add(this.state.day, 'days').startOf('day').diff(secondsDiff, 'seconds'),
         this.state.range[1]
       ]
-    });
+    })
   },
 
   handleChangeEndDate(value) {
-    const secondsDiff = html5TimeToSecondsDiff(value, this.state.day);
+    const secondsDiff = html5TimeToSecondsDiff(value, this.state.day)
     this.setState({
       range: [
         this.state.range[0],
         - moment().startOf('isoWeek').startOf('day').add(this.state.day, 'days').diff(secondsDiff, 'seconds')
       ]
-    });
+    })
   },
 
   handleChangeMode(evt) {
-    this.setState({[evt.target.name]: evt.target.value});
+    this.setState({[evt.target.name]: evt.target.value})
   },
 
   handleSidebar(value) {
@@ -114,7 +114,7 @@ export var SegmentEdit = React.createClass({
   },
 
   render() {
-    const {range} = this.state;
+    const {range} = this.state
 
     return (
       <div>
@@ -262,6 +262,6 @@ export var SegmentEdit = React.createClass({
           />
 
         </Modal.Footer>
-      </div>);
+      </div>)
   }
-});
+})

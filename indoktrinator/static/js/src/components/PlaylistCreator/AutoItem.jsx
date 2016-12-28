@@ -1,7 +1,7 @@
-import {flow} from "lodash";
-import {DragSource, DropTarget} from "react-dnd";
-import {Item} from "./Item";
-import {Types} from "./Types";
+import {flow} from "lodash"
+import {DragSource, DropTarget} from "react-dnd"
+import {Item} from "./Item"
+import {Types} from "./Types"
 
 const itemSource = {
   beginDrag(props, monitor) {
@@ -14,7 +14,7 @@ const itemSource = {
       type: props.type,
       _type: 'auto',
       all_props: props
-    };
+    }
   },
   endDrag(props, monitor, component) {
     if (monitor.didDrop()) {
@@ -23,7 +23,7 @@ const itemSource = {
       props.cancelDrop()
     }
   }
-};
+}
 
 export var AutoItem = flow(
   DragSource(Types.AUTO_ITEM, itemSource, (connect, monitor) => ({

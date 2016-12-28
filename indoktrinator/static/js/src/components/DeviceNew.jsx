@@ -1,8 +1,8 @@
-import * as React from "react";
-import * as Reflux from "reflux";
-import {Device} from "./Device";
-import {DeviceActions, ProgramActions} from "../actions";
-import {ProgramStore} from "../stores/Program";
+import * as React from "react"
+import * as Reflux from "reflux"
+import {Device} from "./Device"
+import {DeviceActions, ProgramActions} from "../actions"
+import {ProgramStore} from "../stores/Program"
 import {hashHistory as BrowserHistory} from 'react-router'
 
 export var DeviceNew = React.createClass({
@@ -16,10 +16,10 @@ export var DeviceNew = React.createClass({
   },
 
   handleSave(data) {
-    delete data['preview'];
+    delete data['preview']
     DeviceActions.create(data, () => {
       BrowserHistory.push('/device/')
-    });
+    })
   },
 
   getInitialState() {

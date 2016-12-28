@@ -1,18 +1,18 @@
-import * as React from "react";
-import {Tabs, Tab} from "react-bootstrap-tabs";
-import {Modal, Button} from "react-bootstrap";
-import {FeedbackActions} from "../../actions";
-import {BootstrapSelect} from "../Select";
-import {SaveButton} from "../form/button/SaveButton";
-import {DeleteButton} from "../form/button/DeleteButton";
-import {StoreTypes} from "../../stores/StoreTypes";
-import {FormattedMessage} from "react-intl";
-import TimePicker from "rc-time-picker";
-import moment from "moment";
+import * as React from "react"
+import {Tabs, Tab} from "react-bootstrap-tabs"
+import {Modal, Button} from "react-bootstrap"
+import {FeedbackActions} from "../../actions"
+import {BootstrapSelect} from "../Select"
+import {SaveButton} from "../form/button/SaveButton"
+import {DeleteButton} from "../form/button/DeleteButton"
+import {StoreTypes} from "../../stores/StoreTypes"
+import {FormattedMessage} from "react-intl"
+import TimePicker from "rc-time-picker"
+import moment from "moment"
 
-let Header = Modal.Header;
-let Body = Modal.Body;
-let Footer = Modal.Footer;
+let Header = Modal.Header
+let Body = Modal.Body
+let Footer = Modal.Footer
 
 export function html5TimeToSecondsDiff(value, day){
   // from hh:mm:ss, hh:mm, hh -> to seconds
@@ -20,16 +20,16 @@ export function html5TimeToSecondsDiff(value, day){
     .reverse()
     .reduce((prev, curr, i, arr) =>
       prev + curr * Math.pow(60, i+(3-arr.length))
-      , 0);
+      , 0)
 
 
-  return moment().startOf('isoWeek').add(day, 'days').startOf('day').add(seconds, 'seconds');
+  return moment().startOf('isoWeek').add(day, 'days').startOf('day').add(seconds, 'seconds')
 }
 
 export function getHtmlFormaFromSeconds(seconds){
   return moment().startOf('isoWeek').startOf('day')
     .seconds(seconds)
-    .format('HH:mm:ss');
+    .format('HH:mm:ss')
 }
 
 export var SegmentEditModal = React.createClass({
@@ -63,79 +63,79 @@ export var SegmentEditModal = React.createClass({
       'mode': p.segment.mode,
       'sidebar': p.segment.sidebar,
       'panel': p.segment.panel,
-    });
+    })
   },
 
   validate() {
-    var r = [];
+    var r = []
 
     if (!this.state.playlist) {
       r.push(`Playlist is required`)
     }
 
     if (this.state.range[0] > this.state.range[1]) {
-      r.push(`Format of range is [x < y]`);
+      r.push(`Format of range is [x < y]`)
     }
 
     if (!this.state.range) {
       r.push(`Range is required`)
     }
 
-    return r;
+    return r
   },
 
   save() {
-    var errors = this.validate();
+    var errors = this.validate()
 
     if (errors.length > 0) {
       FeedbackActions.set('error', 'Form contains invalid data:', errors)
     } else {
-      var segment = this.props.segment;
-      segment.date = this.state.date;
-      segment.range = this.state.range;
-      segment.playlist = this.state.playlist;
-      segment.mode = this.state.mode;
-      segment.sidebar = this.state.sidebar;
-      segment.panel = this.state.panel;
-      segment.day = this.state.day;
-      this.props.saveHandler(segment);
+      var segment = this.props.segment
+      segment.date = this.state.date
+      segment.range = this.state.range
+      segment.playlist = this.state.playlist
+      segment.mode = this.state.mode
+      segment.sidebar = this.state.sidebar
+      segment.panel = this.state.panel
+      segment.day = this.state.day
+      this.props.saveHandler(segment)
     }
   },
 
   delete() {
-    this.props.deleteHandler(this.state.uuid);
+    this.props.deleteHandler(this.state.uuid)
   },
 
   hide() {
-    this.props.hideHandler();
+    this.props.hideHandler()
   },
 
   handleChangeStartDate(value) {
-    const secondsDiff = html5TimeToSecondsDiff(value, this.state.day);
+    const secondsDiff = html5TimeToSecondsDiff(value, this.state.day)
     this.setState({
       range: [
         -moment().startOf('isoWeek').add(this.state.day, 'days').startOf('day').diff(secondsDiff, 'seconds'),
         this.state.range[1]
       ]
-    });
+    })
   },
 
   handleChangeDate({target: {value}}) {
-    this.setState({day: +value});
+    this.setState({day: +value})
   },
 
   handleChangeEndDate(value) {
-    const secondsDiff = html5TimeToSecondsDiff(value, this.state.day);
+    const secondsDiff = html5TimeToSecondsDiff(value, this.state.day)
     this.setState({
       range: [
         this.state.range[0],
         -moment().startOf('isoWeek').add(this.state.day, 'days').startOf('day').diff(secondsDiff, 'seconds')
       ]
-    });
+    })
   },
 
   handleChangeMode(evt) {
-    this.setState({[evt.target.name]: evt.target.value});
+    this.setState({[evt.target.name]: evt.target.value})
   },
 
   handleSidebar(value) {
@@ -151,7 +151,7 @@ export var SegmentEditModal = React.createClass({
   },
 
   render() {
-    const {range} = this.state;
+    const {range} = this.state
 
     return (
       <Modal
@@ -312,6 +312,6 @@ export var SegmentEditModal = React.createClass({
           />
 
         </Modal.Footer>
-      </Modal>);
+      </Modal>)
   }
-});
+})

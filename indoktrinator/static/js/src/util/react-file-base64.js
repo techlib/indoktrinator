@@ -5,7 +5,7 @@
  *
  */
 
-import React from 'react';
+import React from 'react'
 
 class FileBase64 extends React.Component {
 
@@ -22,7 +22,7 @@ class FileBase64 extends React.Component {
   handleChange(e){
 
     // get the files
-    let files = e.target.files;
+    let files = e.target.files
 
     // Process each file
     var allFiles = []
@@ -75,4 +75,4 @@ class FileBase64 extends React.Component {
 
 }
 
-export default FileBase64;
+export default FileBase64

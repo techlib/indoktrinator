@@ -1,13 +1,13 @@
-import * as React from "react";
-import * as Reflux from "reflux";
-import {Program} from "./Program";
-import {ProgramActions, PlaylistActions, SegmentActions, EventActions, FeedbackActions} from "../actions";
-import {ProgramStore} from "../stores/Program";
-import {PlaylistStore} from "../stores/Playlist";
-import {EventStore} from "../stores/Event";
-import {SegmentStore} from "../stores/Segment";
-import {hashHistory as BrowserHistory} from "react-router";
-import {confirmModal} from "./ModalConfirmMixin";
+import * as React from "react"
+import * as Reflux from "reflux"
+import {Program} from "./Program"
+import {ProgramActions, PlaylistActions, SegmentActions, EventActions, FeedbackActions} from "../actions"
+import {ProgramStore} from "../stores/Program"
+import {PlaylistStore} from "../stores/Playlist"
+import {EventStore} from "../stores/Event"
+import {SegmentStore} from "../stores/Segment"
+import {hashHistory as BrowserHistory} from "react-router"
+import {confirmModal} from "./ModalConfirmMixin"
 
 export var ProgramEdit = React.createClass({
 
@@ -19,10 +19,10 @@ export var ProgramEdit = React.createClass({
   ],
 
   componentDidMount() {
-    ProgramActions.read(this.props.params.uuid);
-    SegmentActions.list();
-    EventActions.list();
-    PlaylistActions.list();
+    ProgramActions.read(this.props.params.uuid)
+    SegmentActions.list()
+    EventActions.list()
+    PlaylistActions.list()
   },
 
   getInitialState() {
@@ -36,7 +36,7 @@ export var ProgramEdit = React.createClass({
 
   handleSave(data) {
     ProgramActions.update(data, () => {
-      this.setState({program: {program: data}});
+      this.setState({program: {program: data}})
     })
   },
 
@@ -46,22 +46,22 @@ export var ProgramEdit = React.createClass({
       'Would you like to remove program?'
     ).then(() => {
       ProgramActions.delete(uuid, () => {
-        BrowserHistory.push('/program/');
+        BrowserHistory.push('/program/')
         FeedbackActions.set('success', 'Program deleted')
       })
-    });
+    })
   },
 
   getFilteredSegments() {
     return this.state.segment.list.filter((item) => {
-      return item.program == this.state.program.program.uuid;
-    });
+      return item.program == this.state.program.program.uuid
+    })
   },
 
   getFilteredEvents() {
     return this.state.event.list.filter((item) => {
-      return item.program == this.state.program.program.uuid;
-    });
+      return item.program == this.state.program.program.uuid
+    })
   },
 
   render() {
@@ -74,6 +74,6 @@ export var ProgramEdit = React.createClass({
         event={this.getFilteredEvents()}
         saveHandler={this.handleSave}
         deleteHandler={this.handleDelete}
-      />);
+      />)
   }
-});
+})

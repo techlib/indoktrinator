@@ -1,22 +1,22 @@
-import * as React from "react";
-import moment from "moment";
-import "moment-duration-format";
-import {BrowserHistory} from "../../actions";
-import {RemoveButton} from "../form/button/RemoveButton";
-import {CancelButton} from "../form/button/CancelButton";
-import {add3Dots} from "../../util/string";
-import {FormattedMessage} from "react-intl";
-import {Types} from './Types';
-import {StoreTypes} from "./../../stores/StoreTypes";
+import * as React from "react"
+import moment from "moment"
+import "moment-duration-format"
+import {BrowserHistory} from "../../actions"
+import {RemoveButton} from "../form/button/RemoveButton"
+import {CancelButton} from "../form/button/CancelButton"
+import {add3Dots} from "../../util/string"
+import {FormattedMessage} from "react-intl"
+import {Types} from './Types'
+import {StoreTypes} from "./../../stores/StoreTypes"
 
 export var Item = React.createClass({
 
   delete() {
-    this.props.deleteItemHandler(this.props.uuid);
+    this.props.deleteItemHandler(this.props.uuid)
   },
 
   cancel() {
-    this.props.cancelItemHandler(this.props.index);
+    this.props.cancelItemHandler(this.props.index)
   },
 
   getInitialState() {
@@ -30,9 +30,9 @@ export var Item = React.createClass({
       type,
       //React DnD
       connectDragSource,
-      connectDropTarget} = this.props;
+      connectDropTarget} = this.props
 
-    const opacity = (type === Types.SYNTH_ITEM && this.props.isDragging) || this.props.hide ? 0 : 1;
+    const opacity = (type === Types.SYNTH_ITEM && this.props.isDragging) || this.props.hide ? 0 : 1
 
     let item = (
         <div className="list-group-item" style={{opacity}}>
@@ -67,12 +67,12 @@ export var Item = React.createClass({
               />: null}
           </div>
         </div>
-      );
+      )
 
     if (type === Types.SYNTH_ITEM) {
-      item = connectDropTarget(item);
+      item = connectDropTarget(item)
     }
 
-    return connectDragSource(item);
+    return connectDragSource(item)
   }
 })

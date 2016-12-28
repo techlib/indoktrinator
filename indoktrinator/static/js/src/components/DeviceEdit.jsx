@@ -1,11 +1,11 @@
-import * as React from "react";
-import * as Reflux from "reflux";
-import {Device} from "./Device";
-import {DeviceActions, ProgramActions} from "../actions";
-import {ProgramStore} from "../stores/Program";
-import {DeviceStore} from "../stores/Device";
-import {hashHistory as BrowserHistory} from "react-router";
-import {confirmModal} from "./ModalConfirmMixin";
+import * as React from "react"
+import * as Reflux from "reflux"
+import {Device} from "./Device"
+import {DeviceActions, ProgramActions} from "../actions"
+import {ProgramStore} from "../stores/Program"
+import {DeviceStore} from "../stores/Device"
+import {hashHistory as BrowserHistory} from "react-router"
+import {confirmModal} from "./ModalConfirmMixin"
 
 export var DeviceEdit = React.createClass({
 
@@ -21,11 +21,11 @@ export var DeviceEdit = React.createClass({
       title: p.playlist.playlist.name,
       playlist: {list: p.playlist.list, playlist: {}},
       file: {list: p.file, file: {}}
-    });
+    })
   },
 
   componentDidMount() {
-    DeviceActions.read(this.props.params.id);
+    DeviceActions.read(this.props.params.id)
     ProgramActions.list()
   },
 
@@ -37,14 +37,14 @@ export var DeviceEdit = React.createClass({
   },
 
   handleSave(data) {
-    delete data['preview'];
-    delete data['state'];
+    delete data['preview']
+    delete data['state']
     DeviceActions.update(data, () => {
       DeviceActions.read(data.id, () => {
-        var device = DeviceStore.data.device;
-        this.setState({device: {device: device}});
-      });
-    });
+        var device = DeviceStore.data.device
+        this.setState({device: {device: device}})
+      })
+    })
   },
 
   handleDelete(id) {
@@ -53,8 +53,8 @@ export var DeviceEdit = React.createClass({
       'Would you like to remove device?'
     ).then(() => {
       DeviceActions.delete(id, () => {
-        BrowserHistory.push('/device/');
-      });
+        BrowserHistory.push('/device/')
+      })
     })
   },
 

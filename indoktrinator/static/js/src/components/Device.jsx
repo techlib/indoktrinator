@@ -1,13 +1,13 @@
-import * as React from "react";
-import {FeedbackActions} from "../actions";
-import {Feedback} from "./Feedback";
-import {Input} from "react-bootstrap";
-import {FormattedMessage} from "react-intl";
-import {BootstrapSelect} from "./Select";
-import FileBase64 from "../util/react-file-base64.js";
-import {SaveButton} from "./form/button/SaveButton";
-import {DeleteButton} from "./form/button/DeleteButton";
-import {StoreTypes} from "./../stores/StoreTypes";
+import * as React from "react"
+import {FeedbackActions} from "../actions"
+import {Feedback} from "./Feedback"
+import {Input} from "react-bootstrap"
+import {FormattedMessage} from "react-intl"
+import {BootstrapSelect} from "./Select"
+import FileBase64 from "../util/react-file-base64.js"
+import {SaveButton} from "./form/button/SaveButton"
+import {DeleteButton} from "./form/button/DeleteButton"
+import {StoreTypes} from "./../stores/StoreTypes"
 
 export var Device = React.createClass({
 
@@ -31,11 +31,11 @@ export var Device = React.createClass({
         'state': p.device.state,
         'program': p.device.program ? p.device.program : p.program[0] ? p.program[0].uuid : null
       }
-    );
+    )
   },
 
   validate() {
-    var r = [];
+    var r = []
 
     if (!this.state.name) {
       r.push(`Name is required`)
@@ -56,11 +56,11 @@ export var Device = React.createClass({
     this.setState({
       'preview': files[0]['base64'],
       'photo': files[0]['base64raw']
-    });
+    })
   },
 
   save() {
-    var errors = this.validate();
+    var errors = this.validate()
 
     if (errors.length > 0) {
       FeedbackActions.set('error', 'Form contains invalid data:', errors)

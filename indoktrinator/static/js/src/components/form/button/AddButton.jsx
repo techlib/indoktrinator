@@ -1,5 +1,5 @@
-import * as React from "react";
-import {FormattedMessage} from "react-intl";
+import * as React from "react"
+import {FormattedMessage} from "react-intl"
 
 export var AddButton = React.createClass({
   render() {
@@ -11,6 +11,6 @@ export var AddButton = React.createClass({
           description="Add button"
           defaultMessage="Add"
         />
-      </button>);
+      </button>)
   }
 })

@@ -1,5 +1,5 @@
-import * as React from "react";
-import {FormattedMessage} from "react-intl";
+import * as React from "react"
+import {FormattedMessage} from "react-intl"
 
 export var RemoveButton = React.createClass({
   render() {
@@ -12,9 +12,9 @@ export var RemoveButton = React.createClass({
             description="Remove button"
             defaultMessage="Remove"
           />
-        </button>);
+        </button>)
     } else {
-      return null;
+      return null
     }
   }
 })

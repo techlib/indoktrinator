@@ -4,4 +4,4 @@ export const Types = {
   SYNTH_GROUP: 'synth__group',
   AUTO_GROUP: 'auto_group',
   DEFAULT: 'default'
-};
+}

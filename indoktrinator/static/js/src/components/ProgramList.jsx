@@ -1,23 +1,23 @@
-import * as React from "react";
-import * as Reflux from "reflux";
-import {Feedback} from "./Feedback";
-import {ProgramActions as pa} from "../actions";
-import Griddle from "griddle-react";
-import {Pager} from "./Pager";
-import {Button} from "react-bootstrap";
-import {Link, hashHistory as BrowserHistory} from "react-router";
-import {regexGridFilter} from "../util/griddle-components";
-import {FormattedMessage} from "react-intl";
-import {ProgramStore} from "../stores/Program";
-import {confirmModal} from "./ModalConfirmMixin";
+import * as React from "react"
+import * as Reflux from "reflux"
+import {Feedback} from "./Feedback"
+import {ProgramActions as pa} from "../actions"
+import Griddle from "griddle-react"
+import {Pager} from "./Pager"
+import {Button} from "react-bootstrap"
+import {Link, hashHistory as BrowserHistory} from "react-router"
+import {regexGridFilter} from "../util/griddle-components"
+import {FormattedMessage} from "react-intl"
+import {ProgramStore} from "../stores/Program"
+import {confirmModal} from "./ModalConfirmMixin"
 
 let ProgramLink = React.createClass({
   render() {
     return (<Link to={`/program/${this.props.rowData.uuid}`}>
       {this.props.rowData.name}
-    </Link>);
+    </Link>)
   }
-});
+})
 
 let ProgramActions = React.createClass({
 
@@ -27,10 +27,10 @@ let ProgramActions = React.createClass({
       'Would you like to remove program?'
     ).then(() => {
       pa.delete(this.props.rowData.uuid, () => {
-        pa.list();
-        BrowserHistory.push('/program/');
-      });
-    });
+        pa.list()
+        BrowserHistory.push('/program/')
+      })
+    })
   },
 
   render() {
@@ -49,7 +49,7 @@ let ProgramActions = React.createClass({
       </span>
     )
   }
-});
+})
 
 export var ProgramList = React.createClass({
 
@@ -70,7 +70,7 @@ export var ProgramList = React.createClass({
     let columnMeta = [
       {columnName: 'name', displayName: 'Name', customComponent: ProgramLink},
       {columnName: 'c', displayName: 'Actions', customComponent: ProgramActions, cssClassName: "griddle-actions"}
-    ];
+    ]
 
     return (
       <div className='container-fluid col-xs-12'>
@@ -112,5 +112,5 @@ export var ProgramList = React.createClass({
       </div>
     )
   }
-});
+})
 

@@ -1,12 +1,12 @@
-import * as React from "react";
-import {Tabs, Tab} from "react-bootstrap-tabs";
-import {StoreTypes} from "../../stores/StoreTypes";
-import {FormattedMessage} from "react-intl";
-import moment from "moment";
-import {guid} from "../../util/database";
-import {Modal} from "react-bootstrap";
-import {SegmentEdit} from "./SegmentEdit";
-import {EventEdit} from "./EventEdit";
+import * as React from "react"
+import {Tabs, Tab} from "react-bootstrap-tabs"
+import {StoreTypes} from "../../stores/StoreTypes"
+import {FormattedMessage} from "react-intl"
+import moment from "moment"
+import {guid} from "../../util/database"
+import {Modal} from "react-bootstrap"
+import {SegmentEdit} from "./SegmentEdit"
+import {EventEdit} from "./EventEdit"
 
 export var CreateCalendarEventModal = React.createClass({
 
@@ -22,64 +22,64 @@ export var CreateCalendarEventModal = React.createClass({
   },
 
   createEvent(slotInfo) {
-    var event = {};
-    event.uuid = guid();
-    event.program = this.props.program.uuid;
-    event.state = StoreTypes.NEW;
+    var event = {}
+    event.uuid = guid()
+    event.program = this.props.program.uuid
+    event.state = StoreTypes.NEW
 
     if (slotInfo) {
-      var startDayMidnight = moment(slotInfo.start).startOf('day');
-      var start = moment(slotInfo.start);
-      var end = moment(slotInfo.end);
+      var startDayMidnight = moment(slotInfo.start).startOf('day')
+      var start = moment(slotInfo.start)
+      var end = moment(slotInfo.end)
 
-      event.range = [start.diff(startDayMidnight, 'seconds'), end.diff(startDayMidnight, 'seconds')];
-      event.date = start.format('YYYY-MM-DD');
+      event.range = [start.diff(startDayMidnight, 'seconds'), end.diff(startDayMidnight, 'seconds')]
+      event.date = start.format('YYYY-MM-DD')
     } else {
-      event.range = [0, 0];
-      event.date = moment().format('YYYY-MM-DD');
+      event.range = [0, 0]
+      event.date = moment().format('YYYY-MM-DD')
     }
 
-    return event;
+    return event
   },
 
   createSegment(slotInfo) {
-    var segment = {};
-    segment.uuid = guid();
-    segment.program = this.props.program.uuid;
-    segment.state = StoreTypes.NEW;
+    var segment = {}
+    segment.uuid = guid()
+    segment.program = this.props.program.uuid
+    segment.state = StoreTypes.NEW
 
     if (slotInfo) {
-      var startDayMidnight = moment(slotInfo.start).startOf('day');
-      var start = moment(slotInfo.start);
-      var end = moment(slotInfo.end);
+      var startDayMidnight = moment(slotInfo.start).startOf('day')
+      var start = moment(slotInfo.start)
+      var end = moment(slotInfo.end)
 
-      segment.range = [start.diff(startDayMidnight, 'seconds'), end.diff(startDayMidnight, 'seconds')];
-      segment.day = start.isoWeekday();
+      segment.range = [start.diff(startDayMidnight, 'seconds'), end.diff(startDayMidnight, 'seconds')]
+      segment.day = start.isoWeekday()
     } else {
-      var midnight = moment().startOf('day');
-      var now = moment();
+      var midnight = moment().startOf('day')
+      var now = moment()
 
-      segment.day = now.isoWeekday();
-      segment.range = [now.diff(midnight, 'seconds'), now.diff(midnight, 'seconds')];
+      segment.day = now.isoWeekday()
+      segment.range = [now.diff(midnight, 'seconds'), now.diff(midnight, 'seconds')]
     }
 
-    return segment;
+    return segment
   },
 
   handleSelectTabPanel(index) {
-    this.setState({tabPanelIndex: index});
+    this.setState({tabPanelIndex: index})
   },
 
   hide() {
-    this.props.hideHandler();
+    this.props.hideHandler()
   },
 
   saveSegment(segment) {
-    this.props.saveSegmentHandler(segment);
+    this.props.saveSegmentHandler(segment)
   },
 
   saveEvent(event) {
-    this.props.saveEventHandler(event);
+    this.props.saveEventHandler(event)
   },
 
   render() {
@@ -120,6 +120,6 @@ export var CreateCalendarEventModal = React.createClass({
           </Tab>
         </Tabs>
       </Modal>
-    );
+    )
   }
-});
+})

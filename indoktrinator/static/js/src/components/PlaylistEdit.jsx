@@ -1,20 +1,20 @@
-import * as React from "react";
-import * as Reflux from "reflux";
-import {PlaylistCreator} from "./PlaylistCreator";
-import {PlaylistDetail} from "./PlaylistDetail";
-import {PlaylistActions, FileActions} from "../actions";
-import {PlaylistStore} from "../stores/Playlist";
-import {FileStore} from "../stores/File";
-import {StoreTypes} from "./../stores/StoreTypes";
-import {Types} from "./PlaylistCreator/Types";
-import {v4 as uuid} from 'uuid';
+import * as React from "react"
+import * as Reflux from "reflux"
+import {PlaylistCreator} from "./PlaylistCreator"
+import {PlaylistDetail} from "./PlaylistDetail"
+import {PlaylistActions, FileActions} from "../actions"
+import {PlaylistStore} from "../stores/Playlist"
+import {FileStore} from "../stores/File"
+import {StoreTypes} from "./../stores/StoreTypes"
+import {Types} from "./PlaylistCreator/Types"
+import {v4 as uuid} from 'uuid'
 
 export function getItems(playlist) {
   if (!playlist.items || playlist.items.length === 0) {
-    return [];
+    return []
   }
 
-  const items = [];
+  const items = []
   playlist.items.forEach((item, index) => {
     items.push({
       index: index,
@@ -33,11 +33,11 @@ export function getItems(playlist) {
       hide: false,
       editable: !playlist.system,
       reactKey: uuid(),
-    });
-  });
+    })
+  })
 
-  return items;
-};
+  return items
+}
 
 export var PlaylistEdit = React.createClass({
 
@@ -51,9 +51,9 @@ export var PlaylistEdit = React.createClass({
   },
 
   componentDidMount() {
-    PlaylistActions.read(this.props.params.uuid, () => this.setState({loaded: true}));
-    FileActions.list();
-    PlaylistActions.list();
+    PlaylistActions.read(this.props.params.uuid, () => this.setState({loaded: true}))
+    FileActions.list()
+    PlaylistActions.list()
   },
 
   getInitialState() {
@@ -65,7 +65,7 @@ export var PlaylistEdit = React.createClass({
 
   render() {
     if (!this.state.loaded){
-      return <div>Loading...</div>;
+      return <div>Loading...</div>
     }
 
     return <div>{this.state.playlist.playlist.system ?

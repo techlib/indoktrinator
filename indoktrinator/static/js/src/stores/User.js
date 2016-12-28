@@ -1,8 +1,8 @@
 'use strict'
 
-import * as Reflux from "reflux";
-import {UserActions} from "../actions";
-import {API_URL} from './config';
+import * as Reflux from "reflux"
+import {UserActions} from "../actions"
+import {API_URL} from './config'
 
 export var UserStore = Reflux.createStore({
   listenables: [UserActions],

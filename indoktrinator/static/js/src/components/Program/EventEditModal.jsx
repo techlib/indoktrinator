@@ -1,20 +1,20 @@
-import * as React from "react";
-import {Tabs, Tab} from "react-bootstrap-tabs";
-import {Modal, Button} from "react-bootstrap";
-import {FeedbackActions} from "../../actions";
-import {BootstrapSelect} from "./../Select";
-import {StoreTypes} from "../../stores/StoreTypes";
-import {SaveButton} from "../form/button/SaveButton";
-import {DeleteButton} from "../form/button/DeleteButton";
-import {FormattedMessage} from "react-intl";
-import TimePicker from "rc-time-picker";
-import moment from "moment";
-import {getHtmlFormaFromSeconds, html5TimeToSecondsDiff} from './SegmentEditModal';
-var DatePicker = require("react-bootstrap-date-picker");
+import * as React from "react"
+import {Tabs, Tab} from "react-bootstrap-tabs"
+import {Modal, Button} from "react-bootstrap"
+import {FeedbackActions} from "../../actions"
+import {BootstrapSelect} from "./../Select"
+import {StoreTypes} from "../../stores/StoreTypes"
+import {SaveButton} from "../form/button/SaveButton"
+import {DeleteButton} from "../form/button/DeleteButton"
+import {FormattedMessage} from "react-intl"
+import TimePicker from "rc-time-picker"
+import moment from "moment"
+import {getHtmlFormaFromSeconds, html5TimeToSecondsDiff} from './SegmentEditModal'
+var DatePicker = require("react-bootstrap-date-picker")
 
-let Header = Modal.Header;
-let Body = Modal.Body;
-let Footer = Modal.Footer;
+let Header = Modal.Header
+let Body = Modal.Body
+let Footer = Modal.Footer
 
 export var EventEditModal = React.createClass({
 
@@ -40,18 +40,18 @@ export var EventEditModal = React.createClass({
       'date': p.event.date,
       'playlist': p.event.playlist,
       'title': p.event.state == StoreTypes.LOADED ? p.event.playlist.name : 'New Event'
-    });
+    })
   },
 
   validate() {
-    var r = [];
+    var r = []
 
     if (!this.state.playlist) {
       r.push(`Playlist is required`)
     }
 
     if (this.state.range[0] > this.state.range[1]) {
-      r.push(`Format of range required is [x < y]`);
+      r.push(`Format of range required is [x < y]`)
     }
 
     if (!this.state.date) {
@@ -66,16 +66,16 @@ export var EventEditModal = React.createClass({
       .reverse()
       .reduce((prev, curr, i, arr) =>
         prev + curr * Math.pow(60, i+(3-arr.length))
-        , 0);
+        , 0)
 
-    const secondsDiff = moment(this.state.date).startOf('day').add(seconds, 'seconds');
+    const secondsDiff = moment(this.state.date).startOf('day').add(seconds, 'seconds')
 
     this.setState({
       range: [
         -moment(this.state.date).startOf('day').diff(secondsDiff, 'seconds'),
         this.state.range[1]
       ]
-    });
+    })
   },
 
   handleChangeEndDate(value) {
@@ -83,31 +83,31 @@ export var EventEditModal = React.createClass({
       .reverse()
       .reduce((prev, curr, i, arr) =>
         prev + curr * Math.pow(60, i+(3-arr.length))
-        , 0);
+        , 0)
 
-    const secondsDiff = moment(this.state.date).startOf('day').add(seconds, 'seconds');
+    const secondsDiff = moment(this.state.date).startOf('day').add(seconds, 'seconds')
 
     this.setState({
       range: [
         this.state.range[0],
         -moment(this.state.date).startOf('day').diff(secondsDiff, 'seconds')
       ]
-    });
+    })
   },
 
   // getStartDate() {
-  //   return moment(this.state.date).startOf('day').add(this.state.range[0], 'seconds');
+  //   return moment(this.state.date).startOf('day').add(this.state.range[0], 'seconds')
   // },
   //
   // getEndDate() {
-  //   return moment(this.state.date).startOf('day').add(this.state.range[1], 'seconds');
+  //   return moment(this.state.date).startOf('day').add(this.state.range[1], 'seconds')
   // },
 
   handleChangeDate(date) {
     // I absolutely don't get it why I have to here increment 1 day here.
     // But I have to. I suppose that's some magic due to broken TimePicker component. :(
 
-    this.setState({date: moment(date).add(1, 'day').toDate()});
+    this.setState({date: moment(date).add(1, 'day').toDate()})
   },
 
   handleChange(evt) {
@@ -115,31 +115,31 @@ export var EventEditModal = React.createClass({
   },
 
   delete() {
-    this.props.deleteHandler(this.state.uuid);
+    this.props.deleteHandler(this.state.uuid)
   },
 
   save() {
-    var errors = this.validate();
+    var errors = this.validate()
 
     if (errors.length > 0) {
       FeedbackActions.set('error', 'Form contains invalid data:', errors)
     } else {
 
-      var event = this.props.event;
-      event.date = this.state.date;
-      event.range = this.state.range;
-      event.playlist = this.state.playlist;
+      var event = this.props.event
+      event.date = this.state.date
+      event.range = this.state.range
+      event.playlist = this.state.playlist
 
-      this.props.saveHandler(event);
+      this.props.saveHandler(event)
     }
   },
 
   hide() {
-    this.props.hideHandler();
+    this.props.hideHandler()
   },
 
   render() {
-    const {range} = this.state;
+    const {range} = this.state
 
     return (
       <Modal
@@ -252,6 +252,6 @@ export var EventEditModal = React.createClass({
             handler={this.delete}
           /> : null }
         </Modal.Footer>
-      </Modal>);
+      </Modal>)
   }
-});
+})

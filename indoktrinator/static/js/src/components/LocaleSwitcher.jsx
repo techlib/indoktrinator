@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from "react"
 
 export var LocaleSwitcher = React.createClass({
 
@@ -15,6 +15,6 @@ export var LocaleSwitcher = React.createClass({
       {this.props.languages.map((item) => {
         return <option>{item}</option>
       })}
-    </select>);
+    </select>)
   }
-});
+})

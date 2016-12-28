@@ -56,11 +56,6 @@ export var Confirm = React.createClass({
             onClick={this.abort}>
             {this.props.abortLabel}
           </button>}
-          <button role='confirm' className={clsConfirm}
-            ref='confirm'
-            onClick={this.confirm}>
-            {this.props.confirmLabel}
-          </button>
         </div>
       </Footer>
     )

@@ -1,12 +1,12 @@
-import * as React from "react";
-import * as Reflux from "reflux";
-import {PlaylistActions, FeedbackActions} from "../actions";
-import {PlaylistStore} from "../stores/Playlist";
-import {hashHistory as BrowserHistory} from "react-router";
-import {guid} from "../util/database";
-import {FormattedMessage} from "react-intl";
-import {Feedback} from "./Feedback";
-import {Input} from "react-bootstrap";
+import * as React from "react"
+import * as Reflux from "reflux"
+import {PlaylistActions, FeedbackActions} from "../actions"
+import {PlaylistStore} from "../stores/Playlist"
+import {hashHistory as BrowserHistory} from "react-router"
+import {guid} from "../util/database"
+import {FormattedMessage} from "react-intl"
+import {Feedback} from "./Feedback"
+import {Input} from "react-bootstrap"
 
 export var PlaylistNew = React.createClass({
 
@@ -20,7 +20,7 @@ export var PlaylistNew = React.createClass({
   ],
 
   getInitialState() {
-    return {uuid: guid(), state: 'New'};
+    return {uuid: guid(), state: 'New'}
   },
 
   handleChange(evt) {
@@ -28,7 +28,7 @@ export var PlaylistNew = React.createClass({
   },
 
   validate() {
-    var r = [];
+    var r = []
 
     if (!this.state.name) {
       r.push(`Name is required`)
@@ -47,13 +47,13 @@ export var PlaylistNew = React.createClass({
     if (errors.length > 0) {
       FeedbackActions.set('error', 'Form contains invalid data:', errors)
     } else {
-      var playlist = {};
-      playlist.name = this.state.name;
-      playlist.uuid = this.state.uuid;
+      var playlist = {}
+      playlist.name = this.state.name
+      playlist.uuid = this.state.uuid
 
       PlaylistActions.create(playlist, () => {
-        BrowserHistory.push('/playlist/' + playlist.uuid);
-      });
+        BrowserHistory.push('/playlist/' + playlist.uuid)
+      })
     }
   },
 
@@ -107,7 +107,7 @@ export var PlaylistNew = React.createClass({
             </div>
           </div>
         </div>
-      </div>);
+      </div>)
   }
 
 })

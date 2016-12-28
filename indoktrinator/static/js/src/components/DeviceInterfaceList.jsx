@@ -1,6 +1,6 @@
-import * as React from "react";
-import {DeviceInterface} from "./DeviceInterface";
-import * as _ from "lodash";
+import * as React from "react"
+import {DeviceInterface} from "./DeviceInterface"
+import * as _ from "lodash"
 
 export var DeviceInterfaceList = React.createClass({
 

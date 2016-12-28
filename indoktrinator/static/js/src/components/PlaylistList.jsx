@@ -1,15 +1,15 @@
-import * as React from "react";
-import * as Reflux from "reflux";
-import {Feedback} from "./Feedback";
-import {PlaylistStore} from "../stores/Playlist";
-import {PlaylistActions as pa} from "../actions";
-import {Button} from "react-bootstrap";
-import {Link, hashHistory as BrowserHistory} from "react-router";
-import Griddle from "griddle-react";
-import {Pager} from "./Pager";
-import {regexGridFilter} from "../util/griddle-components";
-import {FormattedMessage} from "react-intl";
-import {confirmModal} from "./ModalConfirmMixin";
+import * as React from "react"
+import * as Reflux from "reflux"
+import {Feedback} from "./Feedback"
+import {PlaylistStore} from "../stores/Playlist"
+import {PlaylistActions as pa} from "../actions"
+import {Button} from "react-bootstrap"
+import {Link, hashHistory as BrowserHistory} from "react-router"
+import Griddle from "griddle-react"
+import {Pager} from "./Pager"
+import {regexGridFilter} from "../util/griddle-components"
+import {FormattedMessage} from "react-intl"
+import {confirmModal} from "./ModalConfirmMixin"
 
 let PlaylistSystemColumn = React.createClass({
   render() {
@@ -21,17 +21,17 @@ let PlaylistSystemColumn = React.createClass({
       id="app.playlist.system.false"
       description="Status column"
       defaultMessage="No"
-    />);
+    />)
   }
-});
+})
 
 let PlaylistLink = React.createClass({
   render() {
     return (<Link to={`/playlist/${this.props.rowData.uuid}`}>
       {this.props.rowData.name}
-    </Link>);
+    </Link>)
   }
-});
+})
 
 let PlaylistActions = React.createClass({
 
@@ -47,8 +47,8 @@ let PlaylistActions = React.createClass({
 
   handleCopyPlayList() {
     pa.copy(this.props.rowData.uuid, () => {
-      pa.list();
-    });
+      pa.list()
+    })
   },
 
   handleDeletePlayList() {
@@ -57,8 +57,8 @@ let PlaylistActions = React.createClass({
       'Would you like to remove playlist?'
     ).then(() => {
       pa.delete(this.props.rowData.uuid, () => {
-        pa.list();
-        BrowserHistory.push('/playlist/');
+        pa.list()
+        BrowserHistory.push('/playlist/')
       })
     })
   },
@@ -89,7 +89,7 @@ let PlaylistActions = React.createClass({
       </span>
     )
   }
-});
+})
 
 export var PlaylistList = React.createClass({
   mixins: [Reflux.connect(PlaylistStore, 'data')],
@@ -108,7 +108,7 @@ export var PlaylistList = React.createClass({
       {columnName: 'name', displayName: 'Name', customComponent: PlaylistLink},
       {columnName: 'system', displayName: 'System playlist', customComponent: PlaylistSystemColumn},
       {columnName: 'c', displayName: 'Actions', customComponent: PlaylistActions, cssClassName: "griddle-actions"}
-    ];
+    ]
 
     return (
       <div className='container-fluid col-xs-12'>
@@ -150,5 +150,5 @@ export var PlaylistList = React.createClass({
       </div>
     )
   }
-});
+})
 

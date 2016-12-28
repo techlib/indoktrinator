@@ -1,13 +1,13 @@
-import * as React from "react";
-import {AdminNavBar} from "./AdminNavBar";
-import {IntlProvider, addLocaleData} from "react-intl";
-import enLocaleData from "react-intl/locale-data/en";
-import {ErrorFeedback} from './ErrorFeedback';
+import * as React from "react"
+import {AdminNavBar} from "./AdminNavBar"
+import {IntlProvider, addLocaleData} from "react-intl"
+import enLocaleData from "react-intl/locale-data/en"
+import {ErrorFeedback} from './ErrorFeedback'
 
-addLocaleData(enLocaleData);
+addLocaleData(enLocaleData)
 
-const enMessages = require("json!./../../../dist/lang/en-US.json");
-const czMessages = require("json!./../../../dist/lang/cz.json");
+const enMessages = require("json!./../../../dist/lang/en-US.json")
+const czMessages = require("json!./../../../dist/lang/cz.json")
 
 export var App = React.createClass({
 
@@ -28,9 +28,9 @@ export var App = React.createClass({
 
   getLocaleMessages(locale) {
     if (locale == 'cz') {
-      return czMessages;
+      return czMessages
     } else if (locale == 'en') {
-      return enMessages;
+      return enMessages
     }
   },
 
@@ -38,11 +38,11 @@ export var App = React.createClass({
     this.setState({
       'lang': lang,
       'messages': this.getLocaleMessages(lang)
-    });
+    })
   },
 
   getLocales() {
-    return ['en', 'cz'];
+    return ['en', 'cz']
   },
 
   render() {
@@ -59,4 +59,4 @@ export var App = React.createClass({
       </div>
     </IntlProvider>
   }
-});
+})

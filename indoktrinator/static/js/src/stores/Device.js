@@ -1,10 +1,10 @@
 'use strict'
 
-import * as Reflux from "reflux";
-import {DeviceActions, FeedbackActions} from "../actions";
-import {ErrorMixin} from "./Mixins";
-import {StoreTypes} from "./StoreTypes";
-import {API_URL} from './config';
+import * as Reflux from "reflux"
+import {DeviceActions, FeedbackActions} from "../actions"
+import {ErrorMixin} from "./Mixins"
+import {StoreTypes} from "./StoreTypes"
+import {API_URL} from './config'
 
 export var DeviceStore = Reflux.createStore({
   mixins: [ErrorMixin],
@@ -25,9 +25,9 @@ export var DeviceStore = Reflux.createStore({
       }
     }).done(() => {
       if (typeof callbackDone === 'function') {
-        if (typeof callbackDone === 'function') { callbackDone(); }
+        if (typeof callbackDone === 'function') { callbackDone() }
       }
-    });
+    })
   },
 
   onDelete(id, callbackDone) {
@@ -44,9 +44,9 @@ export var DeviceStore = Reflux.createStore({
       }
     }).done(() => {
       if (typeof callbackDone === 'function') {
-        if (typeof callbackDone === 'function') { callbackDone(); }
+        if (typeof callbackDone === 'function') { callbackDone() }
       }
-    });
+    })
   },
 
 
@@ -64,8 +64,8 @@ export var DeviceStore = Reflux.createStore({
         FeedbackActions.set('error', result.responseJSON.message)
       }
     }).done(() => {
-      if (typeof callbackDone === 'function') { callbackDone(); }
-    });
+      if (typeof callbackDone === 'function') { callbackDone() }
+    })
   },
 
   onCreate(device, callbackDone) {
@@ -82,8 +82,8 @@ export var DeviceStore = Reflux.createStore({
         FeedbackActions.set('error', result.responseJSON.message)
       }
     }).done(() => {
-      if (typeof callbackDone === 'function') { callbackDone(); }
-    });
+      if (typeof callbackDone === 'function') { callbackDone() }
+    })
   },
 
   onList(callbackDone) {
@@ -94,7 +94,7 @@ export var DeviceStore = Reflux.createStore({
         this.trigger(this.data)
       }
     }).done(() => {
-      if (typeof callbackDone === 'function') { callbackDone(); }
-    });
+      if (typeof callbackDone === 'function') { callbackDone() }
+    })
   }
 })

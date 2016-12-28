@@ -1,10 +1,10 @@
 'use strict'
 
-import * as Reflux from "reflux";
-import {SegmentActions, FeedbackActions} from "../actions";
-import {ErrorMixin} from "./Mixins";
-import {StoreTypes} from "./StoreTypes";
-import {API_URL} from './config';
+import * as Reflux from "reflux"
+import {SegmentActions, FeedbackActions} from "../actions"
+import {ErrorMixin} from "./Mixins"
+import {StoreTypes} from "./StoreTypes"
+import {API_URL} from './config'
 
 export var SegmentStore = Reflux.createStore({
   mixins: [ErrorMixin],
@@ -24,7 +24,7 @@ export var SegmentStore = Reflux.createStore({
         FeedbackActions.set('error', result.responseJSON.message)
       }
     }).done(() => {
-      if (typeof callbackDone === 'function') { callbackDone(); }
+      if (typeof callbackDone === 'function') { callbackDone() }
     })
   },
 
@@ -41,7 +41,7 @@ export var SegmentStore = Reflux.createStore({
         FeedbackActions.set('error', result.responseJSON.message)
       }
     }).done(() => {
-      if (typeof callbackDone === 'function') { callbackDone(); }
+      if (typeof callbackDone === 'function') { callbackDone() }
     })
   },
 
@@ -60,7 +60,7 @@ export var SegmentStore = Reflux.createStore({
         FeedbackActions.set('error', result.responseJSON.message)
       }
     }).done(() => {
-      if (typeof callbackDone === 'function') { callbackDone(); }
+      if (typeof callbackDone === 'function') { callbackDone() }
     })
   },
 
@@ -78,7 +78,7 @@ export var SegmentStore = Reflux.createStore({
         FeedbackActions.set('error', result.responseJSON.message)
       }
     }).done(() => {
-      if (typeof callbackDone === 'function') { callbackDone(); }
+      if (typeof callbackDone === 'function') { callbackDone() }
     })
   },
 
@@ -90,7 +90,7 @@ export var SegmentStore = Reflux.createStore({
         this.trigger(this.data)
       }
     }).done(() => {
-      if (typeof callbackDone === 'function') { callbackDone(); }
+      if (typeof callbackDone === 'function') { callbackDone() }
     })
   }
 })

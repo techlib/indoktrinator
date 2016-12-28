@@ -1,9 +1,9 @@
-import * as React from "react";
-import * as Reflux from "reflux";
-import {Input, Button} from "react-bootstrap";
-import {BootstrapSelect} from "./Select";
-import * as _ from "lodash";
-import {notEmpty, minLen} from "../util/simple-validators";
+import * as React from "react"
+import * as Reflux from "reflux"
+import {Input, Button} from "react-bootstrap"
+import {BootstrapSelect} from "./Select"
+import * as _ from "lodash"
+import {notEmpty, minLen} from "../util/simple-validators"
 
 export var DeviceInterface = React.createClass({
 

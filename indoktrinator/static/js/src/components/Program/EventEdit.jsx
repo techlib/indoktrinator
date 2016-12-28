@@ -1,17 +1,17 @@
-import * as React from "react";
-import {Tabs, Tab} from "react-bootstrap-tabs";
-import {Modal, Button} from "react-bootstrap";
-import {FeedbackActions} from "../../actions";
-import {BootstrapSelect} from "./../Select";
-import {StoreTypes} from "../../stores/StoreTypes";
-import {Feedback} from "../../stores/Feedback";
-import {SaveButton} from "../form/button/SaveButton";
-import {DeleteButton} from "../form/button/DeleteButton";
-import TimePicker from "rc-time-picker";
-import {FormattedMessage} from "react-intl";
-import moment from "moment";
-import "rc-time-picker/assets/index.css";
-import {html5TimeToSecondsDiff, getHtmlFormaFromSeconds} from './SegmentEditModal';
+import * as React from "react"
+import {Tabs, Tab} from "react-bootstrap-tabs"
+import {Modal, Button} from "react-bootstrap"
+import {FeedbackActions} from "../../actions"
+import {BootstrapSelect} from "./../Select"
+import {StoreTypes} from "../../stores/StoreTypes"
+import {Feedback} from "../../stores/Feedback"
+import {SaveButton} from "../form/button/SaveButton"
+import {DeleteButton} from "../form/button/DeleteButton"
+import TimePicker from "rc-time-picker"
+import {FormattedMessage} from "react-intl"
+import moment from "moment"
+import "rc-time-picker/assets/index.css"
+import {html5TimeToSecondsDiff, getHtmlFormaFromSeconds} from './SegmentEditModal'
 
 export var EventEdit = React.createClass({
 
@@ -31,18 +31,18 @@ export var EventEdit = React.createClass({
   },
 
   validate() {
-    var r = [];
+    var r = []
 
     if (!this.state.playlist) {
       r.push(`Playlist is required`)
     }
 
     if (this.state.range[0] > this.state.range[1]) {
-      r.push(`Format of range required is [x < y]`);
+      r.push(`Format of range required is [x < y]`)
     }
 
     if (this.state.range[0] == this.state.range[1]) {
-      r.push(`Range can not be null`);
+      r.push(`Range can not be null`)
     }
 
     if (!this.state.date) {
@@ -57,15 +57,15 @@ export var EventEdit = React.createClass({
       .reverse()
       .reduce((prev, curr, i, arr) =>
         prev + curr * Math.pow(60, i+(3-arr.length))
-        , 0);
+        , 0)
 
-    const secondsDiff = moment(this.state.date).startOf('day').add(seconds, 'seconds');
+    const secondsDiff = moment(this.state.date).startOf('day').add(seconds, 'seconds')
     this.setState({
       range: [
         -moment(this.state.date).startOf('day').diff(secondsDiff, 'seconds'),
         this.state.range[1]
       ]
-    });
+    })
   },
 
   handleChangeEndDate(value) {
@@ -73,23 +73,23 @@ export var EventEdit = React.createClass({
       .reverse()
       .reduce((prev, curr, i, arr) =>
         prev + curr * Math.pow(60, i+(3-arr.length))
-        , 0);
+        , 0)
 
-    const secondsDiff = moment(this.state.date).startOf('day').add(seconds, 'seconds');
+    const secondsDiff = moment(this.state.date).startOf('day').add(seconds, 'seconds')
     this.setState({
       range: [
         this.state.range[0],
         -moment(this.state.date).startOf('day').diff(secondsDiff, 'seconds')
       ]
-    });
+    })
   },
 
   // getStartDate() {
-  //   return moment(this.state.date).startOf('day').add(this.state.range[0], 'seconds');
+  //   return moment(this.state.date).startOf('day').add(this.state.range[0], 'seconds')
   // },
   //
   // getEndDate() {
-  //   return moment(this.state.date).startOf('day').add(this.state.range[1], 'seconds');
+  //   return moment(this.state.date).startOf('day').add(this.state.range[1], 'seconds')
   // },
 
   handleChange(evt) {
@@ -97,30 +97,30 @@ export var EventEdit = React.createClass({
   },
 
   delete() {
-    this.props.deleteHandler(this.state.uuid);
+    this.props.deleteHandler(this.state.uuid)
   },
 
   save() {
-    var errors = this.validate();
+    var errors = this.validate()
 
     if (errors.length > 0) {
       FeedbackActions.set('error', 'Form contains invalid data:', errors)
     } else {
 
-      var event = this.props.event;
-      event.range = this.state.range;
-      event.playlist = this.state.playlist;
+      var event = this.props.event
+      event.range = this.state.range
+      event.playlist = this.state.playlist
 
-      this.props.saveHandler(event);
+      this.props.saveHandler(event)
     }
   },
 
   hide() {
-    this.props.hideHandler();
+    this.props.hideHandler()
   },
 
   render() {
-    const {range} = this.state;
+    const {range} = this.state
 
     return (
       <div>
@@ -209,6 +209,6 @@ export var EventEdit = React.createClass({
           /> : null }
 
         </Modal.Footer>
-      </div>);
+      </div>)
   }
-});
+})

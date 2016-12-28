@@ -5,7 +5,7 @@ import {DeviceStore} from '../stores/Device'
 import {DeviceActions} from '../actions'
 import {Link} from 'react-router'
 import {DeviceListPanel} from './DeviceListPanel'
-import {FormattedMessage} from 'react-intl';
+import {FormattedMessage} from 'react-intl'
 
 export var DeviceList = React.createClass({
 
