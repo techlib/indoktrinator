@@ -4,6 +4,13 @@ import {FormattedMessage} from 'react-intl'
 
 export var DeviceListPanel = React.createClass({
   render() {
+    var onlineIcon = !this.props.online ? 'pficon-ok' : 'pficon-error-circle-o'
+    var powerIcon = 'pficon-help'
+
+    if (!this.props.online) {
+      powerIcon = this.props.power ? 'pficon-ok' : 'pficon-error-circle-o'
+    }
+
     return (
       <div className="col-xs-12 col-md-3 col-lg-3">
         <div className="panel panel-default">
@@ -29,17 +36,7 @@ export var DeviceListPanel = React.createClass({
                     defaultMessage="Online"
                   />
                 </strong>
-                : {this.props.online ?
-                <FormattedMessage
-                  id="app.menu.device.online.true"
-                  description="Description"
-                  defaultMessage="Yes"
-                /> :
-                <FormattedMessage
-                  id="app.menu.device.online.false"
-                  description="Description"
-                  defaultMessage="No"
-                />},
+                : <span className="pficon" className={onlineIcon}></span>
               </li>
               <li style={{display: 'inline', marginRight: 5}}>
                 <strong>
@@ -49,17 +46,8 @@ export var DeviceListPanel = React.createClass({
                     defaultMessage="Power"
                   />
                 </strong>
-                : {this.props.power ?
-                <FormattedMessage
-                  id="app.menu.device.power.true"
-                  description="Description"
-                  defaultMessage="Yes"
-                /> :
-                <FormattedMessage
-                  id="app.menu.device.power.false"
-                  description="Description"
-                  defaultMessage="No"
-                />} {this.props.program ? ',' : null}
+                : <span className="pficon" className={powerIcon}></span>
+                  {this.props.program ? ',' : null}
               </li>
               <li style={{display: 'inline', marginRight: 5}}>
                 {this.props.program ?
