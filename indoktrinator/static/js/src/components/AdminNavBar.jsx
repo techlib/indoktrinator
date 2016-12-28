@@ -1,10 +1,10 @@
-import * as React from "react"
-import * as Reflux from "reflux"
+import * as React from 'react'
+import * as Reflux from 'reflux'
 //import {UserInfoStore} from "../stores/UserInfo"
-import {Nav, Navbar, NavItem} from "react-bootstrap"
-import {LinkContainer} from "react-router-bootstrap"
-import {FormattedMessage, FormattedDate} from "react-intl"
-import {LocaleSwitcher} from "./LocaleSwitcher"
+import {Nav, Navbar, NavItem} from 'react-bootstrap'
+import {LinkContainer} from 'react-router-bootstrap'
+import {FormattedMessage, FormattedDate} from 'react-intl'
+import {LocaleSwitcher} from './LocaleSwitcher'
 
 var Header = Navbar.Header
 var Brand = Navbar.Brand

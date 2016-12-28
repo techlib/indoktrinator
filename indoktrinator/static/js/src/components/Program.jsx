@@ -1,23 +1,23 @@
-import * as React from "react"
-import * as Reflux from "reflux"
-import {FeedbackActions, EventActions, SegmentActions} from "../actions"
-import {ProgramStore} from "../stores/Program"
-import {SegmentStore} from "../stores/Segment"
-import {Feedback} from "./Feedback"
-import {EventStore} from "../stores/Event"
-import {FormattedMessage} from "react-intl"
-import {DeleteButton} from "./form/button/DeleteButton"
-import BigCalendar from "react-big-calendar"
-import {SaveButton} from "./form/button/SaveButton"
-import moment from "moment"
-import {SegmentEditModal} from "./Program/SegmentEditModal"
-import {EventEditModal} from "./Program/EventEditModal"
-import {CreateCalendarEventModal} from "./Program/CreateCalendarEventModal"
-import {StoreTypes} from "./../stores/StoreTypes"
-import {guid} from "../util/database"
-import {Tabs, Tab} from "react-bootstrap-tabs"
-import {confirmModal} from "./ModalConfirmMixin"
-import {Input} from "react-bootstrap"
+import * as React from 'react'
+import * as Reflux from 'reflux'
+import {FeedbackActions, EventActions, SegmentActions} from '../actions'
+import {ProgramStore} from '../stores/Program'
+import {SegmentStore} from '../stores/Segment'
+import {Feedback} from './Feedback'
+import {EventStore} from '../stores/Event'
+import {FormattedMessage} from 'react-intl'
+import {DeleteButton} from './form/button/DeleteButton'
+import BigCalendar from 'react-big-calendar'
+import {SaveButton} from './form/button/SaveButton'
+import moment from 'moment'
+import {SegmentEditModal} from './Program/SegmentEditModal'
+import {EventEditModal} from './Program/EventEditModal'
+import {CreateCalendarEventModal} from './Program/CreateCalendarEventModal'
+import {StoreTypes} from './../stores/StoreTypes'
+import {guid} from '../util/database'
+import {Tabs, Tab} from 'react-bootstrap-tabs'
+import {confirmModal} from './ModalConfirmMixin'
+import {Input} from 'react-bootstrap'
 
 BigCalendar.setLocalizer(
   BigCalendar.momentLocalizer(moment)
@@ -57,7 +57,7 @@ export var Program = React.createClass({
       'event': {list: []},
       'segment': {list: []},
       'bigCalendarSlotInfo': {}, // clicked slot info
-      'bigCalendarDate': new Date(moment().startOf('isoWeek').format("YYYY, MM, DD")), // actual start calendar date
+      'bigCalendarDate': new Date(moment().startOf('isoWeek').format('YYYY, MM, DD')), // actual start calendar date
       'showSegmentEditModal': false,
       'showEventEditModal': false,
       'showCreateCalendarModal': false
@@ -179,11 +179,11 @@ export var Program = React.createClass({
     var r = []
 
     if (!this.state.name) {
-      r.push(`Name is required`)
+      r.push('Name is required')
     }
 
     if (!this.state.uuid) {
-      r.push(`Uuid is required`)
+      r.push('Uuid is required')
     }
 
     return r
@@ -314,8 +314,8 @@ export var Program = React.createClass({
 
     // +1 / -1 because  + 1, // cus bug of bigCalendar, events immediately behind yourselfs
     this.state.event.list.forEach((item) => {
-      var startMoment = moment(item.date, "YYYY-MM-DD").startOf('day').seconds(item.range[0] + 1)
-      var endMoment = moment(item.date, "YYYY-MM-DD").startOf('day').seconds(item.range[1] - 1)
+      var startMoment = moment(item.date, 'YYYY-MM-DD').startOf('day').seconds(item.range[0] + 1)
+      var endMoment = moment(item.date, 'YYYY-MM-DD').startOf('day').seconds(item.range[1] - 1)
 
       events.push({
         'title': item._playlist.name,

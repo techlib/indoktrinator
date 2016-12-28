@@ -1,11 +1,11 @@
-import * as React from "react"
-import * as Reflux from "reflux"
-import {Device} from "./Device"
-import {DeviceActions, ProgramActions} from "../actions"
-import {ProgramStore} from "../stores/Program"
-import {DeviceStore} from "../stores/Device"
-import {hashHistory as BrowserHistory} from "react-router"
-import {confirmModal} from "./ModalConfirmMixin"
+import * as React from 'react'
+import * as Reflux from 'reflux'
+import {Device} from './Device'
+import {DeviceActions, ProgramActions} from '../actions'
+import {ProgramStore} from '../stores/Program'
+import {DeviceStore} from '../stores/Device'
+import {hashHistory as BrowserHistory} from 'react-router'
+import {confirmModal} from './ModalConfirmMixin'
 
 export var DeviceEdit = React.createClass({
 

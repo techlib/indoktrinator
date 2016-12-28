@@ -1,20 +1,20 @@
-import * as React from "react"
-import {Tabs, Tab} from "react-bootstrap-tabs"
-import {Modal, Button} from "react-bootstrap"
-import {FeedbackActions} from "../../actions"
-import {BootstrapSelect} from "../Select"
-import {SaveButton} from "../form/button/SaveButton"
-import {DeleteButton} from "../form/button/DeleteButton"
-import {StoreTypes} from "../../stores/StoreTypes"
-import {FormattedMessage} from "react-intl"
-import TimePicker from "rc-time-picker"
-import moment from "moment"
+import * as React from 'react'
+import {Tabs, Tab} from 'react-bootstrap-tabs'
+import {Modal, Button} from 'react-bootstrap'
+import {FeedbackActions} from '../../actions'
+import {BootstrapSelect} from '../Select'
+import {SaveButton} from '../form/button/SaveButton'
+import {DeleteButton} from '../form/button/DeleteButton'
+import {StoreTypes} from '../../stores/StoreTypes'
+import {FormattedMessage} from 'react-intl'
+import TimePicker from 'rc-time-picker'
+import moment from 'moment'
 
 let Header = Modal.Header
 let Body = Modal.Body
 let Footer = Modal.Footer
 
-export function html5TimeToSecondsDiff(value, day){
+export function html5TimeToSecondsDiff(value, day) {
   // from hh:mm:ss, hh:mm, hh -> to seconds
   const seconds = value.split(':')
     .reverse()
@@ -26,7 +26,7 @@ export function html5TimeToSecondsDiff(value, day){
   return moment().startOf('isoWeek').add(day, 'days').startOf('day').add(seconds, 'seconds')
 }
 
-export function getHtmlFormaFromSeconds(seconds){
+export function getHtmlFormaFromSeconds(seconds) {
   return moment().startOf('isoWeek').startOf('day')
     .seconds(seconds)
     .format('HH:mm:ss')
@@ -70,15 +70,15 @@ export var SegmentEditModal = React.createClass({
     var r = []
 
     if (!this.state.playlist) {
-      r.push(`Playlist is required`)
+      r.push('Playlist is required')
     }
 
     if (this.state.range[0] > this.state.range[1]) {
-      r.push(`Format of range is [x < y]`)
+      r.push('Format of range is [x < y]')
     }
 
     if (!this.state.range) {
-      r.push(`Range is required`)
+      r.push('Range is required')
     }
 
     return r

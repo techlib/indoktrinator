@@ -1,7 +1,7 @@
-import * as React from "react"
-import {Modal} from "react-bootstrap"
-import ReactDOM from "react-dom"
-import classNames from "classnames"
+import * as React from 'react'
+import {Modal} from 'react-bootstrap'
+import ReactDOM from 'react-dom'
+import classNames from 'classnames'
 
 let Header = Modal.Header
 let Body = Modal.Body

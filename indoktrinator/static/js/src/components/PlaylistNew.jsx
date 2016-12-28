@@ -1,12 +1,12 @@
-import * as React from "react"
-import * as Reflux from "reflux"
-import {PlaylistActions, FeedbackActions} from "../actions"
-import {PlaylistStore} from "../stores/Playlist"
-import {hashHistory as BrowserHistory} from "react-router"
-import {guid} from "../util/database"
-import {FormattedMessage} from "react-intl"
-import {Feedback} from "./Feedback"
-import {Input} from "react-bootstrap"
+import * as React from 'react'
+import * as Reflux from 'reflux'
+import {PlaylistActions, FeedbackActions} from '../actions'
+import {PlaylistStore} from '../stores/Playlist'
+import {hashHistory as BrowserHistory} from 'react-router'
+import {guid} from '../util/database'
+import {FormattedMessage} from 'react-intl'
+import {Feedback} from './Feedback'
+import {Input} from 'react-bootstrap'
 
 export var PlaylistNew = React.createClass({
 
@@ -31,11 +31,11 @@ export var PlaylistNew = React.createClass({
     var r = []
 
     if (!this.state.name) {
-      r.push(`Name is required`)
+      r.push('Name is required')
     }
 
     if (!this.state.uuid) {
-      r.push(`Uuid is required`)
+      r.push('Uuid is required')
     }
 
     return r

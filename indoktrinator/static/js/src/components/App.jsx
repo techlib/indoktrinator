@@ -1,13 +1,13 @@
-import * as React from "react"
-import {AdminNavBar} from "./AdminNavBar"
-import {IntlProvider, addLocaleData} from "react-intl"
-import enLocaleData from "react-intl/locale-data/en"
+import * as React from 'react'
+import {AdminNavBar} from './AdminNavBar'
+import {IntlProvider, addLocaleData} from 'react-intl'
+import enLocaleData from 'react-intl/locale-data/en'
 import {ErrorFeedback} from './ErrorFeedback'
 
 addLocaleData(enLocaleData)
 
-const enMessages = require("json!./../../../dist/lang/en-US.json")
-const czMessages = require("json!./../../../dist/lang/cz.json")
+const enMessages = require('json!./../../../dist/lang/en-US.json')
+const czMessages = require('json!./../../../dist/lang/cz.json')
 
 export var App = React.createClass({
 

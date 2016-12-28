@@ -1,13 +1,13 @@
-import * as React from "react"
-import {FeedbackActions} from "../actions"
-import {Feedback} from "./Feedback"
-import {Input} from "react-bootstrap"
-import {FormattedMessage} from "react-intl"
-import {BootstrapSelect} from "./Select"
-import FileBase64 from "../util/react-file-base64.js"
-import {SaveButton} from "./form/button/SaveButton"
-import {DeleteButton} from "./form/button/DeleteButton"
-import {StoreTypes} from "./../stores/StoreTypes"
+import * as React from 'react'
+import {FeedbackActions} from '../actions'
+import {Feedback} from './Feedback'
+import {Input} from 'react-bootstrap'
+import {FormattedMessage} from 'react-intl'
+import {BootstrapSelect} from './Select'
+import FileBase64 from '../util/react-file-base64.js'
+import {SaveButton} from './form/button/SaveButton'
+import {DeleteButton} from './form/button/DeleteButton'
+import {StoreTypes} from './../stores/StoreTypes'
 
 export var Device = React.createClass({
 
@@ -38,11 +38,11 @@ export var Device = React.createClass({
     var r = []
 
     if (!this.state.name) {
-      r.push(`Name is required`)
+      r.push('Name is required')
     }
 
     if (!this.state.id) {
-      r.push(`Id is required`)
+      r.push('Id is required')
     }
 
     return r

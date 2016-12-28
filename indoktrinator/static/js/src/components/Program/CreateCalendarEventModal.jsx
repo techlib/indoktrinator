@@ -1,12 +1,12 @@
-import * as React from "react"
-import {Tabs, Tab} from "react-bootstrap-tabs"
-import {StoreTypes} from "../../stores/StoreTypes"
-import {FormattedMessage} from "react-intl"
-import moment from "moment"
-import {guid} from "../../util/database"
-import {Modal} from "react-bootstrap"
-import {SegmentEdit} from "./SegmentEdit"
-import {EventEdit} from "./EventEdit"
+import * as React from 'react'
+import {Tabs, Tab} from 'react-bootstrap-tabs'
+import {StoreTypes} from '../../stores/StoreTypes'
+import {FormattedMessage} from 'react-intl'
+import moment from 'moment'
+import {guid} from '../../util/database'
+import {Modal} from 'react-bootstrap'
+import {SegmentEdit} from './SegmentEdit'
+import {EventEdit} from './EventEdit'
 
 export var CreateCalendarEventModal = React.createClass({
 

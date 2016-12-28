@@ -1,15 +1,15 @@
-import * as React from "react"
-import * as Reflux from "reflux"
-import {Feedback} from "./Feedback"
-import {ProgramActions as pa} from "../actions"
-import Griddle from "griddle-react"
-import {Pager} from "./Pager"
-import {Button} from "react-bootstrap"
-import {Link, hashHistory as BrowserHistory} from "react-router"
-import {regexGridFilter} from "../util/griddle-components"
-import {FormattedMessage} from "react-intl"
-import {ProgramStore} from "../stores/Program"
-import {confirmModal} from "./ModalConfirmMixin"
+import * as React from 'react'
+import * as Reflux from 'reflux'
+import {Feedback} from './Feedback'
+import {ProgramActions as pa} from '../actions'
+import Griddle from 'griddle-react'
+import {Pager} from './Pager'
+import {Button} from 'react-bootstrap'
+import {Link, hashHistory as BrowserHistory} from 'react-router'
+import {regexGridFilter} from '../util/griddle-components'
+import {FormattedMessage} from 'react-intl'
+import {ProgramStore} from '../stores/Program'
+import {confirmModal} from './ModalConfirmMixin'
 
 let ProgramLink = React.createClass({
   render() {
@@ -69,7 +69,7 @@ export var ProgramList = React.createClass({
 
     let columnMeta = [
       {columnName: 'name', displayName: 'Name', customComponent: ProgramLink},
-      {columnName: 'c', displayName: 'Actions', customComponent: ProgramActions, cssClassName: "griddle-actions"}
+      {columnName: 'c', displayName: 'Actions', customComponent: ProgramActions, cssClassName: 'griddle-actions'}
     ]
 
     return (

@@ -1,9 +1,9 @@
 'use strict'
 
-import * as Reflux from "reflux"
-import {EventActions, FeedbackActions} from "../actions"
-import {ErrorMixin} from "./Mixins"
-import {StoreTypes} from "./StoreTypes"
+import * as Reflux from 'reflux'
+import {EventActions, FeedbackActions} from '../actions'
+import {ErrorMixin} from './Mixins'
+import {StoreTypes} from './StoreTypes'
 import {API_URL} from './config'
 
 export var EventStore = Reflux.createStore({

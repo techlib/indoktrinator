@@ -1,23 +1,23 @@
-import * as React from "react"
-import * as Reflux from "reflux"
-import {PlaylistActions, ItemActions, FeedbackActions, BrowserHistory} from "../actions"
-import update from "react/lib/update"
-import {AutoItem} from "./PlaylistCreator/AutoItem"
-import PlaceholderForInitialDrag, {SyntheticItem}  from "./PlaylistCreator/SyntheticItem"
-import {DragDropContext} from "react-dnd"
-import HTML5Backend from "react-dnd-html5-backend"
-import {map, filter} from "lodash"
-import {FormattedMessage} from "react-intl"
-import {Input} from "react-bootstrap"
-import {Feedback} from "./Feedback"
-import {guid} from "../util/database"
-import {Types} from "./PlaylistCreator/Types"
-import {PlaylistStore} from "../stores/Playlist"
-import {ItemStore} from "../stores/Item"
-import {FileStore} from "../stores/File"
-import {confirmModal} from "./ModalConfirmMixin"
+import * as React from 'react'
+import * as Reflux from 'reflux'
+import {PlaylistActions, ItemActions, FeedbackActions, BrowserHistory} from '../actions'
+import update from 'react/lib/update'
+import {AutoItem} from './PlaylistCreator/AutoItem'
+import PlaceholderForInitialDrag, {SyntheticItem}  from './PlaylistCreator/SyntheticItem'
+import {DragDropContext} from 'react-dnd'
+import HTML5Backend from 'react-dnd-html5-backend'
+import {map, filter} from 'lodash'
+import {FormattedMessage} from 'react-intl'
+import {Input} from 'react-bootstrap'
+import {Feedback} from './Feedback'
+import {guid} from '../util/database'
+import {Types} from './PlaylistCreator/Types'
+import {PlaylistStore} from '../stores/Playlist'
+import {ItemStore} from '../stores/Item'
+import {FileStore} from '../stores/File'
+import {confirmModal} from './ModalConfirmMixin'
 import {getItems} from './PlaylistEdit'
-import {StoreTypes} from "./../stores/StoreTypes"
+import {StoreTypes} from './../stores/StoreTypes'
 import {v4} from 'uuid'
 
 
@@ -96,7 +96,7 @@ var Component = React.createClass({
     var errors = this.validate()
     const {saveInProgress} = this.state
 
-    if (saveInProgress === true){
+    if (saveInProgress === true) {
        console.warn('Saving is in progress')
        return false
     }
@@ -154,11 +154,11 @@ var Component = React.createClass({
     var r = []
 
     if (!this.state.uuid) {
-      r.push(`Uuid is required`)
+      r.push('Uuid is required')
     }
 
     if (!this.state.name) {
-      r.push(`Name is required`)
+      r.push('Name is required')
     }
 
     return r

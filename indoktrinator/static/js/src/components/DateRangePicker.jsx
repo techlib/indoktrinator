@@ -1,6 +1,6 @@
-import * as React from "react"
-import DateTimeField from "react-bootstrap-datetimepicker"
-import moment from "moment"
+import * as React from 'react'
+import DateTimeField from 'react-bootstrap-datetimepicker'
+import moment from 'moment'
 
 export var DateRangePicker = React.createClass({
 

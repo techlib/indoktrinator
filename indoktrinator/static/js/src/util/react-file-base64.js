@@ -19,7 +19,7 @@ class FileBase64 extends React.Component {
     }
   }
 
-  handleChange(e){
+  handleChange(e) {
 
     // get the files
     let files = e.target.files
@@ -53,7 +53,7 @@ class FileBase64 extends React.Component {
         allFiles.push(fileInfo)
 
         // If all files have been proceed
-        if(allFiles.length == files.length){
+        if(allFiles.length == files.length) {
           // Apply Callback function
           this.props.onDone(allFiles)
         }
@@ -64,7 +64,7 @@ class FileBase64 extends React.Component {
 
   }
 
-  render(){
+  render() {
     return (
       <input
     type="file"

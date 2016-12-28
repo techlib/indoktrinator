@@ -1,16 +1,16 @@
-import * as React from "react"
-import {Tabs, Tab} from "react-bootstrap-tabs"
-import {Modal, Button} from "react-bootstrap"
-import {FeedbackActions} from "../../actions"
-import {BootstrapSelect} from "./../Select"
-import {StoreTypes} from "../../stores/StoreTypes"
-import {SaveButton} from "../form/button/SaveButton"
-import {DeleteButton} from "../form/button/DeleteButton"
-import {FormattedMessage} from "react-intl"
-import TimePicker from "rc-time-picker"
-import moment from "moment"
+import * as React from 'react'
+import {Tabs, Tab} from 'react-bootstrap-tabs'
+import {Modal, Button} from 'react-bootstrap'
+import {FeedbackActions} from '../../actions'
+import {BootstrapSelect} from './../Select'
+import {StoreTypes} from '../../stores/StoreTypes'
+import {SaveButton} from '../form/button/SaveButton'
+import {DeleteButton} from '../form/button/DeleteButton'
+import {FormattedMessage} from 'react-intl'
+import TimePicker from 'rc-time-picker'
+import moment from 'moment'
 import {getHtmlFormaFromSeconds, html5TimeToSecondsDiff} from './SegmentEditModal'
-var DatePicker = require("react-bootstrap-date-picker")
+var DatePicker = require('react-bootstrap-date-picker')
 
 let Header = Modal.Header
 let Body = Modal.Body
@@ -47,15 +47,15 @@ export var EventEditModal = React.createClass({
     var r = []
 
     if (!this.state.playlist) {
-      r.push(`Playlist is required`)
+      r.push('Playlist is required')
     }
 
     if (this.state.range[0] > this.state.range[1]) {
-      r.push(`Format of range required is [x < y]`)
+      r.push('Format of range required is [x < y]')
     }
 
     if (!this.state.date) {
-      r.push(`Date is required`)
+      r.push('Date is required')
     }
 
     return r

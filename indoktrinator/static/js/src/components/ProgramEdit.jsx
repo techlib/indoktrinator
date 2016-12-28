@@ -1,13 +1,13 @@
-import * as React from "react"
-import * as Reflux from "reflux"
-import {Program} from "./Program"
-import {ProgramActions, PlaylistActions, SegmentActions, EventActions, FeedbackActions} from "../actions"
-import {ProgramStore} from "../stores/Program"
-import {PlaylistStore} from "../stores/Playlist"
-import {EventStore} from "../stores/Event"
-import {SegmentStore} from "../stores/Segment"
-import {hashHistory as BrowserHistory} from "react-router"
-import {confirmModal} from "./ModalConfirmMixin"
+import * as React from 'react'
+import * as Reflux from 'reflux'
+import {Program} from './Program'
+import {ProgramActions, PlaylistActions, SegmentActions, EventActions, FeedbackActions} from '../actions'
+import {ProgramStore} from '../stores/Program'
+import {PlaylistStore} from '../stores/Playlist'
+import {EventStore} from '../stores/Event'
+import {SegmentStore} from '../stores/Segment'
+import {hashHistory as BrowserHistory} from 'react-router'
+import {confirmModal} from './ModalConfirmMixin'
 
 export var ProgramEdit = React.createClass({
 

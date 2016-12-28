@@ -1,12 +1,12 @@
-import * as React from "react"
-import * as Reflux from "reflux"
-import {ModalConfirmMixin} from "./ModalConfirmMixin"
-import {PlaylistActions} from "../actions"
-import {PlaylistStore} from "../stores/Playlist"
-import moment from "moment"
-import {Types} from "./PlaylistCreator/Types"
-import {StoreTypes} from "./../stores/StoreTypes"
-import {add3Dots} from "./../util/string"
+import * as React from 'react'
+import * as Reflux from 'reflux'
+import {ModalConfirmMixin} from './ModalConfirmMixin'
+import {PlaylistActions} from '../actions'
+import {PlaylistStore} from '../stores/Playlist'
+import moment from 'moment'
+import {Types} from './PlaylistCreator/Types'
+import {StoreTypes} from './../stores/StoreTypes'
+import {add3Dots} from './../util/string'
 
 export var PlaylistDetail = React.createClass({
 

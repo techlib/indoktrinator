@@ -1,7 +1,7 @@
-import {flow} from "lodash"
-import {DragSource, DropTarget} from "react-dnd"
-import {Item} from "./Item"
-import {Types} from "./Types"
+import {flow} from 'lodash'
+import {DragSource, DropTarget} from 'react-dnd'
+import {Item} from './Item'
+import {Types} from './Types'
 
 const itemSource = {
   beginDrag(props, monitor) {

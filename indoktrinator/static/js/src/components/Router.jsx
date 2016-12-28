@@ -1,17 +1,17 @@
-import * as ReactDOM from "react-dom"
-import * as React from "react"
-import {Router, Route, hashHistory, IndexRedirect} from "react-router"
-import {App} from "./App"
-import {DeviceList} from "./DeviceList"
-import {DeviceNew} from "./DeviceNew"
-import {DeviceEdit} from "./DeviceEdit"
-import {FeedbackActions} from "../actions"
-import {PlaylistList} from "./PlaylistList"
-import {PlaylistNew} from "./PlaylistNew"
-import {PlaylistEdit} from "./PlaylistEdit"
-import {ProgramList} from "./ProgramList"
-import {ProgramNew} from "./ProgramNew"
-import {ProgramEdit} from "./ProgramEdit"
+import * as ReactDOM from 'react-dom'
+import * as React from 'react'
+import {Router, Route, hashHistory, IndexRedirect} from 'react-router'
+import {App} from './App'
+import {DeviceList} from './DeviceList'
+import {DeviceNew} from './DeviceNew'
+import {DeviceEdit} from './DeviceEdit'
+import {FeedbackActions} from '../actions'
+import {PlaylistList} from './PlaylistList'
+import {PlaylistNew} from './PlaylistNew'
+import {PlaylistEdit} from './PlaylistEdit'
+import {ProgramList} from './ProgramList'
+import {ProgramNew} from './ProgramNew'
+import {ProgramEdit} from './ProgramEdit'
 
 function onRouterUpdate() {
   FeedbackActions.clear()

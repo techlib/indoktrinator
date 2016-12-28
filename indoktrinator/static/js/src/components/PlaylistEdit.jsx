@@ -1,12 +1,12 @@
-import * as React from "react"
-import * as Reflux from "reflux"
-import {PlaylistCreator} from "./PlaylistCreator"
-import {PlaylistDetail} from "./PlaylistDetail"
-import {PlaylistActions, FileActions} from "../actions"
-import {PlaylistStore} from "../stores/Playlist"
-import {FileStore} from "../stores/File"
-import {StoreTypes} from "./../stores/StoreTypes"
-import {Types} from "./PlaylistCreator/Types"
+import * as React from 'react'
+import * as Reflux from 'reflux'
+import {PlaylistCreator} from './PlaylistCreator'
+import {PlaylistDetail} from './PlaylistDetail'
+import {PlaylistActions, FileActions} from '../actions'
+import {PlaylistStore} from '../stores/Playlist'
+import {FileStore} from '../stores/File'
+import {StoreTypes} from './../stores/StoreTypes'
+import {Types} from './PlaylistCreator/Types'
 import {v4 as uuid} from 'uuid'
 
 export function getItems(playlist) {
@@ -64,7 +64,7 @@ export var PlaylistEdit = React.createClass({
   },
 
   render() {
-    if (!this.state.loaded){
+    if (!this.state.loaded) {
       return <div>Loading...</div>
     }
 

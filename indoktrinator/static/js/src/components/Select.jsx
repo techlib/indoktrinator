@@ -1,8 +1,8 @@
 /* global React, $ */
 'use strict'
-import * as React from "react"
-import {Input} from "react-bootstrap"
-import ReactDOM from "react-dom"
+import * as React from 'react'
+import {Input} from 'react-bootstrap'
+import ReactDOM from 'react-dom'
 
 export var BootstrapSelect = React.createClass({
   displayName: 'BootstrapSelect',

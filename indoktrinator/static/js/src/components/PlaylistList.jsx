@@ -1,15 +1,15 @@
-import * as React from "react"
-import * as Reflux from "reflux"
-import {Feedback} from "./Feedback"
-import {PlaylistStore} from "../stores/Playlist"
-import {PlaylistActions as pa} from "../actions"
-import {Button} from "react-bootstrap"
-import {Link, hashHistory as BrowserHistory} from "react-router"
-import Griddle from "griddle-react"
-import {Pager} from "./Pager"
-import {regexGridFilter} from "../util/griddle-components"
-import {FormattedMessage} from "react-intl"
-import {confirmModal} from "./ModalConfirmMixin"
+import * as React from 'react'
+import * as Reflux from 'reflux'
+import {Feedback} from './Feedback'
+import {PlaylistStore} from '../stores/Playlist'
+import {PlaylistActions as pa} from '../actions'
+import {Button} from 'react-bootstrap'
+import {Link, hashHistory as BrowserHistory} from 'react-router'
+import Griddle from 'griddle-react'
+import {Pager} from './Pager'
+import {regexGridFilter} from '../util/griddle-components'
+import {FormattedMessage} from 'react-intl'
+import {confirmModal} from './ModalConfirmMixin'
 
 let PlaylistSystemColumn = React.createClass({
   render() {
@@ -107,7 +107,7 @@ export var PlaylistList = React.createClass({
     let columnMeta = [
       {columnName: 'name', displayName: 'Name', customComponent: PlaylistLink},
       {columnName: 'system', displayName: 'System playlist', customComponent: PlaylistSystemColumn},
-      {columnName: 'c', displayName: 'Actions', customComponent: PlaylistActions, cssClassName: "griddle-actions"}
+      {columnName: 'c', displayName: 'Actions', customComponent: PlaylistActions, cssClassName: 'griddle-actions'}
     ]
 
     return (

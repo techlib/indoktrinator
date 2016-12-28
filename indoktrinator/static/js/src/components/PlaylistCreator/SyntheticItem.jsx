@@ -1,11 +1,11 @@
-import {DragSource, DropTarget} from "react-dnd"
-import {Item} from "./Item"
-import {Types} from "./Types"
-import {flow} from "lodash"
-import {findDOMNode} from "react-dom"
+import {DragSource, DropTarget} from 'react-dnd'
+import {Item} from './Item'
+import {Types} from './Types'
+import {flow} from 'lodash'
+import {findDOMNode} from 'react-dom'
 import {v4 as uuid} from 'uuid'
-import * as React from "react"
-import {FormattedMessage} from "react-intl"
+import * as React from 'react'
+import {FormattedMessage} from 'react-intl'
 
 const itemSource = {
   beginDrag(props, monitor, component) {
@@ -25,7 +25,7 @@ const itemSource = {
 const synthTarget = {
   hover(props, monitor, component) {
     // by https://github.com/gaearon/react-dnd/blob/master/examples/04%20Sortable/Simple/Card.js
-    if (monitor.getItem().type === Types.AUTO_ITEM){
+    if (monitor.getItem().type === Types.AUTO_ITEM) {
       return false
     }
 

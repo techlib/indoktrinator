@@ -1,13 +1,13 @@
-import * as React from "react"
-import moment from "moment"
-import "moment-duration-format"
-import {BrowserHistory} from "../../actions"
-import {RemoveButton} from "../form/button/RemoveButton"
-import {CancelButton} from "../form/button/CancelButton"
-import {add3Dots} from "../../util/string"
-import {FormattedMessage} from "react-intl"
+import * as React from 'react'
+import moment from 'moment'
+import 'moment-duration-format'
+import {BrowserHistory} from '../../actions'
+import {RemoveButton} from '../form/button/RemoveButton'
+import {CancelButton} from '../form/button/CancelButton'
+import {add3Dots} from '../../util/string'
+import {FormattedMessage} from 'react-intl'
 import {Types} from './Types'
-import {StoreTypes} from "./../../stores/StoreTypes"
+import {StoreTypes} from './../../stores/StoreTypes'
 
 export var Item = React.createClass({
 

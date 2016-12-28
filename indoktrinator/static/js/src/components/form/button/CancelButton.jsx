@@ -1,5 +1,5 @@
-import * as React from "react"
-import {FormattedMessage} from "react-intl"
+import * as React from 'react'
+import {FormattedMessage} from 'react-intl'
 
 export var CancelButton = React.createClass({
   render() {
