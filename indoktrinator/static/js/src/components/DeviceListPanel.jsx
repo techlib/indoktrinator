@@ -4,12 +4,7 @@ import {FormattedMessage} from 'react-intl'
 
 export var DeviceListPanel = React.createClass({
   render() {
-    var onlineIcon = !this.props.online ? 'pficon-ok' : 'pficon-error-circle-o'
-    var powerIcon = 'pficon-help'
-
-    if (!this.props.online) {
-      powerIcon = this.props.power ? 'pficon-ok' : 'pficon-error-circle-o'
-    }
+    var onlineIcon = this.props.online ? 'pficon-ok' : 'pficon-error-circle-o'
 
     return (
       <div className="col-xs-12 col-md-3 col-lg-3">
@@ -23,41 +18,33 @@ export var DeviceListPanel = React.createClass({
           </div>
           <div className="panel-body">
             <Link to={`/device/${this.props.id}`}>
-              <img className="img-responsive" src={this.props.photo} style={{width: '100%', height: 250}}></img>
+              <img className="img-responsive"
+                   src={this.props.photo}
+                   style={{width: '100%', height: 250}}></img>
             </Link>
           </div>
           <div className="panel-footer">
-            <ul style={{paddingLeft: 0}}>
-              <li style={{display: 'inline', marginRight: 5}}>
-                <strong>
-                  <FormattedMessage
-                    id="app.menu.device.online"
-                    description="Label"
-                    defaultMessage="Online"
-                  />
-                </strong>
-                : <span className="pficon" className={onlineIcon}></span>
-              </li>
-              <li style={{display: 'inline', marginRight: 5}}>
-                <strong>
-                  <FormattedMessage
-                    id="app.menu.device.power"
-                    description="Label"
-                    defaultMessage="Power"
-                  />
-                </strong>
-                : <span className="pficon" className={powerIcon}></span>
-                  {this.props.program ? ',' : null}
-              </li>
-              <li style={{display: 'inline', marginRight: 5}}>
-                {this.props.program ?
-                  <strong>
-                    <Link to={`/program/${this.props.program}`}>
-                      {this.props._program.name}
-                    </Link>
-                  </strong> : null}
-              </li>
-            </ul>
+            <span className="pficon" className={onlineIcon}>
+            </span> <FormattedMessage
+              id={'app.menu.device.' + (this.props.online ? 'online' : 'offline')}
+              description="Label"
+              defaultMessage="Online"
+            />
+            {this.props.online ? [
+              ', ',
+              <span className="fa fa-power-off"> </span>,
+              ' ',
+              <FormattedMessage
+                id={'app.menu.device.' + (this.props.power ? 'on' : 'off')}
+                defaultMessage="on"
+              />]
+                : null}
+            <br/>
+            {this.props.program ?
+              <Link to={`/program/${this.props.program}`}>
+                {this.props._program.name}
+              </Link>
+            : '- no program selected -'}
           </div>
         </div>
       </div>
