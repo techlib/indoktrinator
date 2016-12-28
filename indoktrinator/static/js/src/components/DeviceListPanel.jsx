@@ -1,8 +1,19 @@
 import * as React from 'react'
 import {Link} from 'react-router'
 import {FormattedMessage} from 'react-intl'
+import {programSelectionModal} from './ModalProgramSelect'
+import {DeviceActions} from '../actions'
 
 export var DeviceListPanel = React.createClass({
+
+  selectProgram() {
+    programSelectionModal(
+      this.props.program ? this.props._program.uuid : null
+    ).then((newProgram) => {
+      DeviceActions.update({id: this.props.id, program: newProgram})
+    })
+  },
+
   render() {
     var onlineIcon = this.props.online ? 'pficon-ok' : 'pficon-error-circle-o'
 
@@ -40,11 +51,12 @@ export var DeviceListPanel = React.createClass({
               />]
                 : null}
             <br/>
-            {this.props.program ?
-              <Link to={`/program/${this.props.program}`}>
-                {this.props._program.name}
-              </Link>
-            : '- no program selected -'}
+            <a onClick={this.selectProgram}>{this.props.program ?
+              this.props._program.name :
+              <FormattedMessage
+                id="app.menu.device.noprogram"
+                defaultMessage="- no program selected -"
+              />}</a>
           </div>
         </div>
       </div>
