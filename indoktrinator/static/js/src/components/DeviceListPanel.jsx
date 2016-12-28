@@ -7,7 +7,7 @@ export var DeviceListPanel = React.createClass({
     var onlineIcon = this.props.online ? 'pficon-ok' : 'pficon-error-circle-o'
 
     return (
-      <div className="col-xs-12 col-md-3 col-lg-3">
+      <div className="col-xs-12 col-sm-6 col-md-4 col-lg-3">
         <div className="panel panel-default">
           <div className="panel-heading">
             <h3 className="panel-title">
