@@ -128,10 +128,12 @@ export var Device = React.createClass({
                         defaultMessage="Photo"
                       />
                     </label>
-                    <FileBase64
-                      multiple={ false }
-                      onDone={ this.handleChangePhoto.bind(this) }
-                    />
+                    <div className='col-xs-10'>
+                      <FileBase64
+                        multiple={ false }
+                        onDone={ this.handleChangePhoto.bind(this) }
+                      />
+                    </div>
                   </div>
                   <div className="form-group">
                     <label className="control-label col-xs-2">
