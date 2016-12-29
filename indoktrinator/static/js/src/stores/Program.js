@@ -11,18 +11,6 @@ export var ProgramStore = Reflux.createStore({
   listenables: [ProgramActions],
   data: {'program': [], 'list': [], 'errors': []},
 
-  onList(callbackDone) {
-    $.ajax({
-      url: `${API_URL}/api/program/`, success: result => {
-        this.data.errors = []
-        this.data.list = result.result
-        this.trigger(this.data)
-      }
-    }).done(() => {
-      if (typeof callbackDone === 'function') { callbackDone() }
-    })
-  },
-
   onRead(uuid, callbackDone) {
     $.ajax({
       url: `${API_URL}/api/program/${uuid}`,
