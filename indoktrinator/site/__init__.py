@@ -305,7 +305,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     @authorized_only('user')
     def program_handler(**kwargs):
         if 'GET' == flask.request.method:
-            return flask.jsonify(result=manager.program.list())
+            return flask.jsonify(result=manager.program.list(order_by=['name']))
 
         if 'POST' == flask.request.method:
             return flask.jsonify(manager.program.insert(
