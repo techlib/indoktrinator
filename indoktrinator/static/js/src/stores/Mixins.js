@@ -26,6 +26,7 @@ export var ErrorMixin = {
  * data: data to send with requests like POST. Will be jsonified
  * transformResponse: if provided, received data will be passed to given function
  *  and replaced with value it returns.
+ * handleError: if provided, this function is called on error
  *
  *  One of the main reasons for this whole thing is simplification of api calls
  *  (no need to repeat many options, that never change) and returning promises
@@ -69,9 +70,20 @@ export var Api = {
     response.fail((jqXHR, textStatus, errorThrown) => {
       if (options['action'] !== undefined &&
           options['action'].children.indexOf('failed') >= 0) {
-            options['action'].failed(textStatus)
+            options['action'].failed(errorThrown, textStatus)
+        }
+      if (options['handleError'] !== undefined) {
+          options['handleError'](textStatus, errorThrown)
         }
     })
+
+    // This is not great and should be considered again.
+    // Reason for this is to allow catching of errors from internal promise
+    // and allow avoiding uncaught errors by handling them in store
+    if (options['action'] !== undefined &&
+        options['action'].children.indexOf('promise') >= 0) {
+          return options['action'].promise
+        }
 
     return response
   }
