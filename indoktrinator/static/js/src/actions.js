@@ -1,26 +1,42 @@
 import * as Reflux from 'reflux-core'
+import RefluxPromise from "reflux-promise";
+import * as _ from 'lodash'
 
-export var DeviceActions = Reflux.createActions([
+Reflux.use(RefluxPromise(window.Promise));
+
+// Simple helper to create actions with {asyncResult: true}
+// Most of these actions call api anyway and it does nothing
+// bad elsewhere.
+function createAsyncActions(list) {
+  var functions = {}
+  _.each(list, (item) => {
+    functions[item] = {asyncResult: true}
+  })
+
+  return Reflux.createActions(functions)
+}
+
+export var DeviceActions = createAsyncActions([
   'create', 'read', 'update', 'delete', 'list'
 ])
 
-export var EventActions = Reflux.createActions([
+export var EventActions = createAsyncActions([
   'create', 'read', 'update', 'delete', 'list'
 ])
 
-export var ItemActions = Reflux.createActions([
+export var ItemActions = createAsyncActions([
   'create', 'read', 'update', 'delete', 'list'
 ])
 
-export var PlaylistActions = Reflux.createActions([
+export var PlaylistActions = createAsyncActions([
   'create', 'read', 'update', 'delete', 'list', 'copy'
 ])
 
-export var ProgramActions = Reflux.createActions([
+export var ProgramActions = createAsyncActions([
   'create', 'read', 'update', 'delete', 'list'
 ])
 
-export var SegmentActions = Reflux.createActions([
+export var SegmentActions = createAsyncActions([
   'create', 'read', 'update', 'delete', 'list'
 ])
 
@@ -28,10 +44,10 @@ export var FeedbackActions = Reflux.createActions([
     'clear', 'set'
 ])
 
-export var UserInfoActions = Reflux.createActions([
+export var UserInfoActions = createAsyncActions([
     'read'
 ])
 
-export var FileActions = Reflux.createActions([
+export var FileActions = createAsyncActions([
   'read', 'list'
 ])
