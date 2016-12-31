@@ -65,6 +65,7 @@
     "reactIntlJson-loader": "0.0.4",
     "reflux": "^0.4.1",
     "reflux-core": "^0.3.0",
+    "reflux-promise": "^1.0.4",
     "regenerator": "^0.8.42",
     "regenerator-runtime": "^0.9.5",
     "style-loader": "^0.13.1",
