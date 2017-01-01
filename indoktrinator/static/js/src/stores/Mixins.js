@@ -5,11 +5,18 @@
  * Distributed under terms of the MIT license.
  */
 
+import {FeedbackActions} from '../actions'
+
 export var ErrorMixin = {
   handleError: function (method, status, message) {
     this.data.errors = [{'method': method, 'status': status, 'message': message}]
     this.trigger(this.data)
   },
+
+}
+
+function errorFeedback(promise, textStatus, error) {
+    FeedbackActions.set('error', error)
 }
 
 /*
@@ -71,6 +78,8 @@ export var Api = {
     response.fail((jqXHR, textStatus, errorThrown) => {
       if (options['handleError'] !== undefined) {
           options['handleError'](jqXHR, textStatus, errorThrown)
+      } else {
+        errorFeedback(jqXHR, textStatus, errorThrown)
       }
     })
 
