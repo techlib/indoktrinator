@@ -2,12 +2,12 @@
 
 import * as Reflux from 'reflux'
 import {DeviceActions, FeedbackActions} from '../actions'
-import {ErrorMixin} from './Mixins'
+import {Api} from './Mixins'
 import {StoreTypes} from './StoreTypes'
 import {API_URL} from './config'
 
 export var DeviceStore = Reflux.createStore({
-  mixins: [ErrorMixin],
+  mixins: [Api],
   listenables: [DeviceActions],
   data: {'device': [], 'list': [], 'errors': []},
 
@@ -51,21 +51,8 @@ export var DeviceStore = Reflux.createStore({
 
 
   onUpdate(device, callbackDone) {
-    $.ajax({
-      url: `${API_URL}/api/device/${device.id}`,
-      method: 'PATCH',
-      dataType: 'json',
-      contentType: 'application/json',
-      data: JSON.stringify(device),
-      success: function success(result) {
-        FeedbackActions.set('success', 'Device updated')
-      },
-      error: result => {
-        FeedbackActions.set('error', result.responseJSON.message)
-      }
-    }).done(() => {
-      if (typeof callbackDone === 'function') { callbackDone() }
-    })
+    this.req('PATCH', `${API_URL}/api/device/${device.id}`,
+             {data: device, action: DeviceActions.update})
   },
 
   onCreate(device, callbackDone) {

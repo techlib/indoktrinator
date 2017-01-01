@@ -2,7 +2,7 @@ import * as React from 'react'
 import {Link} from 'react-router'
 import {FormattedMessage} from 'react-intl'
 import {programSelectionModal} from './ModalProgramSelect'
-import {DeviceActions} from '../actions'
+import {DeviceActions, FeedbackActions} from '../actions'
 
 export var DeviceListPanel = React.createClass({
 
@@ -10,7 +10,12 @@ export var DeviceListPanel = React.createClass({
     programSelectionModal(
       this.props.program ? this.props._program.uuid : null
     ).then((newProgram) => {
-      DeviceActions.update({id: this.props.id, program: newProgram})
+      DeviceActions.update.triggerAsync({id: this.props.id, program: newProgram})
+      .then(() => {
+        DeviceActions.list()
+        FeedbackActions.set('success', 'Program set')
+
+      })
     })
   },
 
