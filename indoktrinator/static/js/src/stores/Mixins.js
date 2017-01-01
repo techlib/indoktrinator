@@ -31,7 +31,7 @@ export var ErrorMixin = {
  *  One of the main reasons for this whole thing is simplification of api calls
  *  (no need to repeat many options, that never change) and returning promises
  *  from reflux actions, that resolve after api call is complete.
- *  This is useful form notifications, redirects, etc
+ *  This is useful for notifications, redirects, etc
  */
 
 export var Api = {
@@ -48,6 +48,7 @@ export var Api = {
     }
 
     var response = $.ajax(params)
+
     response.done((data, textStatus, jqXHR) => {
       this.data.errors = []
 
@@ -68,22 +69,10 @@ export var Api = {
     })
 
     response.fail((jqXHR, textStatus, errorThrown) => {
-      if (options['action'] !== undefined &&
-          options['action'].children.indexOf('failed') >= 0) {
-            options['action'].failed(errorThrown, textStatus)
-        }
       if (options['handleError'] !== undefined) {
-          options['handleError'](textStatus, errorThrown)
-        }
+          options['handleError'](jqXHR, textStatus, errorThrown)
+      }
     })
-
-    // This is not great and should be considered again.
-    // Reason for this is to allow catching of errors from internal promise
-    // and allow avoiding uncaught errors by handling them in store
-    if (options['action'] !== undefined &&
-        options['action'].children.indexOf('promise') >= 0) {
-          return options['action'].promise
-        }
 
     return response
   }
