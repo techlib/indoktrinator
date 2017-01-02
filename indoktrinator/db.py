@@ -68,12 +68,6 @@ class InetRangeType(UserDefinedType):
 
 
 class Int4RangeType(UserDefinedType):
-    '''
-    Int4Range behaviour definition
-    '''
-    def get_col_spec(self):
-        return 'INT4RANGE'
-
     def __init__(self):
         self.caster = RangeCaster('int4range', 'Int4Range', None, None)
 
@@ -94,9 +88,6 @@ class Int4RangeType(UserDefinedType):
 
 
 class ByteaType(UserDefinedType):
-    '''
-    bytea object behaviour definition
-    '''
     def get_col_spec(self):
         return 'BYTEA'
 
