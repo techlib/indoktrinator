@@ -12,11 +12,17 @@ import {StoreTypes} from './../../stores/StoreTypes'
 export var Item = React.createClass({
 
   delete() {
-    this.props.deleteItemHandler(this.props.uuid)
-  },
 
-  cancel() {
-    this.props.cancelItemHandler(this.props.index)
+    if (this.props.uuid) {
+      this.props.deleteItemHandler(this.props.uuid)
+    } else if (
+      // TODO: eh?
+      !this.props.state != StoreTypes.DEFAULT
+      && this.props.state != StoreTypes.LOADED
+      && this.props.added)
+    {
+      this.props.cancelItemHandler(this.props.index)
+    }
   },
 
   getInitialState() {
@@ -56,15 +62,9 @@ export var Item = React.createClass({
             </div>
           </div>
           <div className="list-view-pf-actions">
-            <RemoveButton
-              id={this.props.uuid}
-              handler={this.delete}
-            />
-            {!this.props.state != StoreTypes.DEFAULT && this.props.state != StoreTypes.LOADED && this.props.added ?
-              <CancelButton
-                id={this.props.index}
-                handler={this.cancel}
-              />: null}
+            <button onClick={this.delete} type="button" className="close">
+                  <span className="pficon pficon-close"> </span>
+            </button>
           </div>
         </div>
       )
