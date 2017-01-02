@@ -228,24 +228,15 @@ var Component = React.createClass({
   },
 
   cancelItemHandler(index) {
-    confirmModal(
-      'Are you sure?',
-      'Would you like to cancel adding of this item?'
-    ).then(() => {
-      FeedbackActions.set('success', 'Item canceled')
-
-      // remove index
-      var items = this.state.items.filter((item, i) => {
-        return index != i
-      })
-
-      // remove index
-      this.setState(update(this.state, {
-        items: {
-          $set: items
-        }
-      }))
+    // remove index
+    var items = this.state.items.filter((item, i) => {
+      return index != i
     })
+    this.setState(update(this.state, {
+      items: {
+        $set: items
+      }
+    }))
   },
 
   deleteItemHandler(uuid) {
