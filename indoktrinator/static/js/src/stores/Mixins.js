@@ -59,19 +59,21 @@ export var Api = {
     response.done((data, textStatus, jqXHR) => {
       this.data.errors = []
 
+      var result = data.result ? data.result : data
+
       if (options['modifyResponse'] !== undefined) {
-        data = options['modifyResponse'](data)
+        result = options['modifyResponse'](result)
       }
 
       if (options['dest'] !== undefined) {
-        this.data[options['dest']] = data.result
+        this.data[options['dest']] = result
       }
 
       this.trigger(this.data)
 
       if (options['action'] !== undefined &&
           options['action'].children.indexOf('completed') >= 0) {
-            options['action'].completed(data)
+            options['action'].completed(result)
         }
     })
 
