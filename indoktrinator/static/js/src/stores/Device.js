@@ -11,77 +11,32 @@ export var DeviceStore = Reflux.createStore({
   listenables: [DeviceActions],
   data: {'device': [], 'list': [], 'errors': []},
 
-  onRead(id, callbackDone) {
-    $.ajax({
-      url: `${API_URL}/api/device/${id}`,
-      success: result => {
-        this.data.errors = []
-        this.data.device = result
-        this.data.device.state = StoreTypes.LOADED
-        this.trigger(this.data)
-      },
-      error: result => {
-        FeedbackActions.set('error', result.responseJSON.message)
-      }
-    }).done(() => {
-      if (typeof callbackDone === 'function') {
-        if (typeof callbackDone === 'function') { callbackDone() }
-      }
-    })
+  onRead(id) {
+    this.req('GET', `${API_URL}/api/device/${id}`,
+             {action: DeviceActions.read, dest: 'device',
+               modifyResponse: (data) => {
+                  data.state = StoreTypes.LOADED
+                  return data
+               }})
   },
 
-  onDelete(id, callbackDone) {
-    $.ajax({
-      url: `${API_URL}/api/device/${id}`,
-      method: 'DELETE',
-      dataType: 'json',
-      contentType: 'application/json',
-      success: () => {
-        FeedbackActions.set('success', 'Program deleted')
-      },
-      error: result => {
-        FeedbackActions.set('error', result.responseJSON.message)
-      }
-    }).done(() => {
-      if (typeof callbackDone === 'function') {
-        if (typeof callbackDone === 'function') { callbackDone() }
-      }
-    })
+  onDelete(id) {
+    this.req('DELETE', `${API_URL}/api/device/${id}`,
+             {action: DeviceActions.delete})
   },
 
-
-  onUpdate(device, callbackDone) {
+  onUpdate(device) {
     this.req('PATCH', `${API_URL}/api/device/${device.id}`,
              {data: device, action: DeviceActions.update})
   },
 
-  onCreate(device, callbackDone) {
-    $.ajax({
-      url: `${API_URL}/api/device/`,
-      method: 'POST',
-      dataType: 'json',
-      contentType: 'application/json',
-      data: JSON.stringify(device),
-      success: function success(result) {
-        FeedbackActions.set('success', 'Device created')
-      },
-      error: result => {
-        FeedbackActions.set('error', result.responseJSON.message)
-      }
-    }).done(() => {
-      if (typeof callbackDone === 'function') { callbackDone() }
-    })
+  onCreate(device) {
+    this.req('POST', `${API_URL}/api/device/`,
+             {data: device, action: DeviceActions.create})
   },
 
-  onList(callbackDone) {
-    $.ajax({
-      url: `${API_URL}/api/device/`, success: result => {
-        this.data.errors = []
-        this.data.list = result.result
-        this.trigger(this.data)
-      }
-    }).done(() => {
-      if (typeof callbackDone === 'function') { callbackDone() }
-    })
+  onList() {
+    this.req('GET', `${API_URL}/api/device/`,
+             {action: DeviceActions.list, dest: 'list'})
   }
 })

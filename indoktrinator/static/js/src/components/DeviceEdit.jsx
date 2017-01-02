@@ -52,8 +52,10 @@ export var DeviceEdit = React.createClass({
       'Are you sure?',
       'Would you like to remove device?'
     ).then(() => {
-      DeviceActions.delete(id, () => {
+      DeviceActions.delete.triggerAsync(id)
+      .then(() => {
         BrowserHistory.push('/device/')
+        FeedbackActions.set('success', 'Device deleted')
       })
     })
   },
