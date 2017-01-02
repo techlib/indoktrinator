@@ -51,9 +51,8 @@ class Manager(object):
 
         # get all files from DB and create a dict by path
         for file in self.file.list():
-            path = os.path.join(self.media_path, file['path'])
-            normpath = os.path.normpath(path)
-            db_dict[normpath.encode('utf8')] = False
+            path = os.path.normpath('%s/%s' %(self.media_path, file['path']))
+            db_dict[path.encode('utf8')] = False
 
         # recursive function to traverse dirrectory
         def recursion(path):

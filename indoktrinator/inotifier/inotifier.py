@@ -3,6 +3,7 @@
 
 import datetime
 import re
+import os
 
 from twisted.python import filepath, log
 from twisted.internet import inotify
@@ -111,7 +112,6 @@ class Inotifier(object):
 
             if (now - self.timeout) > item and not self._to_check_folders \
                     and not self._to_check_files:
-                print(device)
                 self.manager.router.plan(device)
             else:
                 to_check[device] = item
@@ -125,7 +125,7 @@ class Inotifier(object):
         result = path[len(self._path):]
         if not isinstance(result, str):
             result = result.decode('utf8')
-        return result
+        return os.path.normpath(result)
 
     def processFile(self, filepath):
         '''
@@ -135,7 +135,7 @@ class Inotifier(object):
         now = datetime.datetime.now()
         path = filepath.path
         transform_path = self.transformPath(path)
-        transform_dir = '/' + self.transformPath(filepath.dirname())
+        transform_dir = self.transformPath(filepath.dirname())
         name = filepath.basename()
         if not isinstance(name, str):
             name = name.decode('utf8')
@@ -172,12 +172,13 @@ class Inotifier(object):
                         preview=ffmpeg.preview,
                     ))
 
-                transform_dir = '/' + self.transformPath(filepath.dirname())
+                transform_dir = self.transformPath(filepath.dirname())
                 self._to_check_folders[transform_dir] = now
 
             elif path.endswith(Inotifier.INDEX):
                 self.refreshPlayList(transform_dir, path)
         else:
+            log.msg("Deleting file: %s" % filepath)
             query.delete()
             self.manager.db.commit()
             self._to_check_folders[transform_dir] = now
@@ -191,34 +192,36 @@ class Inotifier(object):
         f_open = False
         f = None
 
-        # Get file from DB and write to playlist
-        for result in self.manager.db.session.query(
-            self.manager.file.e().name,
-            self.manager.item.e().duration,
-        ).filter(
-            self.manager.file.e().uuid == self.manager.item.e().file,
-            self.manager.file.e().dir == transform_dir,
-            self.manager.playlist.e().uuid == self.manager.item.e().playlist,
-            self.manager.playlist.e().system == True,
-        ).order_by(
-            self.manager.item.e().position
-        ).group_by(
-            self.manager.file.e().uuid,
-            self.manager.file.e().name,
-            self.manager.item.e().duration,
-            self.manager.item.e().position,
-        ):
-            if first:
-                f_open = True
-                first = False
-                f = open(self._path + playlist, 'w')
-                f.write('#EXTM3U\r\n\r\n')
+        if transform_dir != '.':
+            # Get file from DB and write to playlist
+            for result in self.manager.db.session.query(
+                self.manager.file.e().name,
+                self.manager.item.e().duration,
+            ).filter(
+                self.manager.file.e().uuid == self.manager.item.e().file,
+                self.manager.file.e().dir == transform_dir,
+                self.manager.playlist.e().uuid == self.manager.item.e().playlist,
+                self.manager.playlist.e().system == True,
+            ).order_by(
+                self.manager.item.e().position,
+                self.manager.file.e().name,
+            ).group_by(
+                self.manager.file.e().uuid,
+                self.manager.file.e().name,
+                self.manager.item.e().duration,
+                self.manager.item.e().position,
+            ):
+                if first:
+                    f_open = True
+                    first = False
+                    f = open(self._path + transform_dir + playlist, 'w')
+                    f.write('#EXTM3U\r\n\r\n')
 
-            f.write('#EXTINF:%d,%s\r\n' % (result.duration, result.name))
-            f.write('%s\r\n\r\n' % result.name)
+                f.write('#EXTINF:%d,%s\r\n' % (result.duration, result.name))
+                f.write('%s\r\n\r\n' % result.name)
 
-        if f_open:
-            f.close()
+            if f_open:
+                f.close()
 
         # get all affected devices and store
         for device in self.manager.device.e().join(
@@ -227,8 +230,8 @@ class Inotifier(object):
             self.manager.event.e(),
             self.manager.playlist.e(),
         ).filter(
-            self.manager.playlist.e().system==True,
-            self.manager.playlist.e().path==transform_dir,
+            self.manager.playlist.e().system == True,
+            self.manager.playlist.e().path == transform_dir,
         ):
             self.addDevice(device.id)
 
