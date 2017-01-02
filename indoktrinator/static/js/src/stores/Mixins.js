@@ -31,7 +31,7 @@ function errorFeedback(promise, textStatus, error) {
  * dest: Destination in data attribute of store, where result will be saved
  *  (this is usually 'list' or 'device' or similar
  * data: data to send with requests like POST. Will be jsonified
- * transformResponse: if provided, received data will be passed to given function
+ * modifyResponse: if provided, received data will be passed to given function
  *  and replaced with value it returns.
  * handleError: if provided, this function is called on error
  *
