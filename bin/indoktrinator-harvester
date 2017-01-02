@@ -1,0 +1,105 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+# Twisted helps with async tasks.
+# The application threads are structured in the following way:
+#
+#  reactor
+#   `-- harvester (1 thread)
+#   `-- workers (8 threads)
+#
+from twisted.internet import reactor
+from twisted.web.wsgi import WSGIResource
+from twisted.python.threadpool import ThreadPool
+from twisted.python import log
+
+# Data are accessed through SQLSoup, using SQLAlchemy.
+from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy import create_engine
+from sqlsoup import SQLSoup
+
+# Command line arguments follow the GNU conventions.
+from getopt import gnu_getopt
+from sys import argv, stderr
+
+# Configuration is stored in a simple ini file.
+from configparser import ConfigParser
+
+# Import all the application handles.
+from indoktrinator.harvester import Harvester
+
+if __name__ == '__main__':
+    def do_start(config):
+        # Start Twisted logging to console.
+        log.startLogging(stderr)
+
+        # Read database configuration options.
+        db_url = config.get('database', 'url')
+
+        # Read harvester configuration options.
+        path = config.get('media', 'path', fallback='/var/lib/indoktrinator')
+
+        # Start transactions explicitly.
+        factory = sessionmaker(autocommit=False, autoflush=False)
+
+        # Prepare database connection with table reflection.
+        engine = create_engine(db_url)
+        session = scoped_session(sessionmaker(autocommit=True, autoflush=True))
+        db = SQLSoup(engine, session=session)
+
+        # Extract harvester options, sans the pool_size we handle here.
+        harvester_opts = dict(config.items('harvester'))
+        harvester_pool = int(harvester_opts.pop('pool_size', 8))
+
+        # Set the correct thread pool size for the harvester.
+        reactor.suggestThreadPoolSize(harvester_pool)
+
+        # Prepare the harvester that runs in an exclusive thread.
+        harvester = Harvester(db, path, **harvester_opts)
+
+        # Schedule a call to the harvester right after we finish here.
+        reactor.callLater(0, harvester.start)
+
+        # Run the Twisted reactor until the user terminates us.
+        reactor.run()
+
+    def do_help(*args, **kwargs):
+        print('Usage: indoktrinator-harvester [--config=/etc/indoktrinator.ini]')
+        print('Runs the indoktrinator-harvester with given configuration.')
+        print('')
+        print('OPTIONS:')
+        print('  --help, -h          Display this help.')
+        print('  --version, -V       Display version info.')
+        print('')
+        print('  --config, -c file   Load alternative configuration file.')
+        print('')
+        print('Report bugs at <http://github.com/techlib/indoktrinator>.')
+
+    def do_version(*args, **kwargs):
+        print('indoktrinator-harvester (NTK) 1')
+
+    # Parse command line arguments.
+    opts, args = gnu_getopt(argv, 'hVc:', ['help', 'version', 'config='])
+
+    action = do_start
+    config_path = '/etc/indoktrinator.ini'
+
+    for k, v in opts:
+        if k in ('--help', '-h'):
+            action = do_help
+        elif k in ('--version', '-V'):
+            action = do_version
+        elif k in ('--config', '-c'):
+            config_path = v
+
+    # Load the configuration from file.
+    if action not in (do_help, do_version):
+        config = ConfigParser()
+        config.read(config_path)
+    else:
+        config=None
+
+    # Perform the selected action.
+    action(config=config)
+
+# vim:set sw=4 ts=4 et:
