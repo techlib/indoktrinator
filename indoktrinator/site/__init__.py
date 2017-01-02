@@ -268,7 +268,6 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
         if 'GET' == flask.request.method:
             return flask.jsonify(manager.item.list({'playlist': uuid}))
 
-
     @app.route('/api/playlist/<uuid>/copy', methods=['GET'])
     @authorized_only('user')
     def playlist_item_copy_handler(uuid, **kwargs):
@@ -284,7 +283,8 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             #        User should give us one before we start!
             for i in range(1, 101):
                 try:
-                    new_playlist['name'] = '%s Copy %d' % (old_playlist['name'], i)
+                    name = '{} Copy {}'.format(old_playlist['name'], i)
+                    new_playlist['name'] = name
                     new = manager.playlist.insert(new_playlist)
                     break
                 except:

@@ -3,22 +3,25 @@
 adocs = $(wildcard doc/*.adoc)
 htmls = $(adocs:.adoc=.html)
 pdfs  = $(adocs:.adoc=.pdf)
-
-PSQL = /usr/bin/psql
-PSQL_ARGS = -U postgres
-DB_NAME = indoktrinator
+pys   = $(shell find indoktrinator -name '*.py')
 
 all: build doc
-doc: ${htmls} # ${pdfs}
+doc: html
+
+html: ${htmls}
+pdf: ${pdfs}
 
 build: npm
-	./node_modules/webpack/bin/webpack.js --progress --colors -p --config webpack/prod.js
+	node_modules/webpack/bin/webpack.js --progress --colors -p --config webpack/prod.js
 
 dev: npm
-	./node_modules/webpack/bin/webpack.js --progress --colors --watch --display-error-details --config webpack/dev.js
+	node_modules/webpack/bin/webpack.js --progress --colors --watch --display-error-details --config webpack/dev.js
 
 lint:
-	./node_modules/eslint/bin/eslint.js --ext .js,.jsx indoktrinator/static/js/src/ -c .eslintrc.json
+	node_modules/eslint/bin/eslint.js --ext .js,.jsx indoktrinator/static/js/src/ -c .eslintrc.json
+
+pep:
+	@pep8 --show-source --ignore=E221,E712 ${pys}
 
 npm:
 	npm install
@@ -33,20 +36,8 @@ clean:
 %.html: %.adoc
 	asciidoctor -r asciidoctor-diagram -b html5 -o $@ $<
 
-schema:
-	$(PSQL) $(PSQL_ARGS) $(DB_NAME) < sql/schema.sql
-triggers:
-	$(PSQL) $(PSQL_ARGS) $(DB_NAME) < sql/triggers.sql
-
-db:
-	echo "DROP DATABASE IF EXISTS indoktrinator;" | $(PSQL) $(PSQL_ARGS)
-
-	echo "CREATE DATABASE indoktrinator;" | $(PSQL) $(PSQL_ARGS)
-	$(PSQL) $(PSQL_ARGS) $(DB_NAME) < sql/schema.sql
-
-#
-# %.pdf: %.adoc
-# 	asciidoctor-pdf -r asciidoctor-diagram -o $@ $<
+%.pdf: %.adoc
+	asciidoctor-pdf -r asciidoctor-diagram -o $@ $<
 
 
 .PHONY: dev build npm default lint

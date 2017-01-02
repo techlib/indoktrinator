@@ -17,11 +17,7 @@ EXT_PATTERN = re.compile('#EXTINF:(\d+),(.*)')
 class Inotifier(object):
     '''
     '''
-    INDEX = (
-                b'/index.m3u8',
-                b'/index.m3u',
-                b'/index.txt',
-    )
+    INDEX = (b'/index.m3u8', b'/index.m3u', b'/index.txt')
 
     def __init__(
         self,

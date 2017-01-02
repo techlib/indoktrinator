@@ -42,7 +42,7 @@ class Playlist(object):
             item = self.items[self.item]
             self.item = (self.item + 1) % len(self.items)
 
-            pos = min(end, start+item[1])
+            pos = min(end, start + item[1])
             result.append((self.manager.url + item[0], start, pos, item[2]))
             start = pos
         return result

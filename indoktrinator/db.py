@@ -83,7 +83,7 @@ class Int4RangeType(UserDefinedType):
     def result_processor(self, dialect, coltype):
         def process(value):
             if value is not None:
-                return (value.lower, value.upper-1)
+                return (value.lower, value.upper - 1)
         return process
 
 
