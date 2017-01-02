@@ -192,20 +192,10 @@ class Router(ZmqRouterConnection):
             plan = []
 
             for item in planner.plan:
-                itype = 'unknown'
-
-                if item[3] == 1:
-                    itype = 'video'
-                elif item[3] == 2:
-                    itype = 'image'
-
-                # FIXME: It is possible to send an invalid message with
-                #        item type being 'unknown'. Fix in database.
-
                 plan.append({
                     'start': item[1],
                     'end': item[2],
-                    'type': itype,
+                    'type': item[3],
                     'url': item[0],
                 })
 

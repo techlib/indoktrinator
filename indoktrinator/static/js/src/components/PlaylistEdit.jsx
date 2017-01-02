@@ -22,7 +22,7 @@ export function getItems(playlist) {
       type: Types.SYNTH_ITEM,
       state: StoreTypes.LOADED,
       file: {
-        name: item.file_name,
+        name: item.file_path,
         token: item.file_token,
         duration: item.file_duration,
         path: item.file_path,

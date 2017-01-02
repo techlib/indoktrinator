@@ -38,7 +38,7 @@ class Playlist(Model):
             isouter=True,
         ).order_by(
             self.e('item').position,
-            self.e('file').name,
+            self.e('file').path,
         )
         query = q.all()
 
@@ -49,7 +49,7 @@ class Playlist(Model):
                 'name': query[0].MappedPlaylist.name,
                 'duration': query[0].MappedPlaylist.duration,
                 'path': query[0].MappedPlaylist.path,
-                'system': query[0].MappedPlaylist.system,
+                'system': query[0].MappedPlaylist.token is not None,
                 'items': [],
             }
 
@@ -65,9 +65,7 @@ class Playlist(Model):
                     'file_path': item.MappedFile.path,
                     'file_token': item.MappedFile.token,
                     'file_type': item.MappedFile.type,
-                    'file_name': item.MappedFile.name,
                     'file_preview': item.MappedFile.preview,
-                    'file_dir': item.MappedFile.dir,
                 })
 
         return result
