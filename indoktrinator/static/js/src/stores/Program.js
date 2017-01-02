@@ -2,95 +2,41 @@
 
 import * as Reflux from 'reflux'
 import {ProgramActions, FeedbackActions} from '../actions'
-import {ErrorMixin} from './Mixins'
+import {ErrorMixin, Api} from './Mixins'
 import {StoreTypes} from './StoreTypes'
 import {API_URL} from './config'
 
 export var ProgramStore = Reflux.createStore({
-  mixins: [ErrorMixin],
+  mixins: [ErrorMixin, Api],
   listenables: [ProgramActions],
   data: {'program': [], 'list': [], 'errors': []},
 
-  onRead(uuid, callbackDone) {
-    $.ajax({
-      url: `${API_URL}/api/program/${uuid}`,
-      success: result => {
-        this.data.errors = []
-        this.data.program = result
-        this.data.program.state = StoreTypes.LOADED
-        this.trigger(this.data)
-      },
-      error: result => {
-        FeedbackActions.set('error', result.responseJSON.message)
-      }
-    }).done(() => {
-      if (typeof callbackDone === 'function') { callbackDone() }
-    })
+  onRead(uuid) {
+    this.req('GET', `${API_URL}/api/program/${uuid}`,
+             {dest: 'program', action: ProgramActions.read,
+              modifyResponse: (data) => {
+                data.state = StoreTypes.LOADED
+                return data
+              }})
   },
 
-  onDelete(id, callbackDone) {
-    $.ajax({
-      url: `${API_URL}/api/program/${id}`,
-      method: 'DELETE',
-      dataType: 'json',
-      contentType: 'application/json',
-      success: () => {
-        FeedbackActions.set('success', 'Program deleted')
-      },
-      error: result => {
-        FeedbackActions.set('error', result.responseJSON.message)
-      }
-    }).done(() => {
-      if (typeof callbackDone === 'function') { callbackDone() }
-    })
+  onDelete(id) {
+    this.req('DELETE', `${API_URL}/api/program/${id}`,
+             {action: ProgramActions.delete})
   },
 
-
-  onUpdate(program, callbackDone) {
-    $.ajax({
-      url: `${API_URL}/api/program/${program.uuid}`,
-      method: 'PATCH',
-      dataType: 'json',
-      contentType: 'application/json',
-      data: JSON.stringify(program),
-      success: function success(result) {
-        FeedbackActions.set('success', 'Program updated')
-      },
-      error: result => {
-        FeedbackActions.set('error', result.responseJSON.message)
-      }
-    }).done(() => {
-      if (typeof callbackDone === 'function') { callbackDone() }
-    })
+  onUpdate(program) {
+    this.req('PATCH', `${API_URL}/api/program/${program.uuid}`,
+             {data: program, action: ProgramActions.update})
   },
 
-  onCreate(program, callbackDone) {
-    $.ajax({
-      url: `${API_URL}/api/program/`,
-      method: 'POST',
-      dataType: 'json',
-      contentType: 'application/json',
-      data: JSON.stringify(program),
-      success: function success(result) {
-        FeedbackActions.set('success', 'Program created')
-      },
-      error: result => {
-        FeedbackActions.set('error', result.responseJSON.message)
-      }
-    }).done(() => {
-      if (typeof callbackDone === 'function') { callbackDone() }
-    })
+  onCreate(program) {
+    this.req('POST', `${API_URL}/api/program/`,
+             {data: program, action: ProgramActions.create})
   },
 
-  onList(callbackDone) {
-    $.ajax({
-      url: `${API_URL}/api/program/`, success: result => {
-        this.data.errors = []
-        this.data.list = result.result
-        this.trigger(this.data)
-      }
-    }).done(() => {
-      if (typeof callbackDone === 'function') { callbackDone() }
-    })
+  onList() {
+    this.req('GET', `${API_URL}/api/program/`, {dest: 'list'})
   }
+
 })

@@ -1,7 +1,7 @@
 import * as React from 'react'
 import * as Reflux from 'reflux'
 import {Feedback} from './Feedback'
-import {ProgramActions as pa} from '../actions'
+import {ProgramActions as pa, FeedbackActions} from '../actions'
 import Griddle from 'griddle-react'
 import {Pager} from './Pager'
 import {Button} from 'react-bootstrap'
@@ -26,9 +26,11 @@ let ProgramActions = React.createClass({
       'Are you sure?',
       'Would you like to remove program?'
     ).then(() => {
-      pa.delete(this.props.rowData.uuid, () => {
-        pa.list()
-        BrowserHistory.push('/program/')
+      pa.delete(this.props.rowData.uuid)
+        .then(() => {
+          pa.list()
+          BrowserHistory.push('/program/')
+          FeedbackActions.set('success', 'Program deleted')
       })
     })
   },

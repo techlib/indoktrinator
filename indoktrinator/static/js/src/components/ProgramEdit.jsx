@@ -35,8 +35,10 @@ export var ProgramEdit = React.createClass({
   },
 
   handleSave(data) {
-    ProgramActions.update(data, () => {
+    ProgramActions.update.triggerAsync(data)
+    .then(() => {
       this.setState({program: {program: data}})
+      FeedbackActions.set('success', 'Program updated')
     })
   },
 
@@ -45,7 +47,8 @@ export var ProgramEdit = React.createClass({
       'Are you sure?',
       'Would you like to remove program?'
     ).then(() => {
-      ProgramActions.delete(uuid, () => {
+      ProgramActions.delete.triggerAsync(uuid)
+      .then(() => {
         BrowserHistory.push('/program/')
         FeedbackActions.set('success', 'Program deleted')
       })
