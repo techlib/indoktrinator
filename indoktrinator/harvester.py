@@ -157,27 +157,32 @@ class Harvester (Tree):
 
     @with_session
     def update_playlist(self, playlist, node):
-        pl = self.db.playlist.filter_by(path=playlist).one_or_none()
+        token = node.token
+        plst = self.db.playlist.filter_by(path=playlist).one_or_none()
 
-        if pl is None:
+        if plst is None:
             log.msg('Create playlist {!r}.'.format(playlist))
-            pl = self.db.playlist.insert(**{
+            plst = self.db.playlist.insert(**{
                 'name': playlist,
                 'path': playlist,
-                'token': node.token,
+                'token': token,
                 'duration': 0,
             })
+        else:
+            if 'unknown:' not in token:
+                plst.token = token
 
     @with_session
     def delete_playlist(self, playlist, node):
-        pl = self.db.playlist.filter_by(path=playlist).one_or_none()
+        plst = self.db.playlist.filter_by(path=playlist).one_or_none()
 
-        if pl is not None:
+        if plst is not None:
             log.msg('Delete playlist {!r}...'.format(playlist))
-            self.db.delete(pl)
+            self.db.delete(plst)
 
     @with_session
     def update_item(self, playlist, item, node):
+        token = node.token,
         path = relpath(node.path, self.path)
         file = self.db.file.filter_by(path=path).one_or_none()
 
@@ -188,11 +193,34 @@ class Harvester (Tree):
             log.msg('Create file {!r}...'.format(path))
             file = self.db.file.insert(**{
                 'path': path,
-                'token': node.token,
+                'token': token,
                 'duration': 10.0,
                 'preview': None,
                 'type': 'video',
             })
+        else:
+            if 'unknown:' not in token:
+                file.token = token
+
+        items = self.db.item.filter_by(file=file.uuid).all()
+        if len(items) > 0:
+            return
+
+        # Determine correct playlist for the file.
+        plst = self.db.playlist.filter_by(path=playlist).one_or_none()
+
+        if plst is not None:
+            # FIXME: Calculate position properly.
+
+            log.msg('Create item {!r}...'.format(path))
+            self.db.item.insert(**{
+                'playlist': plst.uuid,
+                'file': file.uuid,
+                'position': 0,
+                'duration': file.duration,
+            })
+        else:
+            log.msg('Failed to locate playlist {!r}.'.format(playlist))
 
     @with_session
     def delete_item(self, playlist, item, node):
@@ -268,6 +296,8 @@ class Harvester (Tree):
             if plst is not None:
                 # We happen to know the correct playlist, so update it.
                 file.playlist = plst.uuid
+            else:
+                log.msg('Failed to locate playlist {!r}.'.format(playlist))
 
             # Update path to the file.
             file.path = path
