@@ -7,7 +7,7 @@ from twisted.internet import reactor
 from os.path import sep, join, relpath, isfile, isdir
 from natsort import natsorted, ns
 
-from indoktrinator.shadow_tree import *
+from indoktrinator.harvester.shadow_tree import *
 from indoktrinator.utils import with_session
 
 
