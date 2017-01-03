@@ -31,6 +31,7 @@ from indoktrinator.manager import Manager
 from indoktrinator.site import make_site
 from indoktrinator.router import make_router
 from indoktrinator.rbac import AccessModel
+from indoktrinator.notifier import Notifier
 
 if __name__ == '__main__':
     def do_start(config):
@@ -57,6 +58,9 @@ if __name__ == '__main__':
         # Start transactions explicitly.
         factory = sessionmaker(autocommit=True, autoflush=True)
 
+        # Initialize database notifier
+        notifier = Notifier(reactor, db_url)
+
         # Prepare database connection with table reflection.
         engine = create_engine(db_url)
         session = scoped_session(sessionmaker(autocommit=False, autoflush=False))
@@ -70,7 +74,7 @@ if __name__ == '__main__':
         reactor.suggestThreadPoolSize(manager_pool)
 
         # Prepare the manager that runs in an exclusive thread.
-        manager = Manager(db, media_path=media_path, **manager_opts)
+        manager = Manager(db, notifier=notifier, media_path=media_path, **manager_opts)
 
         # Prepare the website that will get exposed to the users.
         site = make_site(db, manager, access_model, auth=http_auth, debug=http_debug, cors=http_cors)

@@ -21,8 +21,9 @@ __all__ = ['Manager']
 
 
 class Manager(object):
-    def __init__(self, db, media_path, url):
+    def __init__(self, db, notifier, media_path, url):
         self.db = db
+        self.notifier = notifier
         self.media_path = media_path
         self.url = url
 
