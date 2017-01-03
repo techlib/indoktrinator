@@ -6,16 +6,14 @@ import {Types} from './Types'
 const itemSource = {
   beginDrag(props, monitor) {
     return {
-      uuid: props.uuid,
-      index: props.index,
-      path: props.path,
-      file: props.file,
-      duration: props.duration,
-      type: props.type,
-      _type: 'auto',
-      all_props: props
+      uuid: Date.now(),
+      added: false,
+      hide: true,
+      file: props.item.file,
+      _type: Types.AUTO_ITEM
     }
   },
+
   endDrag(props, monitor, component) {
     if (monitor.didDrop()) {
       props.finalizeDrop()

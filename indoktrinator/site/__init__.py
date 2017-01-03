@@ -262,7 +262,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             if 'path' in playlist and playlist['path']:
                 manager.item.e().filter_by(playlist=uuid).delete()
 
-            return flask.jsonify(manager.playlist.update(playlist))
+            return flask.jsonify(manager.playlist.patch(playlist, uuid))
 
     @app.route('/api/playlist/<uuid>/items', methods=['GET'])
     @authorized_only('user')

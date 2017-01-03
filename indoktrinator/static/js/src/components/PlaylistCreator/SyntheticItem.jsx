@@ -3,90 +3,61 @@ import {Item} from './Item'
 import {Types} from './Types'
 import {flow} from 'lodash'
 import {findDOMNode} from 'react-dom'
-import {v4 as uuid} from 'uuid'
 import * as React from 'react'
 import {FormattedMessage} from 'react-intl'
 
 const itemSource = {
   beginDrag(props, monitor, component) {
     return {
-      uuid: props.uuid,
+      uuid: props.item.uuid,
       index: props.index,
-      path: props.path,
-      file: props.file,
-      type: props.type,
-      deleteItemHandler: props.deleteItemHandler,
-      _type: 'synth',
-      all_props: props
+      item: props.item,
+      _type: Types.SYNTH_TYPE
     }
   }
 }
 
 const synthTarget = {
   hover(props, monitor, component) {
-    // by https://github.com/gaearon/react-dnd/blob/master/examples/04%20Sortable/Simple/Card.js
-    if (monitor.getItem().type === Types.AUTO_ITEM) {
-      return false
+
+    if (monitor.getItem()._type === Types.AUTO_ITEM
+      && monitor.getItem().added == false) {
+        props.addToSynth(monitor.getItem(), component.props.index + 1)
+        monitor.getItem().index = component.props.index + 1
+        monitor.getItem().added = true
+        return
     }
 
     const dragIndex = monitor.getItem().index
     const hoverIndex = props.index
 
     // Don't replace items with themselves
-    if (dragIndex === hoverIndex) {
-      return
-    }
+    if (dragIndex === hoverIndex) {return}
 
     // Determine rectangle on screen
     const hoverBoundingRect = findDOMNode(component).getBoundingClientRect()
-
     // Get vertical middle
     const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2
-
     // Determine mouse position
     const clientOffset = monitor.getClientOffset()
-
     // Get pixels to the top
     const hoverClientY = clientOffset.y - hoverBoundingRect.top
 
     // Dragging downwards
-    if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {
-      return
-    }
+    if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) {return}
 
     // Dragging upwards
-    if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {
-      return
-    }
+    if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) {return}
 
-    props.moveCard(dragIndex, hoverIndex)
-
+    props.moveItem(dragIndex, hoverIndex)
     monitor.getItem().index = hoverIndex
-  },
-  drop(props, monitor, component) {
-    const item = monitor.getItem()
-    const dragIndex = item.index
-    const hoverIndex = props.index
-
-    if (dragIndex == hoverIndex && item._type != 'auto') {
-      return
-    }
-
-    if (!item.added && item._type == 'auto') {
-      item.reactKey = uuid()
-      props.addToSynth(item, component.props.index + 1)
-      monitor.getItem().added = true
-      monitor.getItem().type = Types.SYNTH_ITEM
-    }
   }
 }
 
 class PlaceholderForInitialDrag extends React.Component {
 
   render() {
-    const {
-      //React DnD
-      connectDropTarget} = this.props
+    const {connectDropTarget} = this.props
 
     return connectDropTarget(<div className="list-group-item">
       <div className="list-view-pf-main-info">
@@ -109,12 +80,15 @@ class PlaceholderForInitialDrag extends React.Component {
 PlaceholderForInitialDrag = DropTarget(Types.AUTO_ITEM,
   synthTarget,
   connect => ({
-    connectDropTarget: connect.dropTarget()
+    connectDropTarget: connect.dropTarget(),
+    index: -1 // stupid hack, but we need index in hover(), which is then inremented
+              // by one to add new item. This for cases, where there are no items
   }))(PlaceholderForInitialDrag)
 
 export default PlaceholderForInitialDrag
 
 export var SyntheticItem = flow(
+
   DropTarget([Types.SYNTH_ITEM, Types.AUTO_ITEM], synthTarget, connect => ({
     connectDropTarget: connect.dropTarget()
   })),
@@ -123,5 +97,6 @@ export var SyntheticItem = flow(
     connectDragSource: connect.dragSource(),
     isDragging: monitor.isDragging()
   }))
+
 )(Item)
 

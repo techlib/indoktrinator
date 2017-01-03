@@ -10,33 +10,19 @@ import {Types} from './PlaylistCreator/Types'
 import {v4 as uuid} from 'uuid'
 
 export function getItems(playlist) {
-  if (!playlist.items || playlist.items.length === 0) {
-    return []
-  }
-
-  const items = []
-  playlist.items.forEach((item, index) => {
-    items.push({
-      index: index,
+  return playlist.items.map(item => {
+    return {
       uuid: item.uuid,
-      type: Types.SYNTH_ITEM,
-      state: StoreTypes.LOADED,
+      hide: false,
       file: {
         name: item.file_name,
-        token: item.file_token,
         duration: item.file_duration,
-        path: item.file_path,
         preview: item.file_preview,
         type: item.file_type,
         uuid: item.file_uuid
-      },
-      hide: false,
-      editable: !playlist.system,
-      reactKey: uuid(),
-    })
+      }
+    }
   })
-
-  return items
 }
 
 export var PlaylistEdit = React.createClass({
@@ -46,28 +32,20 @@ export var PlaylistEdit = React.createClass({
     Reflux.connect(FileStore, 'file')
   ],
 
-  getInitialState() {
-    return {loaded: false}
-  },
-
   componentDidMount() {
-    PlaylistActions.read(this.props.params.uuid, () => this.setState({loaded: true}))
-    FileActions.list()
+    PlaylistActions.read(this.props.params.uuid)
     PlaylistActions.list()
+    FileActions.list()
   },
 
   getInitialState() {
     return {
-      playlist: {list: [], playlist: {}},
+      playlist: {list: [], playlist: {items: []}},
       file: {list: []}
     }
   },
 
   render() {
-    if (!this.state.loaded) {
-      return <div>Loading...</div>
-    }
-
     return <div>{this.state.playlist.playlist.system ?
        <PlaylistDetail
          uuid={this.state.playlist.playlist.uuid}
@@ -75,7 +53,6 @@ export var PlaylistEdit = React.createClass({
      : <PlaylistCreator
        playlist={this.state.playlist}
        files={this.state.file.list}
-       title={this.state.playlist.playlist.name}
        items={getItems(this.state.playlist.playlist)}
      />}</div>
   }

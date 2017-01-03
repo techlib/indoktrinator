@@ -12,6 +12,16 @@
     padding-bottom: 5px;
 }
 
+/* fix problem with time icon in playlist editor */
+.list-view-pf-additional-info {
+    display: initial;
+}
+
+.list-view-pf-actions {
+    margin-bottom: 10px;
+    margin-top: 10px;
+}
+
 .list-view-pf-actions button.close {
     padding: 3px;
 }

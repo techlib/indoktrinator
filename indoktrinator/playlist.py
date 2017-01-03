@@ -79,4 +79,24 @@ class Playlist(Model):
             device = item.id.encode('utf8')
             self.manager.inotifier.addDevice(device)
 
+    def patch(self, data, uid):
+        assert uid is not None, 'Primary key is not set'
+
+        self.manager.item.e().filter_by(**{'playlist': uid}).delete()
+        if 'items' in data:
+            counter = 0
+            for item in data.get('items'):
+                newVal = {
+                    'playlist': uid,
+                    'duration': item['duration'],
+                    'file': item['file'],
+                    'position': counter
+                }
+                counter += 1
+
+                self.manager.item.e().insert(**newVal)
+
+        self.update(data)
+
+
 # vim:set sw=4 ts=4 et:

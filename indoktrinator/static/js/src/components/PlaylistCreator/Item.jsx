@@ -12,17 +12,7 @@ import {StoreTypes} from './../../stores/StoreTypes'
 export var Item = React.createClass({
 
   delete() {
-
-    if (this.props.uuid) {
-      this.props.deleteItemHandler(this.props.uuid)
-    } else if (
-      // TODO: eh?
-      !this.props.state != StoreTypes.DEFAULT
-      && this.props.state != StoreTypes.LOADED
-      && this.props.added)
-    {
-      this.props.cancelItemHandler(this.props.index)
-    }
+    this.props.deleteItemHandler(this.props.index)
   },
 
   getInitialState() {
@@ -32,40 +22,34 @@ export var Item = React.createClass({
   },
 
   render() {
-    const {
-      type,
-      //React DnD
-      connectDragSource,
-      connectDropTarget} = this.props
-
+    const {type, connectDragSource, connectDropTarget} = this.props
     const opacity = (type === Types.SYNTH_ITEM && this.props.isDragging) || this.props.hide ? 0 : 1
 
     let item = (
         <div className="list-group-item" style={{opacity}}>
           <div className="list-view-pf-main-info">
             <div className="list-view-pf-left">
-              <img src={this.props.file.preview} style={{height: 32, width: 32}}
+              <img src={this.props.item.file.preview} style={{height: 32, width: 32}}
                    alt="placeholder image"/>
             </div>
             <div className="list-view-pf-body">
               <div className="list-view-pf-description">
                 <div className="list-group-item-heading">
-                  {add3Dots(this.props.file.name, 40)}
+                  {add3Dots(this.props.item.file.name, 40)}
                 </div>
               </div>
               <div className="list-view-pf-additional-info">
-                <div className="list-view-pf-additional-info">
-                  <span className="fa fa-clock-o"></span>
-                  {moment.duration(this.props.file.duration, 'seconds').format('m:ss', {trim: false})}
-                </div>
+                  <i className="fa fa-clock-o"> </i> {moment.duration(this.props.item.file.duration, 'seconds').format('mm:ss', {trim: false})}
               </div>
             </div>
           </div>
-          <div className="list-view-pf-actions">
-            <button onClick={this.delete} type="button" className="close">
+          {type == Types.SYNTH_ITEM && 
+            <div className="list-view-pf-actions">
+              <button onClick={this.delete} type="button" className="close">
                   <span className="pficon pficon-close"> </span>
-            </button>
-          </div>
+              </button>
+            </div>
+          }
         </div>
       )
 

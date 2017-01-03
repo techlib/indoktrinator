@@ -10,23 +10,17 @@ import {map, filter} from 'lodash'
 import {FormattedMessage} from 'react-intl'
 import {Input} from 'react-bootstrap'
 import {Feedback} from './Feedback'
-import {guid} from '../util/database'
 import {Types} from './PlaylistCreator/Types'
 import {PlaylistStore} from '../stores/Playlist'
 import {ItemStore} from '../stores/Item'
-import {FileStore} from '../stores/File'
 import {confirmModal} from './ModalConfirmMixin'
 import {getItems} from './PlaylistEdit'
 import {StoreTypes} from './../stores/StoreTypes'
-import {v4} from 'uuid'
 
 
 var Component = React.createClass({
 
-  mixins: [
-    Reflux.connect(ItemStore, 'item'),
-    Reflux.connect(FileStore, 'file')
-  ],
+  mixins: [],
 
   commonProps: {
     labelClassName: 'col-xs-2',
@@ -37,35 +31,27 @@ var Component = React.createClass({
     this.setState({
       uuid: p.playlist.playlist.uuid,
       name: p.playlist.playlist.name,
-      title: p.playlist.playlist.name,
       playlist: {list: p.playlist.list, playlist: {}},
-      files: p.files,
       items: p.items
     })
   },
 
   getInitialState() {
     return {
-      'saveInProgress': false,
-      'playlist': {list: []},
-      'newCounter': 0,
-      'filter': '',
-      'openPlaylist': null,
-      'file': {file: {}},
-      'files': [],
-      'items': []
+      playlist: {list: [], playlist: {}},
+      filter: '',
+      items: []
     }
   },
 
-  moveCard(dragIndex, hoverIndex) {
-    const cards = this.state.items
-    const dragCard = cards[dragIndex]
+  moveItem(dragIndex, hoverIndex) {
+    const dragItem = this.state.items[dragIndex]
 
     this.setState(update(this.state, {
       items: {
         $splice: [
           [dragIndex, 1],
-          [hoverIndex, 0, dragCard]
+          [hoverIndex, 0, dragItem]
         ]
       }
     }))
@@ -73,8 +59,7 @@ var Component = React.createClass({
 
   addToSynth(obj, pos) {
     this.setState(update(this.state, {
-      items: {$splice: [[pos, 0, obj]]},
-      newCounter: {$set: this.state.newCounter + 1}
+      items: {$splice: [[pos, 0, obj]]}
     }))
   },
 
@@ -94,73 +79,32 @@ var Component = React.createClass({
 
   save() {
     var errors = this.validate()
-    const {saveInProgress} = this.state
-
-    if (saveInProgress === true) {
-       console.warn('Saving is in progress')
-       return false
-    }
 
     if (errors.length > 0) {
       FeedbackActions.set('error', 'Form contains invalid data:', errors)
     } else {
 
-      this.setState({saveInProgress: true})
-
-      // clone items
-      var itemsCache = this.state.items
-
-      // delete playlist items
-      this.props.playlist.playlist.items.forEach((item) => {
-        ItemActions.delete(item.uuid, () => {
+      var data = {
+        uuid: this.props.playlist.playlist.uuid,
+        name: this.state.name,
+        items: this.state.items.map(item => {
+          return {
+            duration: item.file.duration,
+            file: item.file.uuid
+          }
         })
-      })
+      }
 
-      // create playlist items
-      var ii = 1
-      itemsCache.forEach((item) => {
-        if (item.type != Types.DEFAULT) {
-          var databaseItem = {}
-          databaseItem.playlist = this.state.uuid
-          databaseItem.file = item.file.uuid
-          databaseItem.duration = item.file.duration
-          databaseItem.position = ii
+      PlaylistActions.update.triggerAsync(data)
+      .then(() => {
 
-          databaseItem.uuid = guid()
-          ItemActions.create(databaseItem, () => {
-
-          })
-
-          ii++
-        }
-      })
-      // update playlist
-      var playlist = {}
-      playlist.name = this.state.name
-      playlist.uuid = this.state.uuid
-      PlaylistActions.update(playlist, () => {
-        // update name + title
-        this.setState({name: playlist.name, title: playlist.name})
-        // update items
-        PlaylistActions.read(this.state.uuid, () => {
-          var data = PlaylistStore.data.playlist
-          this.reloadItems(data)
-        })
       })
     }
   },
 
   validate() {
     var r = []
-
-    if (!this.state.uuid) {
-      r.push('Uuid is required')
-    }
-
-    if (!this.state.name) {
-      r.push('Name is required')
-    }
-
+    if (!this.state.name) {r.push('Name is required')}
     return r
   },
 
@@ -173,7 +117,7 @@ var Component = React.createClass({
   },
 
   finalizeDrop() {
-    const items = map(this.state.items, (item) => {
+    var items = map(this.state.items, (item) => {
       item.hide = false
       item._type = 'synth'
       return item
@@ -192,80 +136,61 @@ var Component = React.createClass({
 
     return <SyntheticItem
       index={index}
-      key={item.reactKey}
+      key={item.uuid}
       hide={item.hide}
-      file={item.file}
-      editable={item.editable}
-      deleteItemHandler={this.deleteItemHandler}
-      cancelItemHandler={this.cancelItemHandler}
-      moveCard={this.moveCard}
-      addToSynth={this.addToSynth}
+      item={item}
       type={Types.SYNTH_ITEM}
-      {...item} />
+      deleteItemHandler={this.deleteItemHandler}
+      moveItem={this.moveItem}
+      addToSynth={this.addToSynth}
+      />
+  },
+
+  getAutoItem(file, index) {
+    // normalize for <Item>
+    var item = {
+      uuid: file.uuid,
+      file: {
+        duration: file.duration,
+        name: file.name,
+        preview: file.preview,
+        uuid: file.uuid
+      }
+    }
+
+    return <AutoItem
+      index={index}
+      key={item.uuid}
+      item={item}
+      type={Types.AUTO_ITEM}
+      cancelDrop={this.cancelDrop}
+      finalizeDrop={this.finalizeDrop}
+    />
   },
 
   getFilteredAvailableFiles() {
-    return filter(this.state.files, (item) => {
+    return filter(this.props.files, (item) => {
       return item.name.toLowerCase().indexOf(this.state.filter.toLowerCase()) >= 0
     })
   },
 
-  getAutoItem(file, index) {
-    return <AutoItem
-      index={index}
-      key={index}
-      file={file}
-      moveCard={this.moveCard}
-      addToSynth={this.addToSynth}
-      cancelDrop={this.cancelDrop}
-      finalizeDrop={this.finalizeDrop}
-      type={Types.AUTO_ITEM}
-    />
-  },
-
   reloadItems(playlist) {
-    this.setState({saveInProgress: false, items: getItems(playlist)})
+    this.setState({items: getItems(playlist)})
   },
 
-  cancelItemHandler(index) {
-    // remove index
-    var items = this.state.items.filter((item, i) => {
-      return index != i
-    })
+  deleteItemHandler(index) {
     this.setState(update(this.state, {
       items: {
-        $set: items
+        $splice: [[index, 1]]
       }
     }))
-  },
-
-  deleteItemHandler(uuid) {
-    confirmModal(
-      'Are you sure?',
-      'Would you like to remove item?'
-    ).then(() => {
-      ItemActions.delete(uuid, () => {
-        FeedbackActions.set('success', 'Item deleted')
-
-        // remove index
-        var items = this.state.items.filter((item, i) => {
-          return item.uuid != uuid
-        })
-
-        this.setState(update(this.state, {
-          items: {
-            $set: items
-          }
-        }))
-      })
-    })
   },
 
   render() {
     return (
       <div className='col-xs-12 container-fluid'>
         <h1>
-          {this.state.title}
+          {this.state.name}
         </h1>
         <div className='row'>
           <div className='col-xs-12 col-md-6'>
@@ -273,7 +198,7 @@ var Component = React.createClass({
             <div className='panel panel-default'>
               <div className='panel-heading'>
                 <FormattedMessage
-                  id="app.menu.playlist.title"
+                  id="app.menu.playlist.name"
                   description="Title"
                   defaultMessage="Playlist"
                 />
