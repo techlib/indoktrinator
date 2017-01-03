@@ -41,7 +41,7 @@ if __name__ == '__main__':
 
         # Prepare database connection with table reflection.
         engine = create_engine(db_url)
-        session = scoped_session(sessionmaker(autocommit=True, autoflush=True))
+        session = scoped_session(sessionmaker(autocommit=True, autoflush=False))
         db = SQLSoup(engine, session=session)
 
         # Extract harvester options, sans the pool_size we handle here.
