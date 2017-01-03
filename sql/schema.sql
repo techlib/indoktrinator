@@ -574,7 +574,7 @@ ALTER TABLE ONLY event
 --
 
 ALTER TABLE ONLY file
-    ADD CONSTRAINT file_path_unique UNIQUE (path);
+    ADD CONSTRAINT file_path_unique UNIQUE (path) DEFERRABLE INITIALLY DEFERRED;
 
 
 --
@@ -599,6 +599,14 @@ ALTER TABLE ONLY file
 
 ALTER TABLE ONLY item
     ADD CONSTRAINT item_pkey PRIMARY KEY (uuid);
+
+
+--
+-- Name: playlist_path_unique; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+--
+
+ALTER TABLE ONLY playlist
+    ADD CONSTRAINT playlist_path_unique UNIQUE (path) DEFERRABLE INITIALLY DEFERRED;
 
 
 --
