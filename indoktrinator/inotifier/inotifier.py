@@ -176,7 +176,6 @@ class Inotifier(object):
         else:
             log.msg("Deleting file: %s" % filepath)
             query.delete()
-            self.manager.db.commit()
             self._to_check_folders[transform_dir] = now
 
     def processFolder(self, transform_dir, playlist='/index.m3u8'):

@@ -7,8 +7,9 @@ import inspect
 from psycopg2._range import Range
 from sqlalchemy.orm import class_mapper
 from psycopg2.extras import Inet
+from functools import wraps
 
-__all__ = ['object_to_dict']
+__all__ = ['object_to_dict', 'with_session']
 
 
 def process_value(obj, c):
@@ -42,5 +43,22 @@ def object_to_dict(obj, found=None, include=[]):
             else:
                 out[name] = object_to_dict(related_obj, found)
     return out
+
+
+def with_session(fn):
+    @wraps(fn)
+    def wrapper(self, *args, **kwargs):
+        self.db.session.begin(subtransactions=True)
+
+        try:
+            result = fn(self, *args, **kwargs)
+            self.db.session.commit()
+            return result
+        except:
+            self.db.session.rollback()
+            raise
+
+    return wrapper
+
 
 # vim:set sw=4 ts=4 et:

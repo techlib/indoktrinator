@@ -1,8 +1,8 @@
 #!/usr/bin/python3 -tt
 # -*- coding: utf-8 -*-
 
-from indoktrinator.utils import object_to_dict
 from sqlalchemy.orm import class_mapper
+from indoktrinator.utils import object_to_dict, with_session
 
 __all__ = ['Model']
 
@@ -60,6 +60,7 @@ class Model(object):
         item = object_to_dict(item, include=self.include_relations.get('item'))
         return item
 
+    @with_session
     def update(self, item):
         assert item.get(self.pkey) is not None, 'Primary key is not set'
         key = item.get(self.pkey)
@@ -68,28 +69,28 @@ class Model(object):
             if k in self.get_relationships() or k == self.pkey:
                 continue
             setattr(entity, k, v)
-        self.db.commit()
         return object_to_dict(entity)
 
+    @with_session
     def replace(self, item):
         if item.get(self.pkey) is not None:
             key = item.get(self.pkey)
             self.e().filter_by(**{self.pkey: key}).delete()
         return object_to_dict(self.insert(item))
 
+    @with_session
     def insert(self, item):
         newVal = {}
         for k, v in item.items():
             if k not in self.get_relationships() and v is not None:
                 newVal[k] = v
         e = self.e().insert(**newVal)
-        self.db.commit()
         key = getattr(e, self.pkey)
         return object_to_dict(e)
 
+    @with_session
     def delete(self, key):
         rows = self.e().filter_by(**{self.pkey: key}).delete()
-        self.db.commit()
         return {'deleted': rows}
 
     def e(self, table_name=None):

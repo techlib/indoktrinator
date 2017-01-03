@@ -54,9 +54,8 @@ if __name__ == '__main__':
         # Read role mappings.
         access_model = AccessModel(config.items('access'))
 
-        # Default to much saner database query defaults and always
-        # commit and/or flush statements explicitly.
-        factory = sessionmaker(autocommit=False, autoflush=False)
+        # Start transactions explicitly.
+        factory = sessionmaker(autocommit=True, autoflush=True)
 
         # Prepare database connection with table reflection.
         engine = create_engine(db_url)
