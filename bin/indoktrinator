@@ -55,15 +55,12 @@ if __name__ == '__main__':
         # Read role mappings.
         access_model = AccessModel(config.items('access'))
 
-        # Start transactions explicitly.
-        factory = sessionmaker(autocommit=True, autoflush=True)
-
         # Initialize database notifier
         notifier = Notifier(reactor, db_url)
 
         # Prepare database connection with table reflection.
         engine = create_engine(db_url)
-        session = scoped_session(sessionmaker(autocommit=False, autoflush=False))
+        session = scoped_session(sessionmaker(autocommit=True, autoflush=True))
         db = SQLSoup(engine, session=session)
 
         # Extract manager options, sans the pool_size we handle here.

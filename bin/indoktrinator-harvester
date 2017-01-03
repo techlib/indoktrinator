@@ -39,9 +39,6 @@ if __name__ == '__main__':
         # Read harvester configuration options.
         path = config.get('media', 'path', fallback='/var/lib/indoktrinator')
 
-        # Start transactions explicitly.
-        factory = sessionmaker(autocommit=False, autoflush=False)
-
         # Prepare database connection with table reflection.
         engine = create_engine(db_url)
         session = scoped_session(sessionmaker(autocommit=True, autoflush=True))
