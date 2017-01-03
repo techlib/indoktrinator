@@ -8,13 +8,13 @@ from twisted.internet.threads import deferToThread
 from twisted.internet import task, reactor
 from twisted.python import log, filepath
 
-from indoktrinator.device import Device
-from indoktrinator.file import File
-from indoktrinator.event import Event
-from indoktrinator.item import Item
-from indoktrinator.playlist import Playlist
-from indoktrinator.program import Program
-from indoktrinator.segment import Segment
+from indoktrinator.model.device import Device
+from indoktrinator.model.file import File
+from indoktrinator.model.event import Event
+from indoktrinator.model.item import Item
+from indoktrinator.model.playlist import Playlist
+from indoktrinator.model.program import Program
+from indoktrinator.model.segment import Segment
 
 
 __all__ = ['Manager']
@@ -37,5 +37,6 @@ class Manager(object):
         self.playlist = Playlist(self)
         self.program = Program(self)
         self.segment = Segment(self)
+
 
 # vim:set sw=4 ts=4 et:

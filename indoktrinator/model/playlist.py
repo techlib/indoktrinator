@@ -1,27 +1,23 @@
 #!/usr/bin/python3 -tt
 # -*- coding: utf-8 -*-
 
-import sys
-
 from indoktrinator.model import Model
-from indoktrinator.utils import object_to_dict
-from sqlalchemy import and_
 
 
 __all__ = ['Playlist']
 
 
-class Playlist(Model):
-    def init(self):
-        self.table_name = 'playlist'
-        # Primary key
-        self.pkey = 'uuid'
-        # Relations
+class Playlist (Model):
+    TABLE = 'playlist'
+    PKEY  = 'uuid'
+
+    INCLUDE_LIST = ['items']
+    INCLUDE_ITEM = ['items', 'item__file']
+
+    def __init__(self, *args):
+        super().__init__(*args)
+
         self.relate('items', self.e('item'))
-        self.include_relations = {
-            'item': ['items', 'item__file'],
-            'list': ['items'],
-        }
 
     def get_item(self, uuid):
         q = self.manager.db.session.query(
