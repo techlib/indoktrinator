@@ -423,9 +423,9 @@ CREATE TABLE segment (
     range int4range NOT NULL,
     sidebar character varying,
     panel character varying,
-    layout layout_mode DEFAULT 'full'::layout_mode NOT NULL,
+    mode layout_mode DEFAULT 'full'::layout_mode NOT NULL,
     CONSTRAINT day_valid CHECK (((day >= 0) AND (day <= 6))),
-    CONSTRAINT layout_fields_valid CHECK ((((layout = 'full'::layout_mode) AND (sidebar IS NULL) AND (panel IS NULL)) OR ((layout = 'sidebar'::layout_mode) AND (sidebar IS NOT NULL) AND (panel IS NULL)) OR ((layout = 'panel'::layout_mode) AND (sidebar IS NOT NULL) AND (panel IS NOT NULL)))),
+    CONSTRAINT layout_fields_valid CHECK ((((mode = 'full'::layout_mode) AND (sidebar IS NULL) AND (panel IS NULL)) OR ((mode = 'sidebar'::layout_mode) AND (sidebar IS NOT NULL) AND (panel IS NULL)) OR ((mode = 'panel'::layout_mode) AND (sidebar IS NOT NULL) AND (panel IS NOT NULL)))),
     CONSTRAINT range_bounds_valid CHECK ((lower_inc(range) AND (NOT upper_inc(range)))),
     CONSTRAINT range_valid CHECK ((int4range(0, 86400) @> range))
 );
@@ -483,10 +483,10 @@ COMMENT ON COLUMN segment.panel IS 'URI for the Panel';
 
 
 --
--- Name: COLUMN segment.layout; Type: COMMENT; Schema: public; Owner: indoktrinator
+-- Name: COLUMN segment.mode; Type: COMMENT; Schema: public; Owner: indoktrinator
 --
 
-COMMENT ON COLUMN segment.layout IS 'Layout of the screen for the duration of this segment.';
+COMMENT ON COLUMN segment.mode IS 'Layout of the screen for the duration of this segment.';
 
 
 --
@@ -541,7 +541,7 @@ COPY program (uuid, name) FROM stdin;
 -- Data for Name: segment; Type: TABLE DATA; Schema: public; Owner: indoktrinator
 --
 
-COPY segment (uuid, program, playlist, day, range, sidebar, panel, layout) FROM stdin;
+COPY segment (uuid, program, playlist, day, range, sidebar, panel, mode) FROM stdin;
 \.
 
 
