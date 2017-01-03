@@ -10,7 +10,10 @@ from PIL import Image
 from subprocess import Popen, PIPE
 from twisted.python import log
 
-DURATION_PATTERN = re.compile(r'\((\d+)s\)|[(\d+)s]')
+from indoktrinator.inotifier.util import file_token
+
+
+DURATION_PATTERN = re.compile(r'\((\d+)s\)|\[(\d+)s\]')
 
 
 class FFMpeg(object):
@@ -60,8 +63,7 @@ class FFMpeg(object):
             return self._token
 
         try:
-            st = os.stat(self._path)
-            self._token = '{}:{}:{}'.format(st.st_dev, st.st_ino, st.st_size)
+            self._token = file_token(self._path)
         except Exception as e:
             log.err('Failed to stat file: {}'.format(e))
 
@@ -93,12 +95,9 @@ class FFMpeg(object):
         elif self.format in self.IMAGE_FORMAT:
             self._duration = self.image_duration
 
-            find = DURATION_PATTERN.match(self._path.decode('utf8'))
+            find = DURATION_PATTERN.search(self._path.decode('utf8'))
             if find:
-                self._duration = min(
-                    find.group(1) or self.image_duration,
-                    find.group(2) or self.image_duration
-                )
+                self._duration = find.group(1) or find.group(2)
 
         return self._duration
 

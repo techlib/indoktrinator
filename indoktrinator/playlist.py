@@ -37,7 +37,8 @@ class Playlist(Model):
             self.e('file'),
             isouter=True,
         ).order_by(
-            self.e('item').position
+            self.e('item').position,
+            self.e('file').name,
         )
         query = q.all()
 
