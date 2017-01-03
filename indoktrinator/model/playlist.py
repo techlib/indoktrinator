@@ -1,27 +1,23 @@
 #!/usr/bin/python3 -tt
 # -*- coding: utf-8 -*-
 
-import sys
-
 from indoktrinator.model import Model
-from indoktrinator.utils import object_to_dict
-from sqlalchemy import and_
 
 
 __all__ = ['Playlist']
 
 
-class Playlist(Model):
-    def init(self):
-        self.table_name = 'playlist'
-        # Primary key
-        self.pkey = 'uuid'
-        # Relations
+class Playlist (Model):
+    TABLE = 'playlist'
+    PKEY  = 'uuid'
+
+    INCLUDE_LIST = ['items']
+    INCLUDE_ITEM = ['items', 'item__file']
+
+    def __init__(self, *args):
+        super().__init__(*args)
+
         self.relate('items', self.e('item'))
-        self.include_relations = {
-            'item': ['items', 'item__file'],
-            'list': ['items'],
-        }
 
     def get_item(self, uuid):
         q = self.manager.db.session.query(
@@ -37,7 +33,8 @@ class Playlist(Model):
             self.e('file'),
             isouter=True,
         ).order_by(
-            self.e('item').position
+            self.e('item').position,
+            self.e('file').path,
         )
         query = q.all()
 
@@ -48,7 +45,7 @@ class Playlist(Model):
                 'name': query[0].MappedPlaylist.name,
                 'duration': query[0].MappedPlaylist.duration,
                 'path': query[0].MappedPlaylist.path,
-                'system': query[0].MappedPlaylist.system,
+                'system': query[0].MappedPlaylist.token is not None,
                 'items': [],
             }
 
@@ -64,9 +61,7 @@ class Playlist(Model):
                     'file_path': item.MappedFile.path,
                     'file_token': item.MappedFile.token,
                     'file_type': item.MappedFile.type,
-                    'file_name': item.MappedFile.name,
                     'file_preview': item.MappedFile.preview,
-                    'file_dir': item.MappedFile.dir,
                 })
 
         return result
@@ -97,6 +92,5 @@ class Playlist(Model):
                 self.manager.item.e().insert(**newVal)
 
         self.update(data)
-
 
 # vim:set sw=4 ts=4 et:

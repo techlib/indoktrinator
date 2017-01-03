@@ -27,7 +27,11 @@ from sys import argv, stderr
 from configparser import ConfigParser
 
 # Import all the application handles.
-from indoktrinator import make_site, make_router, make_inotifier, Manager, AccessModel
+from indoktrinator.manager import Manager
+from indoktrinator.site import make_site
+from indoktrinator.router import make_router
+from indoktrinator.rbac import AccessModel
+from indoktrinator.notifier import Notifier
 
 if __name__ == '__main__':
     def do_start(config):
@@ -47,20 +51,16 @@ if __name__ == '__main__':
         http_cors = config.getboolean('http', 'cors', fallback=False)
         endpoint = config.get('zmq', 'endpoint', fallback='tcp://0.0.0.0:5001')
         media_path = config.get('media', 'path', fallback='/var/lib/indoktrinator')
-        inotifier_timeout = config.getint('inotifier', 'timeout', fallback=5)
-        inotifier_ffprobe = config.get('inotifier', 'ffprobe', fallback='/usr/bin/ffprobe')
-        inotifier_ffmpeg = config.get('inotifier', 'ffmpeg', fallback='/usr/bin/ffmpeg')
 
         # Read role mappings.
         access_model = AccessModel(config.items('access'))
 
-        # Default to much saner database query defaults and always
-        # commit and/or flush statements explicitly.
-        factory = sessionmaker(autocommit=False, autoflush=False)
+        # Initialize database notifier
+        notifier = Notifier(reactor, db_url)
 
         # Prepare database connection with table reflection.
         engine = create_engine(db_url)
-        session = scoped_session(sessionmaker(autocommit=False, autoflush=False))
+        session = scoped_session(sessionmaker(autocommit=True, autoflush=False))
         db = SQLSoup(engine, session=session)
 
         # Extract manager options, sans the pool_size we handle here.
@@ -71,22 +71,14 @@ if __name__ == '__main__':
         reactor.suggestThreadPoolSize(manager_pool)
 
         # Prepare the manager that runs in an exclusive thread.
-        manager = Manager(db, media_path=media_path, **manager_opts)
+        manager = Manager(db, notifier=notifier, media_path=media_path, **manager_opts)
 
         # Prepare the website that will get exposed to the users.
         site = make_site(db, manager, access_model, auth=http_auth, debug=http_debug, cors=http_cors)
+
         router = make_router(manager, endpoint)
-        inotifier = make_inotifier(
-            db,
-            manager,
-            media_path,
-            inotifier_timeout,
-            ffmpeg=inotifier_ffmpeg,
-            ffprobe=inotifier_ffprobe
-        )
         manager.site = site
         manager.router = router
-        manager.inotifier = inotifier
 
         # Prepare WSGI site with a separate thread pool.
         # define reactor thread
@@ -104,8 +96,8 @@ if __name__ == '__main__':
         pool.stop()
 
     def do_help(*args, **kwargs):
-        print('Usage: indoktrinator-daemon [--config=/etc/indoktrinator.ini]')
-        print('Runs the indoktrinator-daemon with given configuration.')
+        print('Usage: indoktrinator [--config=/etc/indoktrinator.ini]')
+        print('Runs the indoktrinator with given configuration.')
         print('')
         print('OPTIONS:')
         print('  --help, -h          Display this help.')
@@ -116,7 +108,7 @@ if __name__ == '__main__':
         print('Report bugs at <http://github.com/techlib/indoktrinator>.')
 
     def do_version(*args, **kwargs):
-        print('indoktrinator-daemon (NTK) 1')
+        print('indoktrinator (NTK) 1')
 
     # Parse command line arguments.
     opts, args = gnu_getopt(argv, 'hVc:', ['help', 'version', 'config='])

@@ -12,3 +12,4 @@ txZMQ
 pyyaml
 jsonschema
 flask-cors
+natsort

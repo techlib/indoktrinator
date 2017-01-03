@@ -1,3 +1,10 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 9.5.5
+-- Dumped by pg_dump version 9.5.5
+
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET client_encoding = 'UTF8';
@@ -6,99 +13,289 @@ SET check_function_bodies = false;
 SET client_min_messages = warning;
 SET row_security = off;
 
+--
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+--
+
 CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+--
 
 COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 
+
+--
+-- Name: btree_gist; Type: EXTENSION; Schema: -; Owner: 
+--
+
 CREATE EXTENSION IF NOT EXISTS btree_gist WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION btree_gist; Type: COMMENT; Schema: -; Owner: 
+--
 
 COMMENT ON EXTENSION btree_gist IS 'support for indexing common datatypes in GiST';
 
+
+--
+-- Name: uuid-ossp; Type: EXTENSION; Schema: -; Owner: 
+--
+
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION "uuid-ossp"; Type: COMMENT; Schema: -; Owner: 
+--
 
 COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UUIDs)';
 
+
 SET search_path = public, pg_catalog;
 
-CREATE TYPE item_type AS ENUM (
+--
+-- Name: file_type; Type: TYPE; Schema: public; Owner: indoktrinator
+--
+
+CREATE TYPE file_type AS ENUM (
     'video',
     'image',
     'website'
 );
 
 
-COMMENT ON TYPE item_type IS 'FIXME: Should be used by the ''item'' table.';
+ALTER TYPE file_type OWNER TO indoktrinator;
 
-CREATE FUNCTION file_changed() RETURNS trigger
+--
+-- Name: TYPE file_type; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
+COMMENT ON TYPE file_type IS 'Type of the media file.';
+
+
+--
+-- Name: layout_mode; Type: TYPE; Schema: public; Owner: indoktrinator
+--
+
+CREATE TYPE layout_mode AS ENUM (
+    'full',
+    'sidebar',
+    'panel'
+);
+
+
+ALTER TYPE layout_mode OWNER TO indoktrinator;
+
+--
+-- Name: device_notify(); Type: FUNCTION; Schema: public; Owner: indoktrinator
+--
+
+CREATE FUNCTION device_notify() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$
-DECLARE row record;
-DECLARE _playlist UUID;
-BEGIN
-    IF TG_OP = 'DELETE'
-    THEN
-        DELETE FROM item WHERE file = OLD.uuid;
-    ELSE
-        FOR row IN (SELECT uuid, duration FROM item WHERE file = NEW.uuid)
-        LOOP
-            -- CALL all records, because we want to touch trigger UPDATE on item
-            UPDATE item SET
-            duration = NEW.duration
-            WHERE uuid = row.uuid;
-        END LOOP;
+    AS $$BEGIN
+	IF TG_OP <> 'INSERT' THEN
+		PERFORM pg_notify('device', OLD.id);
+	END IF;
 
-        IF TG_OP = 'INSERT'
-        THEN
-            SELECT uuid INTO _playlist FROM playlist WHERE path = NEW.dir and system is TRUE;
+	IF TG_OP <> 'DELETE' THEN
+		PERFORM pg_notify('device', new.id);
+	END IF;
 
-            IF NOT FOUND
-            THEN
-                INSERT INTO playlist (
-                    name,
-                    duration,
-                    path,
-                    system
-                )
-                VALUES (
-                    regexp_replace(NEW.dir, '/+', ' '),
-                    NEW.duration,
-                    NEW.dir,
-                    TRUE
-                ) RETURNING uuid into _playlist;
-            END IF;
-
-            INSERT INTO item VALUES (uuid_generate_v4(), _playlist, NEW.duration, 0, NEW.uuid);
-        END IF;
-
-    END IF;
-
- RETURN NEW;
-END;
-$$;
+	RETURN NEW;
+END;$$;
 
 
-COMMENT ON FUNCTION file_changed() IS 'FIXME: Ineffective, wrong table. Rewrite.';
+ALTER FUNCTION public.device_notify() OWNER TO indoktrinator;
 
-CREATE FUNCTION item_changed() RETURNS trigger
+--
+-- Name: event_notify(); Type: FUNCTION; Schema: public; Owner: indoktrinator
+--
+
+CREATE FUNCTION event_notify() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$
-BEGIN
-    IF TG_OP = 'DELETE'
-    THEN
-        RETURN NEW;
-    ELSE
-        UPDATE playlist SET duration = (SELECT SUM(duration) FROM item WHERE playlist = NEW.playlist);
-    END IF;
- RETURN NEW;
-END;
-$$;
+    AS $$BEGIN
+	IF TG_OP <> 'INSERT' THEN
+		PERFORM pg_notify('program', OLD.program::text);
+	END IF;
+
+	IF TG_OP <> 'DELETE' THEN
+		PERFORM pg_notify('program', NEW.program::text);
+	END IF;
+
+	RETURN NEW;
+END;$$;
 
 
-COMMENT ON FUNCTION item_changed() IS 'FIXME: Merge with the other trigger.';
+ALTER FUNCTION public.event_notify() OWNER TO indoktrinator;
+
+--
+-- Name: file_notify(); Type: FUNCTION; Schema: public; Owner: indoktrinator
+--
+
+CREATE FUNCTION file_notify() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$BEGIN
+	IF TG_OP <> 'INSERT' THEN
+		PERFORM pg_notify('program', segment.program::text)
+		FROM item
+		JOIN playlist ON playlist.uuid = item.playlist
+		JOIN segment ON segment.playlist = playlist.uuid
+		WHERE item.file = OLD.uuid;
+	END IF;
+
+	IF TG_OP <> 'DELETE' THEN
+		PERFORM pg_notify('program', segment.program::text)
+		FROM item
+		JOIN playlist ON playlist.uuid = item.playlist
+		JOIN segment ON segment.playlist = playlist.uuid
+		WHERE item.file = NEW.uuid;
+	END IF;
+
+	RETURN NEW;
+END;$$;
+
+
+ALTER FUNCTION public.file_notify() OWNER TO indoktrinator;
+
+--
+-- Name: item_notify(); Type: FUNCTION; Schema: public; Owner: indoktrinator
+--
+
+CREATE FUNCTION item_notify() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$BEGIN
+	IF TG_OP <> 'INSERT' THEN
+		PERFORM pg_notify('program', segment.program::text)
+		FROM playlist
+		JOIN segment ON segment.playlist = playlist.uuid
+		WHERE playlist.uuid = OLD.playlist;
+	END IF;
+
+	IF TG_OP <> 'DELETE' THEN
+		PERFORM pg_notify('program', segment.program::text)
+		FROM playlist
+		JOIN segment ON segment.playlist = playlist.uuid
+		WHERE playlist.uuid = NEW.playlist;
+	END IF;
+
+	RETURN NEW;
+END;$$;
+
+
+ALTER FUNCTION public.item_notify() OWNER TO indoktrinator;
+
+--
+-- Name: playlist_notify(); Type: FUNCTION; Schema: public; Owner: indoktrinator
+--
+
+CREATE FUNCTION playlist_notify() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$BEGIN
+	IF TG_OP <> 'INSERT' THEN
+		PERFORM pg_notify('program', segment.program::text)
+		FROM segment
+		WHERE segment.playlist = OLD.uuid;
+	END IF;
+
+	IF TG_OP <> 'DELETE' THEN
+		PERFORM pg_notify('program', segment.program::text)
+		FROM segment
+		WHERE segment.playlist = NEW.uuid;
+	END IF;
+
+	RETURN NEW;
+END;$$;
+
+
+ALTER FUNCTION public.playlist_notify() OWNER TO indoktrinator;
+
+--
+-- Name: program_notify(); Type: FUNCTION; Schema: public; Owner: indoktrinator
+--
+
+CREATE FUNCTION program_notify() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$BEGIN
+	IF TG_OP <> 'INSERT' THEN
+		PERFORM pg_notify('program', OLD.uuid::text);
+	END IF;
+
+	IF TG_OP <> 'DELETE' THEN
+		PERFORM pg_notify('program', new.uuid::text);
+	END IF;
+
+	RETURN NEW;
+END;$$;
+
+
+ALTER FUNCTION public.program_notify() OWNER TO indoktrinator;
+
+--
+-- Name: segment_notify(); Type: FUNCTION; Schema: public; Owner: indoktrinator
+--
+
+CREATE FUNCTION segment_notify() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$BEGIN
+	IF TG_OP <> 'INSERT' THEN
+		PERFORM pg_notify('program', OLD.program::text);
+	END IF;
+
+	IF TG_OP <> 'DELETE' THEN
+		PERFORM pg_notify('program', NEW.program::text);
+	END IF;
+
+	RETURN NEW;
+END;$$;
+
+
+ALTER FUNCTION public.segment_notify() OWNER TO indoktrinator;
+
+--
+-- Name: update_item_durations(); Type: FUNCTION; Schema: public; Owner: indoktrinator
+--
+
+CREATE FUNCTION update_item_durations() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$BEGIN
+	UPDATE item SET duration = file.duration
+	FROM file WHERE item.file = file.uuid;
+	RETURN NEW;
+END;$$;
+
+
+ALTER FUNCTION public.update_item_durations() OWNER TO indoktrinator;
+
+--
+-- Name: update_playlist_durations(); Type: FUNCTION; Schema: public; Owner: indoktrinator
+--
+
+CREATE FUNCTION update_playlist_durations() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$BEGIN
+	UPDATE playlist SET duration = items.duration
+	FROM (
+		SELECT item.playlist, SUM(item.duration) AS duration
+		FROM item GROUP BY item.playlist
+	) AS items
+	WHERE items.playlist = playlist.uuid;
+	RETURN NEW;
+END;$$;
+
+
+ALTER FUNCTION public.update_playlist_durations() OWNER TO indoktrinator;
 
 SET default_tablespace = '';
 
 SET default_with_oids = false;
+
+--
+-- Name: device; Type: TABLE; Schema: public; Owner: indoktrinator
+--
 
 CREATE TABLE device (
     id character varying NOT NULL,
@@ -107,21 +304,57 @@ CREATE TABLE device (
     photo bytea,
     online boolean DEFAULT false NOT NULL,
     power boolean DEFAULT false NOT NULL,
-    CONSTRAINT device_name_valid CHECK ((length((name)::text) > 0))
+    CONSTRAINT name_valid CHECK ((length((name)::text) > 0))
 );
 
 
+ALTER TABLE device OWNER TO indoktrinator;
+
+--
+-- Name: COLUMN device.id; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
 COMMENT ON COLUMN device.id IS 'Unique identifier of the device from `/etc/machine-id`.';
+
+
+--
+-- Name: COLUMN device.name; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
 
 COMMENT ON COLUMN device.name IS 'Human-readable machine name.';
 
+
+--
+-- Name: COLUMN device.program; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
 COMMENT ON COLUMN device.program IS 'Program the device has been assigned to play.';
 
-COMMENT ON COLUMN device.photo IS 'Image of the device for better user experience.';
+
+--
+-- Name: COLUMN device.photo; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
+COMMENT ON COLUMN device.photo IS 'Image of the device for better user experience. A JPEG sized 500x500 pixels.';
+
+
+--
+-- Name: COLUMN device.online; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
 
 COMMENT ON COLUMN device.online IS 'FIXME: Delete this column.';
 
+
+--
+-- Name: COLUMN device.power; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
 COMMENT ON COLUMN device.power IS 'FIXME: Delete this column.';
+
+
+--
+-- Name: event; Type: TABLE; Schema: public; Owner: indoktrinator
+--
 
 CREATE TABLE event (
     uuid uuid DEFAULT uuid_generate_v4() NOT NULL,
@@ -134,86 +367,218 @@ CREATE TABLE event (
 );
 
 
+ALTER TABLE event OWNER TO indoktrinator;
+
+--
+-- Name: TABLE event; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
 COMMENT ON TABLE event IS 'Ad-hoc programming segment.';
+
+
+--
+-- Name: COLUMN event.program; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
+COMMENT ON COLUMN event.program IS 'Program this event is a part of.';
+
+
+--
+-- Name: COLUMN event.playlist; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
 
 COMMENT ON COLUMN event.playlist IS 'Playlist of items to schedule for this event.';
 
+
+--
+-- Name: COLUMN event.date; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
 COMMENT ON COLUMN event.date IS 'A specific calendar date.';
 
+
+--
+-- Name: COLUMN event.range; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
 COMMENT ON COLUMN event.range IS 'Range in seconds of that particular day when the event is to be played.';
+
+
+--
+-- Name: file; Type: TABLE; Schema: public; Owner: indoktrinator
+--
 
 CREATE TABLE file (
     uuid uuid DEFAULT uuid_generate_v4() NOT NULL,
     path character varying NOT NULL,
-    token character varying(32) NOT NULL,
-    type integer DEFAULT 0 NOT NULL,
-    duration real DEFAULT 0 NOT NULL,
-    name character varying,
+    token character varying(127) NOT NULL,
+    duration real NOT NULL,
     preview bytea,
-    dir character varying NOT NULL
+    type file_type DEFAULT 'video'::file_type NOT NULL
 );
 
 
-COMMENT ON TABLE file IS 'FIXME: Ditch this table and move its data to ''item''.';
+ALTER TABLE file OWNER TO indoktrinator;
 
-COMMENT ON COLUMN file.uuid IS 'Simple identificator of file';
+--
+-- Name: TABLE file; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
 
-COMMENT ON COLUMN file.path IS 'Identificator of file';
+COMMENT ON TABLE file IS 'File located in the media library.';
 
-COMMENT ON COLUMN file.token IS 'Token for unique identification of the file';
 
-COMMENT ON COLUMN file.type IS 'file type
-0 - unknown
-1 - video
-2 - picture';
+--
+-- Name: COLUMN file.path; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
 
-COMMENT ON COLUMN file.duration IS 'duration in second';
+COMMENT ON COLUMN file.path IS 'Path to the file, relative to the root of the media library.';
 
-COMMENT ON COLUMN file.name IS 'filename';
 
-COMMENT ON COLUMN file.preview IS 'preview of file (if is video)';
+--
+-- Name: COLUMN file.token; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
+COMMENT ON COLUMN file.token IS 'Token for unique identification of the file.';
+
+
+--
+-- Name: COLUMN file.duration; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
+COMMENT ON COLUMN file.duration IS 'Duration of the file playback in seconds.';
+
+
+--
+-- Name: COLUMN file.preview; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
+COMMENT ON COLUMN file.preview IS 'Image preview for the file. A JPEG with dimensions of 160x90 pixels.';
+
+
+--
+-- Name: item; Type: TABLE; Schema: public; Owner: indoktrinator
+--
 
 CREATE TABLE item (
     uuid uuid DEFAULT uuid_generate_v4() NOT NULL,
     playlist uuid NOT NULL,
-    duration real NOT NULL,
     "position" integer NOT NULL,
     file uuid NOT NULL,
-    CONSTRAINT item_position_valid CHECK (("position" >= 0))
+    duration real NOT NULL
 );
 
 
-COMMENT ON TABLE item IS 'Single programming item that must be a part of a playlist.';
+ALTER TABLE item OWNER TO indoktrinator;
 
-COMMENT ON COLUMN item.duration IS 'Number of seconds the item takes to play back.';
+--
+-- Name: TABLE item; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
+COMMENT ON TABLE item IS 'Items link files to playlists.';
+
+
+--
+-- Name: COLUMN item.playlist; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
+COMMENT ON COLUMN item.playlist IS 'Playlist this item is a part of.';
+
+
+--
+-- Name: COLUMN item."position"; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
 
 COMMENT ON COLUMN item."position" IS 'Position in the playlist.';
 
-COMMENT ON COLUMN item.file IS 'FIXME: Ditch the whole ''file'' table and move relevant columns here.';
+
+--
+-- Name: COLUMN item.file; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
+COMMENT ON COLUMN item.file IS 'Actual file from the media library.';
+
+
+--
+-- Name: COLUMN item.duration; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
+COMMENT ON COLUMN item.duration IS 'Duration of the item. Automatically set from the duration of the referenced file.';
+
+
+--
+-- Name: playlist; Type: TABLE; Schema: public; Owner: indoktrinator
+--
 
 CREATE TABLE playlist (
     uuid uuid DEFAULT uuid_generate_v4() NOT NULL,
     name character varying NOT NULL,
-    duration real,
     path character varying,
-    system boolean DEFAULT false NOT NULL,
+    token character varying(127),
+    duration real DEFAULT 0.0 NOT NULL,
     CONSTRAINT playlist_name_valid CHECK ((length((name)::text) > 0))
 );
 
 
+ALTER TABLE playlist OWNER TO indoktrinator;
+
+--
+-- Name: TABLE playlist; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
 COMMENT ON TABLE playlist IS 'Group of programming items.';
 
-COMMENT ON COLUMN playlist.system IS 'True means that the playlist has been generated from the filesystem and cannot be edited by the users.';
+
+--
+-- Name: COLUMN playlist.name; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
+COMMENT ON COLUMN playlist.name IS 'Descriptive name of the playlist.';
+
+
+--
+-- Name: COLUMN playlist.path; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
+COMMENT ON COLUMN playlist.path IS 'Path to the playlist, relative to the root of the media library.';
+
+
+--
+-- Name: COLUMN playlist.token; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
+COMMENT ON COLUMN playlist.token IS 'Unique identifier for playlists stored in the media library. Virtual playlists do not have one.';
+
+
+--
+-- Name: program; Type: TABLE; Schema: public; Owner: indoktrinator
+--
 
 CREATE TABLE program (
     uuid uuid DEFAULT uuid_generate_v4() NOT NULL,
-    name character varying NOT NULL,
-    dirty boolean DEFAULT false NOT NULL,
+    name character varying(127) NOT NULL,
     CONSTRAINT program_name_valid CHECK ((length((name)::text) > 0))
 );
 
 
+ALTER TABLE program OWNER TO indoktrinator;
+
+--
+-- Name: TABLE program; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
 COMMENT ON TABLE program IS 'Group of segments and events that devices can be associated with.';
+
+
+--
+-- Name: COLUMN program.name; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
+COMMENT ON COLUMN program.name IS 'Descriptive name of the program.';
+
+
+--
+-- Name: segment; Type: TABLE; Schema: public; Owner: indoktrinator
+--
 
 CREATE TABLE segment (
     uuid uuid DEFAULT uuid_generate_v4() NOT NULL,
@@ -221,126 +586,399 @@ CREATE TABLE segment (
     playlist uuid NOT NULL,
     day integer NOT NULL,
     range int4range NOT NULL,
-    mode character varying DEFAULT 'full'::character varying NOT NULL,
     sidebar character varying,
     panel character varying,
-    CONSTRAINT segment_day_valid CHECK (((day >= 0) AND (day <= 6))),
-    CONSTRAINT segment_range_bounds_valid CHECK ((lower_inc(range) AND (NOT upper_inc(range)))),
-    CONSTRAINT segment_range_valid CHECK ((int4range(0, 86400) @> range))
+    mode layout_mode DEFAULT 'full'::layout_mode NOT NULL,
+    CONSTRAINT day_valid CHECK (((day >= 0) AND (day <= 6))),
+    CONSTRAINT layout_fields_valid CHECK ((((mode = 'full'::layout_mode) AND (sidebar IS NULL) AND (panel IS NULL)) OR ((mode = 'sidebar'::layout_mode) AND (sidebar IS NOT NULL) AND (panel IS NULL)) OR ((mode = 'panel'::layout_mode) AND (sidebar IS NOT NULL) AND (panel IS NOT NULL)))),
+    CONSTRAINT range_bounds_valid CHECK ((lower_inc(range) AND (NOT upper_inc(range)))),
+    CONSTRAINT range_valid CHECK ((int4range(0, 86400) @> range))
 );
 
 
+ALTER TABLE segment OWNER TO indoktrinator;
+
+--
+-- Name: TABLE segment; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
 COMMENT ON TABLE segment IS 'Weekly schedule programming segment.';
+
+
+--
+-- Name: COLUMN segment.program; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
+COMMENT ON COLUMN segment.program IS 'Program this segment is a part of.';
+
+
+--
+-- Name: COLUMN segment.playlist; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
 
 COMMENT ON COLUMN segment.playlist IS 'Playlist of items to schedule for this segment.';
 
+
+--
+-- Name: COLUMN segment.day; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
 COMMENT ON COLUMN segment.day IS 'Day of the week when the segment is to be played. 0 = monday, 6 = sunday.';
+
+
+--
+-- Name: COLUMN segment.range; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
 
 COMMENT ON COLUMN segment.range IS 'Range in seconds of that particular day when the event is to be played.';
 
-COMMENT ON COLUMN segment.mode IS 'Layout mode:
 
-- ''full'' means no panels, just the 16:9 video
-- ''sidebar'' means 4:3 video plus a sidebar with web content
-- ''panel'' means 4:3 video plus both a sidebar and a bottom panel with web content';
+--
+-- Name: COLUMN segment.sidebar; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
 
 COMMENT ON COLUMN segment.sidebar IS 'URL for the Sidebar';
 
+
+--
+-- Name: COLUMN segment.panel; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
 COMMENT ON COLUMN segment.panel IS 'URI for the Panel';
+
+
+--
+-- Name: COLUMN segment.mode; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
+COMMENT ON COLUMN segment.mode IS 'Layout of the screen for the duration of this segment.';
+
+
+--
+-- Data for Name: device; Type: TABLE DATA; Schema: public; Owner: indoktrinator
+--
 
 COPY device (id, name, program, photo, online, power) FROM stdin;
 \.
 
+
+--
+-- Data for Name: event; Type: TABLE DATA; Schema: public; Owner: indoktrinator
+--
+
 COPY event (uuid, program, playlist, date, range) FROM stdin;
 \.
 
-COPY file (uuid, path, token, type, duration, name, preview, dir) FROM stdin;
+
+--
+-- Data for Name: file; Type: TABLE DATA; Schema: public; Owner: indoktrinator
+--
+
+COPY file (uuid, path, token, duration, preview, type) FROM stdin;
 \.
 
-COPY item (uuid, playlist, duration, "position", file) FROM stdin;
+
+--
+-- Data for Name: item; Type: TABLE DATA; Schema: public; Owner: indoktrinator
+--
+
+COPY item (uuid, playlist, "position", file, duration) FROM stdin;
 \.
 
-COPY playlist (uuid, name, duration, path, system) FROM stdin;
+
+--
+-- Data for Name: playlist; Type: TABLE DATA; Schema: public; Owner: indoktrinator
+--
+
+COPY playlist (uuid, name, path, token, duration) FROM stdin;
 \.
 
-COPY program (uuid, name, dirty) FROM stdin;
+
+--
+-- Data for Name: program; Type: TABLE DATA; Schema: public; Owner: indoktrinator
+--
+
+COPY program (uuid, name) FROM stdin;
 \.
 
-COPY segment (uuid, program, playlist, day, range, mode, sidebar, panel) FROM stdin;
+
+--
+-- Data for Name: segment; Type: TABLE DATA; Schema: public; Owner: indoktrinator
+--
+
+COPY segment (uuid, program, playlist, day, range, sidebar, panel, mode) FROM stdin;
 \.
+
+
+--
+-- Name: device_pkey; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+--
 
 ALTER TABLE ONLY device
     ADD CONSTRAINT device_pkey PRIMARY KEY (id);
 
+
+--
+-- Name: event_no_overlap; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+--
+
 ALTER TABLE ONLY event
     ADD CONSTRAINT event_no_overlap EXCLUDE USING gist (date WITH =, range WITH &&);
+
+
+--
+-- Name: event_pkey; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+--
 
 ALTER TABLE ONLY event
     ADD CONSTRAINT event_pkey PRIMARY KEY (uuid);
 
+
+--
+-- Name: file_path_unique; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+--
+
+ALTER TABLE ONLY file
+    ADD CONSTRAINT file_path_unique UNIQUE (path) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+-- Name: file_pkey; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+--
+
 ALTER TABLE ONLY file
     ADD CONSTRAINT file_pkey PRIMARY KEY (uuid);
 
+
+--
+-- Name: file_token_unique; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+--
+
 ALTER TABLE ONLY file
-    ADD CONSTRAINT file_unique UNIQUE (path);
+    ADD CONSTRAINT file_token_unique UNIQUE (token);
+
+
+--
+-- Name: item_pkey; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+--
 
 ALTER TABLE ONLY item
     ADD CONSTRAINT item_pkey PRIMARY KEY (uuid);
 
+
+--
+-- Name: playlist_path_unique; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+--
+
 ALTER TABLE ONLY playlist
-    ADD CONSTRAINT playlist_name_unique UNIQUE (name) DEFERRABLE INITIALLY DEFERRED;
+    ADD CONSTRAINT playlist_path_unique UNIQUE (path) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+-- Name: playlist_pkey; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+--
 
 ALTER TABLE ONLY playlist
     ADD CONSTRAINT playlist_pkey PRIMARY KEY (uuid);
 
+
+--
+-- Name: program_name_unique; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+--
+
 ALTER TABLE ONLY program
     ADD CONSTRAINT program_name_unique UNIQUE (name) DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+-- Name: program_pkey; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+--
 
 ALTER TABLE ONLY program
     ADD CONSTRAINT program_pkey PRIMARY KEY (uuid);
 
+
+--
+-- Name: segment_no_overlap; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+--
+
 ALTER TABLE ONLY segment
     ADD CONSTRAINT segment_no_overlap EXCLUDE USING gist (day WITH =, range WITH &&);
+
+
+--
+-- Name: segment_pkey; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+--
 
 ALTER TABLE ONLY segment
     ADD CONSTRAINT segment_pkey PRIMARY KEY (uuid);
 
+
+--
+-- Name: fki_device_program_pkey; Type: INDEX; Schema: public; Owner: indoktrinator
+--
+
 CREATE INDEX fki_device_program_pkey ON device USING btree (program);
+
+
+--
+-- Name: fki_event_playlist_fkey; Type: INDEX; Schema: public; Owner: indoktrinator
+--
 
 CREATE INDEX fki_event_playlist_fkey ON event USING btree (playlist);
 
+
+--
+-- Name: fki_event_program_fkey; Type: INDEX; Schema: public; Owner: indoktrinator
+--
+
 CREATE INDEX fki_event_program_fkey ON event USING btree (program);
+
+
+--
+-- Name: fki_segment_playlist_fkey; Type: INDEX; Schema: public; Owner: indoktrinator
+--
 
 CREATE INDEX fki_segment_playlist_fkey ON segment USING btree (playlist);
 
+
+--
+-- Name: fki_segment_program_fkey; Type: INDEX; Schema: public; Owner: indoktrinator
+--
+
 CREATE INDEX fki_segment_program_fkey ON segment USING btree (program);
 
-CREATE TRIGGER file_trigger AFTER INSERT OR DELETE OR UPDATE ON file FOR EACH ROW EXECUTE PROCEDURE file_changed();
 
-CREATE TRIGGER item_trigger AFTER INSERT OR DELETE OR UPDATE ON item FOR EACH ROW EXECUTE PROCEDURE item_changed();
+--
+-- Name: device_notify_trigger; Type: TRIGGER; Schema: public; Owner: indoktrinator
+--
+
+CREATE TRIGGER device_notify_trigger AFTER INSERT OR DELETE OR UPDATE ON device FOR EACH ROW EXECUTE PROCEDURE device_notify();
+
+
+--
+-- Name: event_notify_trigger; Type: TRIGGER; Schema: public; Owner: indoktrinator
+--
+
+CREATE TRIGGER event_notify_trigger AFTER INSERT OR DELETE OR UPDATE ON event FOR EACH ROW EXECUTE PROCEDURE event_notify();
+
+
+--
+-- Name: file_notify_trigger; Type: TRIGGER; Schema: public; Owner: indoktrinator
+--
+
+CREATE TRIGGER file_notify_trigger AFTER INSERT OR DELETE OR UPDATE ON file FOR EACH ROW EXECUTE PROCEDURE file_notify();
+
+
+--
+-- Name: item_notify_trigger; Type: TRIGGER; Schema: public; Owner: indoktrinator
+--
+
+CREATE TRIGGER item_notify_trigger AFTER INSERT OR DELETE OR UPDATE ON item FOR EACH ROW EXECUTE PROCEDURE item_notify();
+
+
+--
+-- Name: playlist_notify_trigger; Type: TRIGGER; Schema: public; Owner: indoktrinator
+--
+
+CREATE TRIGGER playlist_notify_trigger AFTER INSERT OR DELETE OR UPDATE ON playlist FOR EACH ROW EXECUTE PROCEDURE playlist_notify();
+
+
+--
+-- Name: program_notify_trigger; Type: TRIGGER; Schema: public; Owner: indoktrinator
+--
+
+CREATE TRIGGER program_notify_trigger AFTER INSERT OR DELETE OR UPDATE ON program FOR EACH ROW EXECUTE PROCEDURE program_notify();
+
+
+--
+-- Name: segment_notify_trigger; Type: TRIGGER; Schema: public; Owner: indoktrinator
+--
+
+CREATE TRIGGER segment_notify_trigger AFTER INSERT OR DELETE OR UPDATE ON segment FOR EACH ROW EXECUTE PROCEDURE segment_notify();
+
+
+--
+-- Name: update_item_durations_trigger; Type: TRIGGER; Schema: public; Owner: indoktrinator
+--
+
+CREATE TRIGGER update_item_durations_trigger AFTER INSERT OR DELETE OR UPDATE OF duration ON file FOR EACH ROW EXECUTE PROCEDURE update_item_durations();
+
+
+--
+-- Name: update_playlist_durations_trigger; Type: TRIGGER; Schema: public; Owner: indoktrinator
+--
+
+CREATE TRIGGER update_playlist_durations_trigger AFTER INSERT OR DELETE OR UPDATE OF duration ON item FOR EACH ROW EXECUTE PROCEDURE update_playlist_durations();
+
+
+--
+-- Name: device_program_pkey; Type: FK CONSTRAINT; Schema: public; Owner: indoktrinator
+--
 
 ALTER TABLE ONLY device
     ADD CONSTRAINT device_program_pkey FOREIGN KEY (program) REFERENCES program(uuid) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED;
 
+
+--
+-- Name: event_playlist_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indoktrinator
+--
+
 ALTER TABLE ONLY event
     ADD CONSTRAINT event_playlist_fkey FOREIGN KEY (playlist) REFERENCES playlist(uuid) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+-- Name: event_program_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indoktrinator
+--
 
 ALTER TABLE ONLY event
     ADD CONSTRAINT event_program_fkey FOREIGN KEY (program) REFERENCES program(uuid) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED;
 
+
+--
+-- Name: item_file_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indoktrinator
+--
+
 ALTER TABLE ONLY item
-    ADD CONSTRAINT file_fkey FOREIGN KEY (file) REFERENCES file(uuid) ON DELETE CASCADE;
+    ADD CONSTRAINT item_file_fkey FOREIGN KEY (file) REFERENCES file(uuid) ON DELETE CASCADE;
+
+
+--
+-- Name: item_playlist_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indoktrinator
+--
 
 ALTER TABLE ONLY item
     ADD CONSTRAINT item_playlist_fkey FOREIGN KEY (playlist) REFERENCES playlist(uuid) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED;
 
+
+--
+-- Name: segment_playlist_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indoktrinator
+--
+
 ALTER TABLE ONLY segment
     ADD CONSTRAINT segment_playlist_fkey FOREIGN KEY (playlist) REFERENCES playlist(uuid) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED;
 
+
+--
+-- Name: segment_program_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indoktrinator
+--
+
 ALTER TABLE ONLY segment
     ADD CONSTRAINT segment_program_fkey FOREIGN KEY (program) REFERENCES program(uuid) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+-- Name: public; Type: ACL; Schema: -; Owner: indoktrinator
+--
 
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
 REVOKE ALL ON SCHEMA public FROM indoktrinator;
 GRANT ALL ON SCHEMA public TO indoktrinator;
 GRANT ALL ON SCHEMA public TO PUBLIC;
+
+
+--
+-- PostgreSQL database dump complete
+--
+

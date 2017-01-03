@@ -2,20 +2,24 @@
 # -*- coding: utf-8 -*-
 
 from indoktrinator.model import Model
-from indoktrinator.utils import object_to_dict
 from sqlalchemy import and_, text
-import datetime
+from datetime import datetime
+
+
 __all__ = ['Device']
 
 
-class Device(Model):
-    def init(self):
-        self.table_name = 'device'
-        # Primary key
-        self.pkey = 'id'
-        # Relations
+class Device (Model):
+    TABLE = 'device'
+    PKEY  = 'id'
+
+    INCLUDE_LIST = ['_program']
+    INCLUDE_ITEM = ['_program']
+
+    def __init__(self, *args):
+        super().__init__(*args)
+
         self.relate('_program', self.e('program'))
-        self.include_relations = {'item': ['_program'], 'list': ['_program']}
 
     def uuidByFile(self, uuid):
         '''
@@ -91,7 +95,7 @@ class Device(Model):
         ).filter(self.e('program').uuid == uuid).all()
 
     def getResolution(self, id):
-        now = datetime.datetime.now()
+        now = datetime.now()
         day = now.isoweekday()
         midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
         seconds = round((now - midnight).total_seconds())
@@ -108,5 +112,6 @@ class Device(Model):
             text('public.segment.range @> %d' % seconds),
         )
         return query.one_or_none()
+
 
 # vim:set sw=4 ts=4 et:
