@@ -10,12 +10,13 @@ import {Types} from './PlaylistCreator/Types'
 import {v4 as uuid} from 'uuid'
 
 export function getItems(playlist) {
+  console.log(playlist)
   return playlist.items.map(item => {
     return {
       uuid: item.uuid,
       hide: false,
       file: {
-        name: item.file_name,
+        name: item.file_path, // TODO cut to relevant part only
         duration: item.file_duration,
         preview: item.file_preview,
         type: item.file_type,
