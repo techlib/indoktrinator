@@ -349,7 +349,7 @@ CREATE TABLE playlist (
     name character varying NOT NULL,
     path character varying,
     token character varying(127),
-    duration real NOT NULL,
+    duration real DEFAULT 0.0 NOT NULL,
     CONSTRAINT playlist_name_valid CHECK ((length((name)::text) > 0))
 );
 
