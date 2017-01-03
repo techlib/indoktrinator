@@ -1,12 +1,7 @@
 #!/usr/bin/python3 -tt
 # -*- coding: utf-8 -*-
 
-import os
-import os.path
-
-from twisted.internet.threads import deferToThread
-from twisted.internet import task, reactor
-from twisted.python import log, filepath
+from twisted.python import log
 
 from indoktrinator.model.device import Device
 from indoktrinator.model.file import File
@@ -20,7 +15,7 @@ from indoktrinator.model.segment import Segment
 __all__ = ['Manager']
 
 
-class Manager(object):
+class Manager:
     def __init__(self, db, notifier, media_path, url):
         self.db = db
         self.notifier = notifier
