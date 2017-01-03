@@ -91,6 +91,171 @@ CREATE TYPE layout_mode AS ENUM (
 ALTER TYPE layout_mode OWNER TO indoktrinator;
 
 --
+-- Name: device_notify(); Type: FUNCTION; Schema: public; Owner: indoktrinator
+--
+
+CREATE FUNCTION device_notify() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$BEGIN
+	IF TG_OP <> 'INSERT' THEN
+		PERFORM pg_notify('device', OLD.id);
+	END IF;
+
+	IF TG_OP <> 'DELETE' THEN
+		PERFORM pg_notify('device', new.id);
+	END IF;
+
+	RETURN NEW;
+END;$$;
+
+
+ALTER FUNCTION public.device_notify() OWNER TO indoktrinator;
+
+--
+-- Name: event_notify(); Type: FUNCTION; Schema: public; Owner: indoktrinator
+--
+
+CREATE FUNCTION event_notify() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$BEGIN
+	IF TG_OP <> 'INSERT' THEN
+		PERFORM pg_notify('program', OLD.program::text);
+	END IF;
+
+	IF TG_OP <> 'DELETE' THEN
+		PERFORM pg_notify('program', NEW.program::text);
+	END IF;
+
+	RETURN NEW;
+END;$$;
+
+
+ALTER FUNCTION public.event_notify() OWNER TO indoktrinator;
+
+--
+-- Name: file_notify(); Type: FUNCTION; Schema: public; Owner: indoktrinator
+--
+
+CREATE FUNCTION file_notify() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$BEGIN
+	IF TG_OP <> 'INSERT' THEN
+		PERFORM pg_notify('program', segment.program::text)
+		FROM item
+		JOIN playlist ON playlist.uuid = item.playlist
+		JOIN segment ON segment.playlist = playlist.uuid
+		WHERE item.file = OLD.uuid;
+	END IF;
+
+	IF TG_OP <> 'DELETE' THEN
+		PERFORM pg_notify('program', segment.program::text)
+		FROM item
+		JOIN playlist ON playlist.uuid = item.playlist
+		JOIN segment ON segment.playlist = playlist.uuid
+		WHERE item.file = NEW.uuid;
+	END IF;
+
+	RETURN NEW;
+END;$$;
+
+
+ALTER FUNCTION public.file_notify() OWNER TO indoktrinator;
+
+--
+-- Name: item_notify(); Type: FUNCTION; Schema: public; Owner: indoktrinator
+--
+
+CREATE FUNCTION item_notify() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$BEGIN
+	IF TG_OP <> 'INSERT' THEN
+		PERFORM pg_notify('program', segment.program::text)
+		FROM playlist
+		JOIN segment ON segment.playlist = playlist.uuid
+		WHERE playlist.uuid = OLD.playlist;
+	END IF;
+
+	IF TG_OP <> 'DELETE' THEN
+		PERFORM pg_notify('program', segment.program::text)
+		FROM playlist
+		JOIN segment ON segment.playlist = playlist.uuid
+		WHERE playlist.uuid = NEW.playlist;
+	END IF;
+
+	RETURN NEW;
+END;$$;
+
+
+ALTER FUNCTION public.item_notify() OWNER TO indoktrinator;
+
+--
+-- Name: playlist_notify(); Type: FUNCTION; Schema: public; Owner: indoktrinator
+--
+
+CREATE FUNCTION playlist_notify() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$BEGIN
+	IF TG_OP <> 'INSERT' THEN
+		PERFORM pg_notify('program', segment.program::text)
+		FROM segment
+		WHERE segment.playlist = OLD.uuid;
+	END IF;
+
+	IF TG_OP <> 'DELETE' THEN
+		PERFORM pg_notify('program', segment.program::text)
+		FROM segment
+		WHERE segment.playlist = NEW.uuid;
+	END IF;
+
+	RETURN NEW;
+END;$$;
+
+
+ALTER FUNCTION public.playlist_notify() OWNER TO indoktrinator;
+
+--
+-- Name: program_notify(); Type: FUNCTION; Schema: public; Owner: indoktrinator
+--
+
+CREATE FUNCTION program_notify() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$BEGIN
+	IF TG_OP <> 'INSERT' THEN
+		PERFORM pg_notify('program', OLD.uuid::text);
+	END IF;
+
+	IF TG_OP <> 'DELETE' THEN
+		PERFORM pg_notify('program', new.uuid::text);
+	END IF;
+
+	RETURN NEW;
+END;$$;
+
+
+ALTER FUNCTION public.program_notify() OWNER TO indoktrinator;
+
+--
+-- Name: segment_notify(); Type: FUNCTION; Schema: public; Owner: indoktrinator
+--
+
+CREATE FUNCTION segment_notify() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$BEGIN
+	IF TG_OP <> 'INSERT' THEN
+		PERFORM pg_notify('program', OLD.program::text);
+	END IF;
+
+	IF TG_OP <> 'DELETE' THEN
+		PERFORM pg_notify('program', NEW.program::text);
+	END IF;
+
+	RETURN NEW;
+END;$$;
+
+
+ALTER FUNCTION public.segment_notify() OWNER TO indoktrinator;
+
+--
 -- Name: update_item_durations(); Type: FUNCTION; Schema: public; Owner: indoktrinator
 --
 
@@ -682,6 +847,55 @@ CREATE INDEX fki_segment_playlist_fkey ON segment USING btree (playlist);
 --
 
 CREATE INDEX fki_segment_program_fkey ON segment USING btree (program);
+
+
+--
+-- Name: device_notify_trigger; Type: TRIGGER; Schema: public; Owner: indoktrinator
+--
+
+CREATE TRIGGER device_notify_trigger AFTER INSERT OR DELETE OR UPDATE ON device FOR EACH ROW EXECUTE PROCEDURE device_notify();
+
+
+--
+-- Name: event_notify_trigger; Type: TRIGGER; Schema: public; Owner: indoktrinator
+--
+
+CREATE TRIGGER event_notify_trigger AFTER INSERT OR DELETE OR UPDATE ON event FOR EACH ROW EXECUTE PROCEDURE event_notify();
+
+
+--
+-- Name: file_notify_trigger; Type: TRIGGER; Schema: public; Owner: indoktrinator
+--
+
+CREATE TRIGGER file_notify_trigger AFTER INSERT OR DELETE OR UPDATE ON file FOR EACH ROW EXECUTE PROCEDURE file_notify();
+
+
+--
+-- Name: item_notify_trigger; Type: TRIGGER; Schema: public; Owner: indoktrinator
+--
+
+CREATE TRIGGER item_notify_trigger AFTER INSERT OR DELETE OR UPDATE ON item FOR EACH ROW EXECUTE PROCEDURE item_notify();
+
+
+--
+-- Name: playlist_notify_trigger; Type: TRIGGER; Schema: public; Owner: indoktrinator
+--
+
+CREATE TRIGGER playlist_notify_trigger AFTER INSERT OR DELETE OR UPDATE ON playlist FOR EACH ROW EXECUTE PROCEDURE playlist_notify();
+
+
+--
+-- Name: program_notify_trigger; Type: TRIGGER; Schema: public; Owner: indoktrinator
+--
+
+CREATE TRIGGER program_notify_trigger AFTER INSERT OR DELETE OR UPDATE ON program FOR EACH ROW EXECUTE PROCEDURE program_notify();
+
+
+--
+-- Name: segment_notify_trigger; Type: TRIGGER; Schema: public; Owner: indoktrinator
+--
+
+CREATE TRIGGER segment_notify_trigger AFTER INSERT OR DELETE OR UPDATE ON segment FOR EACH ROW EXECUTE PROCEDURE segment_notify();
 
 
 --
