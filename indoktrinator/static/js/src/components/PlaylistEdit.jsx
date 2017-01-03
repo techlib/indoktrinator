@@ -10,7 +10,6 @@ import {Types} from './PlaylistCreator/Types'
 import {v4 as uuid} from 'uuid'
 
 export function getItems(playlist) {
-  console.log(playlist)
   return playlist.items.map(item => {
     return {
       uuid: item.uuid,
