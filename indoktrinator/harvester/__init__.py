@@ -198,6 +198,8 @@ class Harvester (Tree):
                 'preview': None,
                 'type': 'video',
             })
+
+            self.db.flush()
         else:
             if 'unknown:' not in token:
                 file.token = token
