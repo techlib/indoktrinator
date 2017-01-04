@@ -114,7 +114,12 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     @authorized_only('user')
     def device_handler(**kwargs):
         if 'GET' == flask.request.method:
-            return flask.jsonify(result=manager.device.list())
+            # FIXME
+            result = manager.device.list()
+            for r in result:
+                del(r['photo'])
+
+            return flask.jsonify(result=result)
 
         if 'POST' == flask.request.method:
             device = flask.request.get_json(force=True)
@@ -132,7 +137,10 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     @authorized_only('user')
     def device_item_handler(id, **kwargs):
         if 'GET' == flask.request.method:
-            return flask.jsonify(manager.device.get_item(id))
+            # FIXME
+            result = manager.device.get_item(id)
+            del(result['photo'])
+            return flask.jsonify(result)
 
         if 'DELETE' == flask.request.method:
             return flask.jsonify(manager.device.delete(id))
@@ -155,13 +163,20 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     @authorized_only('user')
     def file_handler(**kwargs):
         if 'GET' == flask.request.method:
-            return flask.jsonify(result=manager.file.list())
+            # FIXME
+            result = manager.file.list()
+            for r in result:
+                del(r['preview'])
+            return flask.jsonify(result=result)
 
     @app.route('/api/file/<uuid>', methods=['GET'])
     @authorized_only('user')
     def file_item_handler(uuid, **kwargs):
         if 'GET' == flask.request.method:
-            return flask.jsonify(manager.file.get_item(uuid))
+            # FIXME
+            result = manager.file.get_item(uuid)
+            del(result['preview'])
+            return flask.jsonify(result)
 
     @app.route('/api/event/', methods=['GET', 'POST'])
     @authorized_only('user')
@@ -206,7 +221,11 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     @authorized_only('user')
     def item_handler(**kwargs):
         if 'GET' == flask.request.method:
-            return flask.jsonify(result=manager.item.list())
+            # FIXME
+            result = manager.item.list()
+            for r in result:
+                del(r['_file']['preview'])
+            return flask.jsonify(result=result)
 
         if 'POST' == flask.request.method:
             data = flask.request.get_json(force=True)
@@ -217,7 +236,10 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     @authorized_only('user')
     def item_item_handler(uuid, **kwargs):
         if 'GET' == flask.request.method:
-            return flask.jsonify(manager.item.get_item(uuid))
+            # FIXME
+            result = manager.item.get_item(uuid)
+            del(result['_file']['preview'])
+            return flask.jsonify(result)
 
         if 'DELETE' == flask.request.method:
             return flask.jsonify(manager.item.delete(uuid))
@@ -242,7 +264,12 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     @authorized_only('user')
     def playlist_item_handler(uuid, **kwargs):
         if 'GET' == flask.request.method:
-            return flask.jsonify(manager.playlist.get_item(uuid))
+            # FIXME
+            result = manager.playlist.get_item(uuid)
+            for i in result['items']:
+                del(i['file_preview'])
+
+            return flask.jsonify(result)
 
         if 'DELETE' == flask.request.method:
             return flask.jsonify(manager.playlist.delete(uuid))
@@ -266,7 +293,11 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     @authorized_only('user')
     def playlist_item_items_handler(uuid, **kwargs):
         if 'GET' == flask.request.method:
-            return flask.jsonify(manager.item.list({'playlist': uuid}))
+            # FIXME
+            result = manager.item.list({'playlist': uuid})
+            for r in result:
+                del(r['_file']['preview'])
+            return flask.jsonify(result)
 
     @app.route('/api/playlist/<uuid>/copy', methods=['GET'])
     @authorized_only('user')
