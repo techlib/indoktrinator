@@ -91,169 +91,52 @@ CREATE TYPE layout_mode AS ENUM (
 ALTER TYPE layout_mode OWNER TO indoktrinator;
 
 --
--- Name: device_notify(); Type: FUNCTION; Schema: public; Owner: indoktrinator
+-- Name: changelog(); Type: FUNCTION; Schema: public; Owner: indoktrinator
 --
 
-CREATE FUNCTION device_notify() RETURNS trigger
+CREATE FUNCTION changelog() RETURNS trigger
     LANGUAGE plpgsql
-    AS $$BEGIN
+    AS $$DECLARE
+	oldjson jsonb;
+	newjson jsonb;
+	cname text;
+
+BEGIN
+	oldjson := '{}'::jsonb;
+	newjson := '{}'::jsonb;
+
 	IF TG_OP <> 'INSERT' THEN
-		PERFORM pg_notify('device', OLD.id);
+		oldjson := row_to_json(OLD);
 	END IF;
 
 	IF TG_OP <> 'DELETE' THEN
-		PERFORM pg_notify('device', new.id);
+		newjson := row_to_json(NEW);
 	END IF;
 
+	FOR cname
+	IN SELECT cname FROM information_schema.columns
+		WHERE table_schema = TG_TABLE_SCHEMA
+		  AND table_name = TG_TABLE_NAME
+		  AND data_type = 'bytea'
+	LOOP
+		oldjson := oldjson - cname;
+		newjson := newjson - cname;
+	END LOOP;
+
+	IF oldjson = '{}'::jsonb THEN
+		oldjson := NULL;
+	END IF;
+
+	IF newjson = '{}'::jsonb THEN
+		newjson := NULL;
+	END IF;
+
+	PERFORM pg_notify('changelog', json_build_array(txid_current(), TG_TABLE_NAME, oldjson, newjson)::text);
 	RETURN NEW;
 END;$$;
 
 
-ALTER FUNCTION public.device_notify() OWNER TO indoktrinator;
-
---
--- Name: event_notify(); Type: FUNCTION; Schema: public; Owner: indoktrinator
---
-
-CREATE FUNCTION event_notify() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$BEGIN
-	IF TG_OP <> 'INSERT' THEN
-		PERFORM pg_notify('program', OLD.program::text);
-	END IF;
-
-	IF TG_OP <> 'DELETE' THEN
-		PERFORM pg_notify('program', NEW.program::text);
-	END IF;
-
-	RETURN NEW;
-END;$$;
-
-
-ALTER FUNCTION public.event_notify() OWNER TO indoktrinator;
-
---
--- Name: file_notify(); Type: FUNCTION; Schema: public; Owner: indoktrinator
---
-
-CREATE FUNCTION file_notify() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$BEGIN
-	IF TG_OP <> 'INSERT' THEN
-		PERFORM pg_notify('program', segment.program::text)
-		FROM item
-		JOIN playlist ON playlist.uuid = item.playlist
-		JOIN segment ON segment.playlist = playlist.uuid
-		WHERE item.file = OLD.uuid;
-	END IF;
-
-	IF TG_OP <> 'DELETE' THEN
-		PERFORM pg_notify('program', segment.program::text)
-		FROM item
-		JOIN playlist ON playlist.uuid = item.playlist
-		JOIN segment ON segment.playlist = playlist.uuid
-		WHERE item.file = NEW.uuid;
-	END IF;
-
-	RETURN NEW;
-END;$$;
-
-
-ALTER FUNCTION public.file_notify() OWNER TO indoktrinator;
-
---
--- Name: item_notify(); Type: FUNCTION; Schema: public; Owner: indoktrinator
---
-
-CREATE FUNCTION item_notify() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$BEGIN
-	IF TG_OP <> 'INSERT' THEN
-		PERFORM pg_notify('program', segment.program::text)
-		FROM playlist
-		JOIN segment ON segment.playlist = playlist.uuid
-		WHERE playlist.uuid = OLD.playlist;
-	END IF;
-
-	IF TG_OP <> 'DELETE' THEN
-		PERFORM pg_notify('program', segment.program::text)
-		FROM playlist
-		JOIN segment ON segment.playlist = playlist.uuid
-		WHERE playlist.uuid = NEW.playlist;
-	END IF;
-
-	RETURN NEW;
-END;$$;
-
-
-ALTER FUNCTION public.item_notify() OWNER TO indoktrinator;
-
---
--- Name: playlist_notify(); Type: FUNCTION; Schema: public; Owner: indoktrinator
---
-
-CREATE FUNCTION playlist_notify() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$BEGIN
-	IF TG_OP <> 'INSERT' THEN
-		PERFORM pg_notify('program', segment.program::text)
-		FROM segment
-		WHERE segment.playlist = OLD.uuid;
-	END IF;
-
-	IF TG_OP <> 'DELETE' THEN
-		PERFORM pg_notify('program', segment.program::text)
-		FROM segment
-		WHERE segment.playlist = NEW.uuid;
-	END IF;
-
-	RETURN NEW;
-END;$$;
-
-
-ALTER FUNCTION public.playlist_notify() OWNER TO indoktrinator;
-
---
--- Name: program_notify(); Type: FUNCTION; Schema: public; Owner: indoktrinator
---
-
-CREATE FUNCTION program_notify() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$BEGIN
-	IF TG_OP <> 'INSERT' THEN
-		PERFORM pg_notify('program', OLD.uuid::text);
-	END IF;
-
-	IF TG_OP <> 'DELETE' THEN
-		PERFORM pg_notify('program', new.uuid::text);
-	END IF;
-
-	RETURN NEW;
-END;$$;
-
-
-ALTER FUNCTION public.program_notify() OWNER TO indoktrinator;
-
---
--- Name: segment_notify(); Type: FUNCTION; Schema: public; Owner: indoktrinator
---
-
-CREATE FUNCTION segment_notify() RETURNS trigger
-    LANGUAGE plpgsql
-    AS $$BEGIN
-	IF TG_OP <> 'INSERT' THEN
-		PERFORM pg_notify('program', OLD.program::text);
-	END IF;
-
-	IF TG_OP <> 'DELETE' THEN
-		PERFORM pg_notify('program', NEW.program::text);
-	END IF;
-
-	RETURN NEW;
-END;$$;
-
-
-ALTER FUNCTION public.segment_notify() OWNER TO indoktrinator;
+ALTER FUNCTION public.changelog() OWNER TO indoktrinator;
 
 --
 -- Name: update_item_durations(); Type: FUNCTION; Schema: public; Owner: indoktrinator
@@ -298,8 +181,8 @@ SET default_with_oids = false;
 --
 
 CREATE TABLE device (
-    id character varying NOT NULL,
-    name character varying NOT NULL,
+    id character varying(127) NOT NULL,
+    name character varying(127) NOT NULL,
     program uuid,
     photo bytea,
     online boolean DEFAULT false NOT NULL,
@@ -410,8 +293,8 @@ COMMENT ON COLUMN event.range IS 'Range in seconds of that particular day when t
 
 CREATE TABLE file (
     uuid uuid DEFAULT uuid_generate_v4() NOT NULL,
-    path character varying NOT NULL,
-    token character varying(127) NOT NULL,
+    path character varying(1023) NOT NULL,
+    token character varying(63) NOT NULL,
     duration real NOT NULL,
     preview bytea,
     type file_type DEFAULT 'video'::file_type NOT NULL
@@ -511,9 +394,9 @@ COMMENT ON COLUMN item.duration IS 'Duration of the item. Automatically set from
 
 CREATE TABLE playlist (
     uuid uuid DEFAULT uuid_generate_v4() NOT NULL,
-    name character varying NOT NULL,
-    path character varying,
-    token character varying(127),
+    name character varying(127) NOT NULL,
+    path character varying(127),
+    token character varying(63),
     duration real DEFAULT 0.0 NOT NULL,
     CONSTRAINT playlist_name_valid CHECK ((length((name)::text) > 0))
 );
@@ -586,8 +469,8 @@ CREATE TABLE segment (
     playlist uuid NOT NULL,
     day integer NOT NULL,
     range int4range NOT NULL,
-    sidebar character varying,
-    panel character varying,
+    sidebar character varying(1023),
+    panel character varying(1023),
     mode layout_mode DEFAULT 'full'::layout_mode NOT NULL,
     CONSTRAINT day_valid CHECK (((day >= 0) AND (day <= 6))),
     CONSTRAINT layout_fields_valid CHECK ((((mode = 'full'::layout_mode) AND (sidebar IS NULL) AND (panel IS NULL)) OR ((mode = 'sidebar'::layout_mode) AND (sidebar IS NOT NULL) AND (panel IS NULL)) OR ((mode = 'panel'::layout_mode) AND (sidebar IS NOT NULL) AND (panel IS NOT NULL)))),
@@ -850,66 +733,66 @@ CREATE INDEX fki_segment_program_fkey ON segment USING btree (program);
 
 
 --
--- Name: device_notify_trigger; Type: TRIGGER; Schema: public; Owner: indoktrinator
+-- Name: device_changelog; Type: TRIGGER; Schema: public; Owner: indoktrinator
 --
 
-CREATE TRIGGER device_notify_trigger AFTER INSERT OR DELETE OR UPDATE ON device FOR EACH ROW EXECUTE PROCEDURE device_notify();
-
-
---
--- Name: event_notify_trigger; Type: TRIGGER; Schema: public; Owner: indoktrinator
---
-
-CREATE TRIGGER event_notify_trigger AFTER INSERT OR DELETE OR UPDATE ON event FOR EACH ROW EXECUTE PROCEDURE event_notify();
+CREATE TRIGGER device_changelog AFTER INSERT OR DELETE OR UPDATE ON device FOR EACH ROW EXECUTE PROCEDURE changelog();
 
 
 --
--- Name: file_notify_trigger; Type: TRIGGER; Schema: public; Owner: indoktrinator
+-- Name: event_changelog; Type: TRIGGER; Schema: public; Owner: indoktrinator
 --
 
-CREATE TRIGGER file_notify_trigger AFTER INSERT OR DELETE OR UPDATE ON file FOR EACH ROW EXECUTE PROCEDURE file_notify();
-
-
---
--- Name: item_notify_trigger; Type: TRIGGER; Schema: public; Owner: indoktrinator
---
-
-CREATE TRIGGER item_notify_trigger AFTER INSERT OR DELETE OR UPDATE ON item FOR EACH ROW EXECUTE PROCEDURE item_notify();
+CREATE TRIGGER event_changelog AFTER INSERT OR DELETE OR UPDATE ON event FOR EACH ROW EXECUTE PROCEDURE changelog();
 
 
 --
--- Name: playlist_notify_trigger; Type: TRIGGER; Schema: public; Owner: indoktrinator
+-- Name: file_changelog; Type: TRIGGER; Schema: public; Owner: indoktrinator
 --
 
-CREATE TRIGGER playlist_notify_trigger AFTER INSERT OR DELETE OR UPDATE ON playlist FOR EACH ROW EXECUTE PROCEDURE playlist_notify();
-
-
---
--- Name: program_notify_trigger; Type: TRIGGER; Schema: public; Owner: indoktrinator
---
-
-CREATE TRIGGER program_notify_trigger AFTER INSERT OR DELETE OR UPDATE ON program FOR EACH ROW EXECUTE PROCEDURE program_notify();
+CREATE TRIGGER file_changelog AFTER INSERT OR DELETE OR UPDATE ON file FOR EACH ROW EXECUTE PROCEDURE changelog();
 
 
 --
--- Name: segment_notify_trigger; Type: TRIGGER; Schema: public; Owner: indoktrinator
+-- Name: item_changelog; Type: TRIGGER; Schema: public; Owner: indoktrinator
 --
 
-CREATE TRIGGER segment_notify_trigger AFTER INSERT OR DELETE OR UPDATE ON segment FOR EACH ROW EXECUTE PROCEDURE segment_notify();
+CREATE TRIGGER item_changelog AFTER INSERT OR DELETE OR UPDATE ON item FOR EACH ROW EXECUTE PROCEDURE changelog();
+
+
+--
+-- Name: playlist_changelog; Type: TRIGGER; Schema: public; Owner: indoktrinator
+--
+
+CREATE TRIGGER playlist_changelog AFTER INSERT OR DELETE OR UPDATE ON playlist FOR EACH ROW EXECUTE PROCEDURE changelog();
+
+
+--
+-- Name: program_changelog; Type: TRIGGER; Schema: public; Owner: indoktrinator
+--
+
+CREATE TRIGGER program_changelog AFTER INSERT OR DELETE OR UPDATE ON program FOR EACH ROW EXECUTE PROCEDURE changelog();
+
+
+--
+-- Name: segment_changelog; Type: TRIGGER; Schema: public; Owner: indoktrinator
+--
+
+CREATE TRIGGER segment_changelog AFTER INSERT OR DELETE OR UPDATE ON segment FOR EACH ROW EXECUTE PROCEDURE changelog();
 
 
 --
 -- Name: update_item_durations_trigger; Type: TRIGGER; Schema: public; Owner: indoktrinator
 --
 
-CREATE TRIGGER update_item_durations_trigger AFTER INSERT OR DELETE OR UPDATE OF duration ON file FOR EACH ROW EXECUTE PROCEDURE update_item_durations();
+CREATE TRIGGER update_item_durations_trigger AFTER INSERT OR DELETE OR UPDATE OF duration ON file FOR EACH STATEMENT EXECUTE PROCEDURE update_item_durations();
 
 
 --
 -- Name: update_playlist_durations_trigger; Type: TRIGGER; Schema: public; Owner: indoktrinator
 --
 
-CREATE TRIGGER update_playlist_durations_trigger AFTER INSERT OR DELETE OR UPDATE OF duration ON item FOR EACH ROW EXECUTE PROCEDURE update_playlist_durations();
+CREATE TRIGGER update_playlist_durations_trigger AFTER INSERT OR DELETE OR UPDATE OF duration ON item FOR EACH STATEMENT EXECUTE PROCEDURE update_playlist_durations();
 
 
 --
