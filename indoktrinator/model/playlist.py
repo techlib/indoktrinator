@@ -69,11 +69,6 @@ class Playlist (Model):
     def list(self):
         return super(Playlist, self).list(order_by=['name'])
 
-    def changed(self, key):
-        for item in self.manager.device.uuidByPlaylist(key):
-            device = item.id.encode('utf8')
-            self.manager.inotifier.addDevice(device)
-
     def patch(self, data, uid):
         assert uid is not None, 'Primary key is not set'
 
