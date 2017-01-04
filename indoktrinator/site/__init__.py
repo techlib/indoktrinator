@@ -117,7 +117,8 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             # FIXME
             result = manager.device.list()
             for r in result:
-                del(r['photo'])
+                r['photo'] = flask.url_for('preview_image', element='device',
+                    uuid=r['id'])
 
             return flask.jsonify(result=result)
 
@@ -139,7 +140,9 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
         if 'GET' == flask.request.method:
             # FIXME
             result = manager.device.get_item(id)
-            del(result['photo'])
+            result['photo'] = flask.url_for('preview_image', element='device',
+                uuid=result['id'])
+
             return flask.jsonify(result)
 
         if 'DELETE' == flask.request.method:
@@ -166,7 +169,9 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             # FIXME
             result = manager.file.list()
             for r in result:
-                del(r['preview'])
+                r['preview'] = flask.url_for('preview_image', element='file',
+                    uuid=r['uuid'])
+
             return flask.jsonify(result=result)
 
     @app.route('/api/file/<uuid>', methods=['GET'])
@@ -175,7 +180,9 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
         if 'GET' == flask.request.method:
             # FIXME
             result = manager.file.get_item(uuid)
-            del(result['preview'])
+            result['preview'] = flask.url_for('preview_image', element='file',
+                uuid=result['uuid'])
+
             return flask.jsonify(result)
 
     @app.route('/api/event/', methods=['GET', 'POST'])
@@ -224,7 +231,9 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             # FIXME
             result = manager.item.list()
             for r in result:
-                del(r['_file']['preview'])
+                r['_file']['preview'] = flask.url_for('preview_image', element='file',
+                    uuid=r['_file']['id'])
+
             return flask.jsonify(result=result)
 
         if 'POST' == flask.request.method:
@@ -238,7 +247,9 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
         if 'GET' == flask.request.method:
             # FIXME
             result = manager.item.get_item(uuid)
-            del(result['_file']['preview'])
+            result['_file']['preview'] = flask.url_for('preview_image', element='file',
+                uuid=result['_file']['id'])
+
             return flask.jsonify(result)
 
         if 'DELETE' == flask.request.method:
@@ -267,7 +278,8 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             # FIXME
             result = manager.playlist.get_item(uuid)
             for i in result['items']:
-                del(i['file_preview'])
+                i['file_preview'] = flask.url_for('preview_image', element='file',
+                    uuid=i['file_uuid'])
 
             return flask.jsonify(result)
 
@@ -296,7 +308,9 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             # FIXME
             result = manager.item.list({'playlist': uuid})
             for r in result:
-                del(r['_file']['preview'])
+                r['_file']['preview'] = flask.url_for('preview_image', element='file',
+                    uuid=r['_file']['uuid'])
+
             return flask.jsonify(result)
 
     @app.route('/api/playlist/<uuid>/copy', methods=['GET'])
