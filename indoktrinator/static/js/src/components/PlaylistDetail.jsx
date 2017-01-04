@@ -57,30 +57,25 @@ export var PlaylistDetail = React.createClass({
 
           {this.getItems().map((item) => {
             return (
-              <div className="list-group-item">
-                <div className="list-view-pf-main-info">
-                  <div className="list-view-pf-body">
-                    <div className="list-view-pf-description">
-                      <div className="list-group-item-heading">
-                        {add3Dots(item.file.name, 40)}
-                      </div>
-                    </div>
-                    <div className="list-view-pf-additional-info">
-
-                      <div className="list-view-pf-additional-info-item">
-                        <img src={item.file.preview} style={{height: 32, width: 32}}
-                          alt="placeholder image"/>
-                      </div>
-
-                      <div className="list-view-pf-additional-info-item">
-                        <span className="fa fa-clock-o"></span>
-                        {moment.duration(item.file.duration, 'seconds').format('m:ss', {trim: false})}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )
+								<div className="list-group-item">
+									<div className="list-view-pf-main-info">
+										<div className="list-view-pf-left">
+											<img src={item.file.preview} style={{height: 32, width: 32}}
+													 alt="placeholder image"/>
+										</div>
+										<div className="list-view-pf-body">
+											<div className="list-view-pf-description">
+												<div className="list-group-item-heading">
+													{item.file.name}
+												</div>
+											</div>
+											<div className="list-view-pf-additional-info">
+													<i className="fa fa-clock-o"> </i> {moment.duration(item.file.duration, 'seconds').format('mm:ss', {trim: false})}
+											</div>
+										</div>
+									</div>
+								</div>
+						)
           })}
         </div>
       </div>
