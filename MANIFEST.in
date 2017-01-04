@@ -3,4 +3,4 @@ include LICENSE.md
 include requirements.txt
 include indoktrinator/templates/*.html
 include indoktrinator/static/*/*
-include indoktrinator/router/schema.yaml
+include indoktrinator/manager/schema.yaml
