@@ -87,30 +87,9 @@ class Int4RangeType(UserDefinedType):
         return process
 
 
-class ByteaType(UserDefinedType):
-    def get_col_spec(self):
-        return 'BYTEA'
-
-    def bind_processor(self, dialect):
-        def process(value):
-            if value:
-                return value
-        return process
-
-    def result_processor(self, dialect, coltype):
-        def process(value):
-            if value:
-                data = base64.b64encode(value)
-                bstr = (b'data:image/octet-stream;base64, ' + data)
-                return bstr.decode('ascii')
-
-        return process
-
-
 ischema_names['tsrange'] = TSRangeType
 ischema_names['range'] = RangeType
 ischema_names['inetrange'] = InetRangeType
 ischema_names['int4range'] = Int4RangeType
-ischema_names['bytea'] = ByteaType
 
 # vim:set sw=4 ts=4 et:
