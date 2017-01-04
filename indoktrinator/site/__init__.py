@@ -391,6 +391,19 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
         return flask.send_from_directory(manager.media_path, path,
                                          mimetype='application/octet-stream')
 
+    @app.route('/api/preview-image/<element>/<uuid>')
+    def preview_image(element, uuid):
+
+        if element == 'file':
+            image = manager.file.get_item(uuid)['preview']
+        elif element == 'device':
+            image = manager.device.get_item(uuid)['photo']
+
+
+        resp = flask.Response(image)
+        resp.headers['Content-Type'] = 'image/jpeg'
+        return resp
+
     return app
 
 
