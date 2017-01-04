@@ -1,8 +1,11 @@
 #!/usr/bin/python3 -tt
 # -*- coding: utf-8 -*-
 
+import base64
+from json import loads
+
 from twisted.python import log
-from twisted.internet import reactor
+from twisted.internet import reactor, utils
 
 from os.path import sep, join, relpath, isfile, isdir
 from natsort import natsorted, ns
@@ -154,6 +157,16 @@ class Harvester (Tree):
             if item is not None:
                 # A file has been moved.
                 self.rename_item(playlist, item, node)
+
+    def probe(path):
+        def decode_preview(data):
+            data = loads(data.decode('utf-8'))
+            data['preview'] = base64.b64decode(data['preview'])
+            return data
+
+        d = utils.getProcessOutput('bin/indoktrinator-probe', (path,))
+        d.addCallback(decode_preview)
+        return d
 
     @with_session
     def update_playlist(self, playlist, node):
