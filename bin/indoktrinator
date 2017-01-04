@@ -29,9 +29,9 @@ from configparser import ConfigParser
 # Import all the application handles.
 from indoktrinator.manager import Manager
 from indoktrinator.site import make_site
-from indoktrinator.router import make_router
 from indoktrinator.rbac import AccessModel
 from indoktrinator.notifier import Notifier
+from indoktrinator.tzmq import Router
 
 if __name__ == '__main__':
     def do_start(config):
@@ -63,6 +63,11 @@ if __name__ == '__main__':
         session = scoped_session(sessionmaker(autocommit=True, autoflush=False))
         db = SQLSoup(engine, session=session)
 
+        # Prepare a 0MQ router instance for communication with the
+        # leader that publishes our indoctrination schedule.
+        router = Router('leader')
+        router.bind(endpoint)
+
         # Extract manager options, sans the pool_size we handle here.
         manager_opts = dict(config.items('manager'))
         manager_pool = int(manager_opts.pop('pool_size', 2))
@@ -71,14 +76,13 @@ if __name__ == '__main__':
         reactor.suggestThreadPoolSize(manager_pool)
 
         # Prepare the manager that runs in an exclusive thread.
-        manager = Manager(db, notifier=notifier, media_path=media_path, **manager_opts)
+        manager = Manager(db, notifier, router, media_path=media_path, **manager_opts)
+
+        # Hook the router to the manager.
+        router.on_message = manager.on_message
 
         # Prepare the website that will get exposed to the users.
         site = make_site(db, manager, access_model, auth=http_auth, debug=http_debug, cors=http_cors)
-
-        router = make_router(manager, endpoint)
-        manager.site = site
-        manager.router = router
 
         # Prepare WSGI site with a separate thread pool.
         # define reactor thread
@@ -88,6 +92,9 @@ if __name__ == '__main__':
 
         # Bind the website to it's address.
         reactor.listenTCP(http_port, site, interface=http_host)
+
+        # Schedule a call to the manager right after we finish here.
+        reactor.callLater(0, manager.start)
 
         # Run the Twisted reactor until the user terminates us.
         reactor.run()
