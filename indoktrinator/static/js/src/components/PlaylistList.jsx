@@ -10,6 +10,7 @@ import {Pager} from './Pager'
 import {regexGridFilter} from '../util/griddle-components'
 import {FormattedMessage} from 'react-intl'
 import {confirmModal} from './ModalConfirmMixin'
+import moment from 'moment'
 
 let PlaylistSystemColumn = React.createClass({
   render() {
@@ -22,6 +23,15 @@ let PlaylistSystemColumn = React.createClass({
       description="Status column"
       defaultMessage="No"
     />)
+  }
+})
+
+let Duration = React.createClass({
+  render() {
+    let d = moment.duration(this.props.rowData.duration, 'seconds')
+                  .format('hh:mm:ss', {trim: false})
+
+    return <span>{d}</span>
   }
 })
 
@@ -106,6 +116,7 @@ export var PlaylistList = React.createClass({
 
     let columnMeta = [
       {columnName: 'name', displayName: 'Name', customComponent: PlaylistLink},
+      {columnName: 'duration', displayName: 'Duration', customComponent: Duration},
       {columnName: 'system', displayName: 'System playlist', customComponent: PlaylistSystemColumn},
       {columnName: 'c', displayName: 'Actions', customComponent: PlaylistActions, cssClassName: 'griddle-actions'}
     ]
@@ -141,7 +152,7 @@ export var PlaylistList = React.createClass({
           customPagerComponent={Pager}
           sortAscendingComponent={<span className='fa fa-sort-alpha-asc'></span>}
           sortDescendingComponent={<span className='fa fa-sort-alpha-desc'></span>}
-          columns={['name', 'system', 'c']}
+          columns={['name', 'duration', 'system', 'c']}
           resultsPerPage='50'
           customFilterer={regexGridFilter}
           useCustomFilterer='true'
