@@ -189,7 +189,7 @@ class Node:
         assert kwargs.pop('watch') is self.watch
 
         if hasattr(self, handler):
-            #log.msg('Handle {!r} {!r}...'.format(event, kwargs))
+            # log.msg('Handle {!r} {!r}...'.format(event, kwargs))
             getattr(self, handler)(**kwargs)
         else:
             log.msg('No handler for {!r} {!r}.'.format(event, kwargs))

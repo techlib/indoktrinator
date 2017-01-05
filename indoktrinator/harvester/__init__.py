@@ -351,6 +351,7 @@ def probe_file(filepath):
     d.addCallback(decode_preview)
     return d
 
+
 def decode_preview(data):
     data = loads(data.decode('utf-8'))
     data['preview'] = b64decode(data['preview'])
