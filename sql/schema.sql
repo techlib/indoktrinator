@@ -236,6 +236,47 @@ COMMENT ON COLUMN device.power IS 'FIXME: Delete this column.';
 
 
 --
+-- Name: device_photo; Type: TABLE; Schema: public; Owner: indoktrinator
+--
+
+CREATE TABLE device_photo (
+    id character varying(127) NOT NULL,
+    photo bytea NOT NULL,
+    mime character varying(127) DEFAULT 'image/jpeg'::character varying
+);
+
+
+ALTER TABLE device_photo OWNER TO indoktrinator;
+
+--
+-- Name: TABLE device_photo; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
+COMMENT ON TABLE device_photo IS 'Device photos stored in the database.';
+
+
+--
+-- Name: COLUMN device_photo.id; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
+COMMENT ON COLUMN device_photo.id IS 'Unique identifier of the device matching that of `device.id`.';
+
+
+--
+-- Name: COLUMN device_photo.photo; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
+COMMENT ON COLUMN device_photo.photo IS 'Binary data of the uploaded photo.';
+
+
+--
+-- Name: COLUMN device_photo.mime; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
+COMMENT ON COLUMN device_photo.mime IS 'MIME type for the binary image data.';
+
+
+--
 -- Name: event; Type: TABLE; Schema: public; Owner: indoktrinator
 --
 
@@ -336,6 +377,40 @@ COMMENT ON COLUMN file.duration IS 'Duration of the file playback in seconds.';
 --
 
 COMMENT ON COLUMN file.preview IS 'Image preview for the file. A JPEG with dimensions of 160x90 pixels.';
+
+
+--
+-- Name: file_preview; Type: TABLE; Schema: public; Owner: indoktrinator
+--
+
+CREATE TABLE file_preview (
+    uuid uuid NOT NULL,
+    preview bytea NOT NULL,
+    mime character varying(127) DEFAULT 'image/jpeg'::character varying NOT NULL
+);
+
+
+ALTER TABLE file_preview OWNER TO indoktrinator;
+
+--
+-- Name: COLUMN file_preview.uuid; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
+COMMENT ON COLUMN file_preview.uuid IS 'Unique identifier of the file, matching that of `file.uuid`.';
+
+
+--
+-- Name: COLUMN file_preview.preview; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
+COMMENT ON COLUMN file_preview.preview IS 'Binary data of the extracted preview image.';
+
+
+--
+-- Name: COLUMN file_preview.mime; Type: COMMENT; Schema: public; Owner: indoktrinator
+--
+
+COMMENT ON COLUMN file_preview.mime IS 'MIME type for the binary image data.';
 
 
 --
@@ -546,6 +621,14 @@ COPY device (id, name, program, photo, online, power) FROM stdin;
 
 
 --
+-- Data for Name: device_photo; Type: TABLE DATA; Schema: public; Owner: indoktrinator
+--
+
+COPY device_photo (id, photo, mime) FROM stdin;
+\.
+
+
+--
 -- Data for Name: event; Type: TABLE DATA; Schema: public; Owner: indoktrinator
 --
 
@@ -558,6 +641,14 @@ COPY event (uuid, program, playlist, date, range) FROM stdin;
 --
 
 COPY file (uuid, path, token, duration, preview, type) FROM stdin;
+\.
+
+
+--
+-- Data for Name: file_preview; Type: TABLE DATA; Schema: public; Owner: indoktrinator
+--
+
+COPY file_preview (uuid, preview, mime) FROM stdin;
 \.
 
 
@@ -591,6 +682,14 @@ COPY program (uuid, name) FROM stdin;
 
 COPY segment (uuid, program, playlist, day, range, sidebar, panel, mode) FROM stdin;
 \.
+
+
+--
+-- Name: device_photo_pkey; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+--
+
+ALTER TABLE ONLY device_photo
+    ADD CONSTRAINT device_photo_pkey PRIMARY KEY (id);
 
 
 --
@@ -631,6 +730,14 @@ ALTER TABLE ONLY file
 
 ALTER TABLE ONLY file
     ADD CONSTRAINT file_pkey PRIMARY KEY (uuid);
+
+
+--
+-- Name: file_preview_pkey; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+--
+
+ALTER TABLE ONLY file_preview
+    ADD CONSTRAINT file_preview_pkey PRIMARY KEY (uuid);
 
 
 --
@@ -796,6 +903,14 @@ CREATE TRIGGER update_playlist_durations_trigger AFTER INSERT OR DELETE OR UPDAT
 
 
 --
+-- Name: device_photo_device_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indoktrinator
+--
+
+ALTER TABLE ONLY device_photo
+    ADD CONSTRAINT device_photo_device_fkey FOREIGN KEY (id) REFERENCES device(id) ON UPDATE CASCADE ON DELETE CASCADE;
+
+
+--
 -- Name: device_program_pkey; Type: FK CONSTRAINT; Schema: public; Owner: indoktrinator
 --
 
@@ -817,6 +932,14 @@ ALTER TABLE ONLY event
 
 ALTER TABLE ONLY event
     ADD CONSTRAINT event_program_fkey FOREIGN KEY (program) REFERENCES program(uuid) ON UPDATE CASCADE ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED;
+
+
+--
+-- Name: file_preview_file_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indoktrinator
+--
+
+ALTER TABLE ONLY file_preview
+    ADD CONSTRAINT file_preview_file_fkey FOREIGN KEY (uuid) REFERENCES file(uuid) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
 --
