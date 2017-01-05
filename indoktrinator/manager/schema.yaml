@@ -3,16 +3,13 @@
 # Describes messages received from Telescreen.
 #
 ---
-oneOf:
-  # Message: status
-  - type: object
-    additionalProperties: false
-    required: [id, type, status]
-    properties:
-      id: {$ref: '#/definitions/uuid'}
-      type: {enum: [status]}
-      status: {$ref: '#/definitions/status'}
-
+type: object
+additionalProperties: false
+required: [id, type, status]
+properties:
+  id: {$ref: '#/definitions/uuid'}
+  type: {enum: [status]}
+  status: {$ref: '#/definitions/status'}
 
 definitions:
   uuid:
@@ -24,14 +21,14 @@ definitions:
     pattern: '://'
 
   power:
-    type: boolean
+    enum: [on, standby, to-on, to-standby, unknown]
 
   status:
     type: object
     additionalProperties: false
-    required: [session, power, layout]
+    required: [plan, power, layout]
     properties:
-      session: {$ref: '#/definitions/uuid'}
+      plan: {$ref: '#/definitions/uuid'}
       power: {$ref: '#/definitions/power'}
       layout: {$ref: '#/definitions/layout'}
 

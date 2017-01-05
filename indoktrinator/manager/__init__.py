@@ -65,6 +65,12 @@ class Manager:
         # Apply what we have just loaded.
         self.apply_changes()
 
+        # TODO: Delete old events periodically.
+
+        # Recalculate plans every hour.
+        self.update_plans_loop = LoopingCall(self.update_plans)
+        self.update_plans_loop.start(3600)
+
         log.msg('Manager started.')
 
     def on_message(self, message, sender):
@@ -147,7 +153,7 @@ class Manager:
         if program is not None:
             log.msg('Program {name!r} ({uuid}) changed.'.format(**program))
 
-            plan = make_plan(self.store, uuid)
+            plan = make_plan(self.store, self.url, uuid)
             self.plans[uuid] = plan
 
         else:
@@ -158,14 +164,30 @@ class Manager:
 
             plan = []
 
-        for id, device in self.devices.items():
-            if self.store.device.get(id, {}).get('program') == uuid:
-                if device['plan'] != plan['id']:
-                    self.send(id, 'plan', plan)
+        self.sync_devices()
+
+    def update_plans(self):
+        """
+        Regenerate all plans for the next 4 hours.
+        """
+
+        for uuid in self.store.program:
+            plan = make_plan(self.store, self.url, uuid)
+            self.plans[uuid] = plan
+
+        self.sync_devices()
 
     def on_device_change(self, id, device):
         """Device has changed in the database."""
         self.sync_device(id)
+
+    def sync_devices(self):
+        """
+        Synchronize all devices plans as needed.
+        """
+
+        for id in self.devices:
+            self.sync_device(id)
 
     def sync_device(self, id):
         """
