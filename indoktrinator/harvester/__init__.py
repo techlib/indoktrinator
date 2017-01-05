@@ -55,9 +55,10 @@ class Harvester (Tree):
                 self.db.delete(file)
 
         for playlist in self.db.playlist.all():
-            if not isdir(join(self.path, playlist.path)):
-                log.msg('Delete playlist {!r}...'.format(playlist.path))
-                self.db.delete(playlist)
+            if playlist.path is not None:
+                if not isdir(join(self.path, playlist.path)):
+                    log.msg('Delete playlist {!r}...'.format(playlist.path))
+                    self.db.delete(playlist)
 
     def parse_path(self, path):
         """
