@@ -69,7 +69,7 @@ class Manager:
 
         # Recalculate plans every hour.
         self.update_plans_loop = LoopingCall(self.update_plans)
-        self.update_plans_loop.start(3600)
+        self.update_plans_loop.start(3600, now=False)
 
         log.msg('Manager started.')
 
