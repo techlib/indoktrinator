@@ -10,6 +10,7 @@ from intervaltree import IntervalTree, Interval
 from datetime import datetime, timedelta, time
 from time import mktime
 
+from re import findall
 from uuid import uuid4
 
 from indoktrinator.utils import with_session
@@ -119,6 +120,15 @@ class Segment (Table):
         if segment is not None:
             self.store.program.mark_dirty(segment['program'])
 
+    def update_with_change(self, old, new):
+        if old is not None:
+            old['range'] = from_range(old['range'])
+
+        if new is not None:
+            new['range'] = from_range(new['range'])
+
+        return super().update_with_change(old, new)
+
 
 class Event (Table):
     def mark_dirty(self, pkey):
@@ -127,6 +137,15 @@ class Event (Table):
         event = self.get(pkey)
         if event is not None:
             self.store.program.mark_dirty(event['program'])
+
+    def update_with_change(self, old, new):
+        if old is not None:
+            old['range'] = from_range(old['range'])
+
+        if new is not None:
+            new['range'] = from_range(new['range'])
+
+        return super().update_with_change(old, new)
 
 
 class Playlist (Table):
@@ -346,6 +365,10 @@ def insert_segment(tree, day, segment):
 def daytime(day, seconds):
     cal = datetime.combine(day, time()) + timedelta(seconds=seconds)
     return mktime(cal.timetuple())
+
+
+def from_range(text):
+    return tuple(map(int, findall(r'\d+', text)))
 
 
 # vim:set sw=4 ts=4 et:
