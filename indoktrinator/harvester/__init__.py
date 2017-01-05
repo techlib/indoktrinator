@@ -151,7 +151,9 @@ class Harvester (Tree):
         if playlist is None:
             return
 
-        log.msg('Node {!r} moved.'.format(relpath(node.path, self.path)))
+        prev = relpath(node.prev, self.path) if node.prev is not None else None
+        path = relpath(node.path, self.path)
+        log.msg('Node {!r} -> {!r} moved.'.format(prev, path))
 
         if node.is_dir:
             if item is None:
@@ -166,6 +168,12 @@ class Harvester (Tree):
     @with_session
     def update_playlist(self, playlist, node):
         token = node.token
+        path = relpath(node.path, self.path)
+
+        if 'unknown:' in token:
+            log.msg('Node {!r} disappeared, aborting.'.format(path))
+            return
+
         plst = self.db.playlist.filter_by(path=playlist).one_or_none()
 
         if plst is None:
