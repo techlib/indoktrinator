@@ -184,7 +184,6 @@ CREATE TABLE device (
     id character varying(127) NOT NULL,
     name character varying(127) NOT NULL,
     program uuid,
-    photo bytea,
     online boolean DEFAULT false NOT NULL,
     power boolean DEFAULT false NOT NULL,
     CONSTRAINT name_valid CHECK ((length((name)::text) > 0))
@@ -212,13 +211,6 @@ COMMENT ON COLUMN device.name IS 'Human-readable machine name.';
 --
 
 COMMENT ON COLUMN device.program IS 'Program the device has been assigned to play.';
-
-
---
--- Name: COLUMN device.photo; Type: COMMENT; Schema: public; Owner: indoktrinator
---
-
-COMMENT ON COLUMN device.photo IS 'Image of the device for better user experience. A JPEG sized 500x500 pixels.';
 
 
 --
