@@ -298,7 +298,7 @@ def make_plan(store, base_url, uuid):
     # Ordered playlist items.
     items = []
 
-    # Generate items and layouts for all intervals.
+    # Generate items for all intervals.
     for interval in sorted(ptree):
         begin = interval.begin
 
