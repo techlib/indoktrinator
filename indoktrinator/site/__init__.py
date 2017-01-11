@@ -7,6 +7,7 @@ from werkzeug.exceptions import *
 
 from functools import wraps
 from base64 import b64decode
+from os.path import dirname, join
 
 from sqlalchemy import desc
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
@@ -22,6 +23,10 @@ import re
 
 
 __all__ = ['make_site']
+
+
+DEFAULT_DEVICE_PHOTO = join(dirname(__file__), '../static/img/display.png')
+DEFAULT_FILE_PREVIEW = join(dirname(__file__), '../static/img/video.png')
 
 
 def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
@@ -117,21 +122,12 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             # FIXME
             result = manager.device.list()
             for r in result:
-                r['photo'] = flask.url_for('preview_image', element='device',
-                    uuid=r['id'])
+                r['photo'] = flask.url_for('device_photo', id=r['id'])
 
             return flask.jsonify(result=result)
 
         if 'POST' == flask.request.method:
             device = flask.request.get_json(force=True)
-            try:
-                if 'photo' in device:
-                    start = device['photo'].find(',')
-                    if start < 0:
-                        start = 0
-                    device['photo'] = b64decode(device['photo'][start:])
-            except:
-                device['photo'] = None
             return flask.jsonify(manager.device.insert(device))
 
     @app.route('/api/device/<id>', methods=['GET', 'DELETE', 'PATCH'])
@@ -140,9 +136,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
         if 'GET' == flask.request.method:
             # FIXME
             result = manager.device.get_item(id)
-            result['photo'] = flask.url_for('preview_image', element='device',
-                uuid=result['id'])
-
+            result['photo'] = flask.url_for('device_photo', id=result['id'])
             return flask.jsonify(result)
 
         if 'DELETE' == flask.request.method:
@@ -151,15 +145,6 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
         if 'PATCH' == flask.request.method:
             device = flask.request.get_json(force=True)
             device['id'] = id
-            try:
-                if 'photo' in device:
-                    start = device['photo'].find(',')
-                    if start < 0:
-                        start = 0
-                    device['photo'] = b64decode(device['photo'][start:])
-            except:
-                device['photo'] = None
-
             return flask.jsonify(manager.device.update(device))
 
     @app.route('/api/file/', methods=['GET'])
@@ -169,8 +154,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             # FIXME
             result = manager.file.list()
             for r in result:
-                r['preview'] = flask.url_for('preview_image', element='file',
-                    uuid=r['uuid'])
+                r['preview'] = flask.url_for('file_preview', uuid=r['uuid'])
 
             return flask.jsonify(result=result)
 
@@ -179,11 +163,9 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     def file_item_handler(uuid, **kwargs):
         if 'GET' == flask.request.method:
             # FIXME
-            result = manager.file.get_item(uuid)
-            result['preview'] = flask.url_for('preview_image', element='file',
-                uuid=result['uuid'])
-
-            return flask.jsonify(result)
+            r = manager.file.get_item(uuid)
+            r['preview'] = flask.url_for('file_preview', uuid=r['uuid'])
+            return flask.jsonify(r)
 
     @app.route('/api/event/', methods=['GET', 'POST'])
     @authorized_only('user')
@@ -231,8 +213,8 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             # FIXME
             result = manager.item.list()
             for r in result:
-                r['_file']['preview'] = flask.url_for('preview_image', element='file',
-                    uuid=r['_file']['id'])
+                preview = flask.url_for('file_preview', uuid=r['_file']['id'])
+                r['_file']['preview'] = preview
 
             return flask.jsonify(result=result)
 
@@ -247,8 +229,8 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
         if 'GET' == flask.request.method:
             # FIXME
             result = manager.item.get_item(uuid)
-            result['_file']['preview'] = flask.url_for('preview_image', element='file',
-                uuid=result['_file']['id'])
+            preview = flask.url_for('file_preview', uuid=result['_file']['id'])
+            result['_file']['preview'] = preview
 
             return flask.jsonify(result)
 
@@ -278,8 +260,8 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             # FIXME
             result = manager.playlist.get_item(uuid)
             for i in result['items']:
-                i['file_preview'] = flask.url_for('preview_image', element='file',
-                    uuid=i['file_uuid'])
+                preview = flask.url_for('file_preview', uuid=i['file_uuid'])
+                i['file_preview'] = preview
 
             return flask.jsonify(result)
 
@@ -308,8 +290,8 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             # FIXME
             result = manager.item.list({'playlist': uuid})
             for r in result:
-                r['_file']['preview'] = flask.url_for('preview_image', element='file',
-                    uuid=r['_file']['uuid'])
+                p = flask.url_for('file_preview', uuid=r['_file']['uuid'])
+                r['_file']['preview'] = p
 
             return flask.jsonify(result)
 
@@ -436,17 +418,26 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
         return flask.send_from_directory(manager.media_path, path,
                                          mimetype='application/octet-stream')
 
-    @app.route('/api/preview-image/<element>/<uuid>')
-    def preview_image(element, uuid):
+    @app.route('/api/preview-image/device/<id>')
+    def device_photo(id):
+        device_photo = db.device_photo.filter_by(id=id).one_or_none()
 
-        if element == 'file':
-            image = manager.file.get_item(uuid)['preview']
-        elif element == 'device':
-            image = manager.device.get_item(uuid)['photo']
+        if device_photo is None:
+            return flask.send_file(DEFAULT_DEVICE_PHOTO)
 
+        resp = flask.Response(device_photo.photo)
+        resp.headers['Content-Type'] = device_photo.mime
+        return resp
 
-        resp = flask.Response(image)
-        resp.headers['Content-Type'] = 'image/jpeg'
+    @app.route('/api/preview-image/file/<uuid>')
+    def file_preview(uuid):
+        file_preview = db.file_preview.filter_by(uuid=uuid).one_or_none()
+
+        if file_preview is None:
+            return flask.send_file(DEFAULT_FILE_PREVIEW)
+
+        resp = flask.Response(file_preview.preview)
+        resp.headers['Content-Type'] = file_preview.mime
         return resp
 
     return app

@@ -117,20 +117,21 @@ class Node:
         while True:
             try:
                 missing = set(self.children)
-                base, dirs, files = next(walk(self.path))
 
-                for dname in dirs:
-                    missing.discard(dname)
-                    self.add_child(dname, True)
+                for base, dirs, files in walk(self.path):
+                    for dname in dirs:
+                        missing.discard(dname)
+                        self.add_child(dname, True)
 
-                for fname in files:
-                    missing.discard(fname)
-                    self.add_child(fname, False)
+                    for fname in files:
+                        missing.discard(fname)
+                        self.add_child(fname, False)
 
-                for child in missing:
-                    child = self.children.pop(missing)
-                    child.lost()
+                    for child in missing:
+                        child = self.children.pop(missing)
+                        child.lost()
 
+                    break
                 break
 
             except OSError:
@@ -189,7 +190,7 @@ class Node:
         assert kwargs.pop('watch') is self.watch
 
         if hasattr(self, handler):
-            #log.msg('Handle {!r} {!r}...'.format(event, kwargs))
+            # log.msg('Handle {!r} {!r}...'.format(event, kwargs))
             getattr(self, handler)(**kwargs)
         else:
             log.msg('No handler for {!r} {!r}.'.format(event, kwargs))

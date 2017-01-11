@@ -1,0 +1,151 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+# Command line arguments follow the GNU conventions.
+from getopt import gnu_getopt
+from sys import argv, stderr, stdout
+
+from subprocess import PIPE, STDOUT, Popen, run
+from simplejson import loads, dump
+from base64 import b64encode
+
+import re
+import os
+
+def dump_json(data):
+    dump(data, stdout, indent=' ')
+    print('')
+
+if __name__ == '__main__':
+    FNULL = open(os.devnull, 'w')
+
+    def do_probe(filename, *args):
+        if not os.path.isfile(filename):
+            return dump_json({
+                'error': 'invalid file',
+                'filename': filename,
+            })
+
+        type = get_type(filename)
+
+        if type == 'image':
+            return dump_json({
+                'type': 'image',
+                'duration': get_image_duration(filename),
+                'preview': create_image_preview(filename),
+            })
+
+        if type == 'video':
+            duration = get_video_duration(filename)
+            return dump_json({
+                'type': 'video',
+                'duration': duration,
+                'preview': create_video_preview(filename, duration),
+            })
+
+        return dump_json({
+            'error': 'unusable file type',
+            'filename': filename,
+            'type': type,
+        })
+
+    def get_type(filename):
+        proc = run(['file', '-b', '--mime-type', filename], stdout=PIPE)
+        return proc.stdout.decode('utf-8').split('/')[0]
+
+    def get_image_duration(filename):
+        find = re.search(r'\((\d+)s\)|\[(\d+)s\]', filename)
+
+        if find:
+            return float(find.group(1) or find.group(2))
+        else:
+            return float(10)
+
+    def get_video_duration(filename):
+        try:
+            args = [
+                'ffprobe',
+                '-v', 'quiet',
+                '-show_format',
+                '-show_streams',
+                '-print_format', 'json',
+                filename,
+            ]
+
+            proc = run(args, stdout=PIPE)
+            info = loads(proc.stdout.decode('utf-8'))
+
+            return float(info['format']['duration'])
+
+        except Exception:
+            return 0.0
+
+    def create_image_preview(filename):
+        outfd, infd = os.pipe()
+        args = [
+            'ffmpeg',
+            '-noaccurate_seek', '-y',
+            '-i', filename,
+            '-vf', 'scale=-1:90,'
+                   'crop=min(160\,iw):90:(iw-ow)/2:0,'
+                   'pad=160:90:(ow-iw)/2:(oh-ih)/2',
+            '-frames', '1', '-q:v', '1',
+            '-f', 'mjpeg',
+            '/dev/fd/{fd}'.format(fd=infd)
+        ]
+
+        proc = Popen(args, pass_fds=(infd,), stdout=FNULL, stderr=STDOUT)
+        os.close(infd)
+
+        with os.fdopen(outfd, 'rb') as out:
+            return b64encode(out.read()).decode('utf-8')
+
+    def create_video_preview(filename, duration):
+        outfd, infd = os.pipe()
+        args = [
+            'ffmpeg',
+            '-ss', str(duration/3),
+            '-noaccurate_seek', '-y',
+            '-i', filename,
+            '-vf', 'scale=-1:90,'
+                   'pad=ih*16/9/sar:ih:(ow-iw)/2:(oh-ih)/2',
+            '-frames', '1', '-q:v', '1',
+            '-f', 'mjpeg',
+            '/dev/fd/{fd}'.format(fd=infd)
+        ]
+        proc = Popen(args, pass_fds=(infd,), stdout=FNULL, stderr=STDOUT)
+        os.close(infd)
+
+        with os.fdopen(outfd, 'rb') as out:
+            return b64encode(out.read()).decode('utf-8')
+
+    def do_help(*args, **kwargs):
+        print('Usage: indoktrinator-probe <file>')
+        print('Prints basic info in JSON for given file.')
+        print('')
+        print('OPTIONS:')
+        print('  --help, -h          Display this help.')
+        print('  --version, -V       Display version info.')
+        print('')
+        print('Report bugs at <http://github.com/techlib/indoktrinator>.')
+
+    def do_version(*args, **kwargs):
+        print('indoktrinator-probe (NTK) 1')
+
+    # Parse command line arguments.
+    opts, args = gnu_getopt(argv, 'hV', ['help', 'version'])
+    if len(args) > 1:
+        action = do_probe
+    else:
+        action = do_help
+
+    for k, v in opts:
+        if k in ('--help', '-h'):
+            action = do_help
+        elif k in ('--version', '-V'):
+            action = do_version
+
+    # Perform the selected action.
+    action(*args[1:])
+
+# vim:set sw=4 ts=4 et:

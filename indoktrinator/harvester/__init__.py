@@ -2,10 +2,14 @@
 # -*- coding: utf-8 -*-
 
 from twisted.python import log
-from twisted.internet import reactor
+from twisted.python.procutils import which
+from twisted.internet.task import LoopingCall
+from twisted.internet import reactor, utils
 
 from os.path import sep, join, relpath, isfile, isdir
 from natsort import natsorted, ns
+from simplejson import loads
+from base64 import b64decode
 
 from indoktrinator.harvester.shadow_tree import *
 from indoktrinator.utils import with_session
@@ -31,8 +35,9 @@ class Harvester (Tree):
         log.msg('Starting file monitoring...')
         super().start()
 
-        log.msg('Checking for missing files...')
-        self.check_files()
+        log.msg('Starting periodic missing file checks...')
+        self.check_loop = LoopingCall(self.check_files)
+        self.check_loop.start(60)
 
         log.msg('Harvester started.')
 
@@ -42,15 +47,18 @@ class Harvester (Tree):
         Remove database files and playlists that no longer exist.
         """
 
+        log.msg('Checking for missing files...')
+
         for file in self.db.file.all():
             if not isfile(join(self.path, file.path)):
                 log.msg('Delete file {!r}...'.format(file.path))
                 self.db.delete(file)
 
         for playlist in self.db.playlist.all():
-            if not isdir(join(self.path, playlist.path)):
-                log.msg('Delete playlist {!r}...'.format(playlist.path))
-                self.db.delete(playlist)
+            if playlist.path is not None:
+                if not isdir(join(self.path, playlist.path)):
+                    log.msg('Delete playlist {!r}...'.format(playlist.path))
+                    self.db.delete(playlist)
 
     def parse_path(self, path):
         """
@@ -143,7 +151,9 @@ class Harvester (Tree):
         if playlist is None:
             return
 
-        log.msg('Node {!r} moved.'.format(relpath(node.path, self.path)))
+        prev = relpath(node.prev, self.path) if node.prev is not None else None
+        path = relpath(node.path, self.path)
+        log.msg('Node {!r} -> {!r} moved.'.format(prev, path))
 
         if node.is_dir:
             if item is None:
@@ -158,6 +168,12 @@ class Harvester (Tree):
     @with_session
     def update_playlist(self, playlist, node):
         token = node.token
+        path = relpath(node.path, self.path)
+
+        if 'unknown:' in token:
+            log.msg('Node {!r} disappeared, aborting.'.format(path))
+            return
+
         plst = self.db.playlist.filter_by(path=playlist).one_or_none()
 
         if plst is None:
@@ -180,29 +196,48 @@ class Harvester (Tree):
             log.msg('Delete playlist {!r}...'.format(playlist))
             self.db.delete(plst)
 
-    @with_session
     def update_item(self, playlist, item, node):
-        token = node.token,
         path = relpath(node.path, self.path)
-        file = self.db.file.filter_by(path=path).one_or_none()
 
-        # FIXME: Properly analyze the file and obtain its type,
-        #        duration and preview to insert into the database.
+        def probe_done(info):
+            self.update_item_with_info(playlist, item, node, info)
+
+        def probe_failed(err):
+            log.msg('Failed to analyze file {!r}.'.format(node.path))
+
+        log.msg('Probing file {!r}...'.format(path))
+        d = probe_file(node.path)
+        d.addCallbacks(probe_done, probe_failed)
+
+    @with_session
+    def update_item_with_info(self, playlist, item, node, info):
+        token = node.token
+        path = relpath(node.path, self.path)
+
+        if 'unknown:' in token:
+            log.msg('Node {!r} disappeared, aborting.'.format(path))
+            return
+
+        file = self.db.file.filter_by(path=path).one_or_none()
 
         if file is None:
             log.msg('Create file {!r}...'.format(path))
             file = self.db.file.insert(**{
                 'path': path,
                 'token': token,
-                'duration': 10.0,
-                'preview': None,
-                'type': 'video',
+                'duration': info['duration'],
+                'preview': info.get('preview'),
+                'type': info['type'],
             })
 
             self.db.flush()
         else:
             if 'unknown:' not in token:
                 file.token = token
+
+            file.duration = info['duration']
+            file.preview = info.get('preview')
+            file.type = info['type']
 
         items = self.db.item.filter_by(file=file.uuid).all()
         if len(items) > 0:
@@ -312,6 +347,23 @@ class Harvester (Tree):
         else:
             log.msg('Failed to move item {!r}, updating.'.format(path))
             self.update_item(playlist, item, node)
+
+
+def probe_file(filepath):
+    paths = which('indoktrinator-probe')
+
+    if not paths:
+        log.msg('The indoktrinator-probe is not in PATH, aborting.')
+
+    d = utils.getProcessOutput(paths[0], (filepath,))
+    d.addCallback(decode_preview)
+    return d
+
+
+def decode_preview(data):
+    data = loads(data.decode('utf-8'))
+    data['preview'] = b64decode(data['preview'])
+    return data
 
 
 # vim:set sw=4 ts=4 et:
