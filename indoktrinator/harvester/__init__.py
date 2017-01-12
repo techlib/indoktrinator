@@ -226,8 +226,14 @@ class Harvester (Tree):
                 'path': path,
                 'token': token,
                 'duration': info['duration'],
-                'preview': info.get('preview'),
                 'type': info['type'],
+            })
+
+            self.db.flush()
+
+            preview = self.db.file_preview.insert(**{
+                'uuid': file.uuid,
+                'preview': info.get('preview'),
             })
 
             self.db.flush()
@@ -236,8 +242,11 @@ class Harvester (Tree):
                 file.token = token
 
             file.duration = info['duration']
-            file.preview = info.get('preview')
             file.type = info['type']
+
+            file_preview = self.db.file_preview.filter_by(uuid=file.uuid)
+            file_preview.preview = info.get('preview')
+
 
         items = self.db.item.filter_by(file=file.uuid).all()
         if len(items) > 0:
