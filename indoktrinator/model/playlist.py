@@ -3,6 +3,7 @@
 
 from indoktrinator.model import Model
 from natsort import natsorted, ns
+import flask
 
 __all__ = ['Playlist']
 
@@ -75,6 +76,7 @@ class Playlist (Model):
         def add_file(item):
             i = item.copy()
             i['file'] = self.manager.store.file[item['file']]
+            i['file']['preview'] = flask.url_for('file_preview', uuid=i['file']['uuid'])
             return i
 
         for playlist in playlists:
