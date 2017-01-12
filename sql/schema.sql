@@ -329,7 +329,6 @@ CREATE TABLE file (
     path character varying(1023) NOT NULL,
     token character varying(63) NOT NULL,
     duration real NOT NULL,
-    preview bytea,
     type file_type DEFAULT 'video'::file_type NOT NULL
 );
 
