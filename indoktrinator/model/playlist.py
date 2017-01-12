@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from indoktrinator.model import Model
-
+from natsort import natsorted, ns
 
 __all__ = ['Playlist']
 
@@ -55,19 +55,38 @@ class Playlist (Model):
                     'uuid': item.MappedItem.uuid,
                     'duration': item.MappedItem.duration,
                     'position': item.MappedItem.position,
-                    'file': item.MappedFile.uuid,
-                    'file_uuid': item.MappedFile.uuid,
-                    'file_duration': item.MappedFile.duration,
-                    'file_path': item.MappedFile.path,
-                    'file_token': item.MappedFile.token,
-                    'file_type': item.MappedFile.type,
-                    'file_preview': item.MappedFile.preview,
+                    'file': {
+                        'uuid': item.MappedFile.uuid,
+                        'duration': item.MappedFile.duration,
+                        'path': item.MappedFile.path,
+                        'token': item.MappedFile.token,
+                        'type': item.MappedFile.type,
+                        'preview': None
+                    }
                 })
 
         return result
 
     def list(self):
-        return super(Playlist, self).list(order_by=['name'])
+        result = []
+        playlists = list(self.manager.store.playlist)
+        items = self.manager.store.item.values()
+
+        def add_file(item):
+            i = item.copy()
+            i['file'] = self.manager.store.file[item['file']]
+            return i
+
+        for playlist in playlists:
+            p = self.manager.store.playlist[playlist].copy()
+            p['items'] = [add_file(item) for item in items \
+                            if item['playlist'] == p['uuid']]
+
+            p['items'] = sorted(p['items'], key=lambda item: item['position'])
+
+            result.append(p)
+
+        return natsorted(result, key=lambda item: item['name'], alg=ns.IGNORECASE)
 
     def patch(self, data, uid):
         assert uid is not None, 'Primary key is not set'

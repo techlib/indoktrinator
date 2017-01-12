@@ -119,7 +119,6 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     @authorized_only('user')
     def device_handler(**kwargs):
         if 'GET' == flask.request.method:
-            # FIXME
             result = manager.device.list()
             for r in result:
                 r['photo'] = flask.url_for('device_photo', id=r['id'])
@@ -134,7 +133,6 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     @authorized_only('user')
     def device_item_handler(id, **kwargs):
         if 'GET' == flask.request.method:
-            # FIXME
             result = manager.device.get_item(id)
             result['photo'] = flask.url_for('device_photo', id=result['id'])
             return flask.jsonify(result)
@@ -151,7 +149,6 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     @authorized_only('user')
     def file_handler(**kwargs):
         if 'GET' == flask.request.method:
-            # FIXME
             result = manager.file.list()
             for r in result:
                 r['preview'] = flask.url_for('file_preview', uuid=r['uuid'])
@@ -162,7 +159,6 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     @authorized_only('user')
     def file_item_handler(uuid, **kwargs):
         if 'GET' == flask.request.method:
-            # FIXME
             r = manager.file.get_item(uuid)
             r['preview'] = flask.url_for('file_preview', uuid=r['uuid'])
             return flask.jsonify(r)
@@ -210,7 +206,6 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     @authorized_only('user')
     def item_handler(**kwargs):
         if 'GET' == flask.request.method:
-            # FIXME
             result = manager.item.list()
             for r in result:
                 preview = flask.url_for('file_preview', uuid=r['_file']['id'])
@@ -227,7 +222,6 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     @authorized_only('user')
     def item_item_handler(uuid, **kwargs):
         if 'GET' == flask.request.method:
-            # FIXME
             result = manager.item.get_item(uuid)
             preview = flask.url_for('file_preview', uuid=result['_file']['id'])
             result['_file']['preview'] = preview
@@ -257,11 +251,10 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     @authorized_only('user')
     def playlist_item_handler(uuid, **kwargs):
         if 'GET' == flask.request.method:
-            # FIXME
             result = manager.playlist.get_item(uuid)
             for i in result['items']:
-                preview = flask.url_for('file_preview', uuid=i['file_uuid'])
-                i['file_preview'] = preview
+                preview = flask.url_for('file_preview', uuid=i['file']['uuid'])
+                i['file']['preview'] = preview
 
             return flask.jsonify(result)
 
@@ -287,7 +280,6 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     @authorized_only('user')
     def playlist_item_items_handler(uuid, **kwargs):
         if 'GET' == flask.request.method:
-            # FIXME
             result = manager.item.list({'playlist': uuid})
             for r in result:
                 p = flask.url_for('file_preview', uuid=r['_file']['uuid'])
