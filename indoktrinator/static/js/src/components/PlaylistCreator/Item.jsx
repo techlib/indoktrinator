@@ -69,7 +69,7 @@ var Item = React.createClass({
         <div className="list-group-item" style={{opacity}}>
           <div className="list-view-pf-main-info">
             <div className="list-view-pf-left">
-              <img src={this.props.file.preview} style={{height: 32, width: 32}}
+              <img src={this.props.file.preview} height="45"  width="80"
                    alt="placeholder image"/>
             </div>
             <div className="list-view-pf-body">

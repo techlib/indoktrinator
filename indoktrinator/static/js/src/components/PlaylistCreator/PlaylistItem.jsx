@@ -49,8 +49,8 @@ var PlaylistItem = React.createClass({
     let res = <div className="list-group-item" onClick={this.void}>
         <div className="list-view-pf-main-info">
           <div className="list-view-pf-left">
-            <img src={this.props.file.preview} style={{height: 32, width: 32}}
-                 alt="placeholder image"/>
+            <img src={this.props.file.preview} width="80" height="45"
+                 alt="placeholder image" />
           </div>
           <div className="list-view-pf-body">
             <div className="list-view-pf-description">

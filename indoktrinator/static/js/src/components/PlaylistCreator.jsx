@@ -141,7 +141,8 @@ var Component = React.createClass({
             file: {
 						  duration: file.file.duration,
 						  path: file.file.path,
-						  uuid: file.file.uuid
+              uuid: file.file.uuid,
+              preview: file.file.preview
             },
             hide: false,
             _type: Types.ITEM
