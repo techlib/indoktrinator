@@ -1,18 +1,12 @@
 import * as React from 'react'
 import * as Reflux from 'reflux'
-import {ModalConfirmMixin} from './ModalConfirmMixin'
-import {PlaylistActions} from '../actions'
 import {PlaylistStore} from '../stores/Playlist'
 import moment from 'moment'
-import {Types} from './PlaylistCreator/Types'
-import {StoreTypes} from './../stores/StoreTypes'
-import {add3Dots} from './../util/string'
 
 export var PlaylistDetail = React.createClass({
 
   mixins: [
-    Reflux.connect(PlaylistStore, 'data'),
-    ModalConfirmMixin
+    Reflux.connect(PlaylistStore, 'data')
   ],
 
   componentDidMount() {
@@ -23,31 +17,6 @@ export var PlaylistDetail = React.createClass({
     return {data: {playlist: {items: []}}}
   },
 
-  getItems() {
-    var items = []
-    var playlist = this.state.data.playlist
-
-    playlist.items.forEach((item) => {
-      items.push({
-        uuid: item.uuid,
-        type: Types.ITEM,
-        state: StoreTypes.LOADED,
-        file: {
-          name: item.file_path,
-          token: item.file_token,
-          duration: item.file_duration,
-          path: item.file_path,
-          preview: item.file_preview,
-          type: item.file_type,
-          uuid: item.file_uuid
-        },
-        hide: false,
-        editable: !playlist.system
-      })
-    })
-    return items
-  },
-
   render() {
     return (
       <div className='col-xs-12 container-fluid'>
@@ -55,18 +24,18 @@ export var PlaylistDetail = React.createClass({
 
         <div className="list-group list-view-pf list-view-pf-view playlist">
 
-          {this.getItems().map((item) => {
+          {this.state.data.playlist.items.map((item) => {
             return (
 								<div className="list-group-item">
 									<div className="list-view-pf-main-info">
 										<div className="list-view-pf-left">
-											<img src={item.file.preview} style={{height: 32, width: 32}}
+											<img src={item.file.preview} width="80" height="45"
 													 alt="placeholder image"/>
 										</div>
 										<div className="list-view-pf-body">
 											<div className="list-view-pf-description">
 												<div className="list-group-item-heading">
-													{item.file.name}
+													{item.file.path}
 												</div>
 											</div>
 											<div className="list-view-pf-additional-info">
