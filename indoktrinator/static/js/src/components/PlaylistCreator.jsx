@@ -18,6 +18,7 @@ import {confirmModal} from './ModalConfirmMixin'
 import {getItems} from './PlaylistEdit'
 import {StoreTypes} from './../stores/StoreTypes'
 import {Playlist} from './PlaylistCreator/Playlist'
+import {NameEdit} from './PlaylistCreator/NameEdit'
 
 var Component = React.createClass({
 
@@ -214,12 +215,19 @@ var Component = React.createClass({
     }))
   },
 
+  nameChangeHandler(name) {
+    this.setState({'name': name})
+  },
+
   render() {
     return (
       <div className='col-xs-12 container-fluid'>
-        <h1>
-          {this.state.name}
-        </h1>
+        <div className="row">
+          <NameEdit
+            changeHandler={this.nameChangeHandler}
+            name={this.state.name}
+          />
+        </div>
         <div className='row'>
           <div className='col-xs-12 col-md-6'>
             <Feedback />
