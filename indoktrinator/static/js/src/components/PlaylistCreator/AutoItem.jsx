@@ -10,7 +10,7 @@ const itemSource = {
       added: false,
       hide: true,
       file: props.item.file,
-      _type: Types.AUTO_ITEM
+      _type: Types.PLAYLIST_ITEM
     }
   },
 
@@ -24,7 +24,7 @@ const itemSource = {
 }
 
 export var AutoItem = flow(
-  DragSource(Types.AUTO_ITEM, itemSource, (connect, monitor) => ({
+  DragSource(Types.PLAYLIST_ITEM, itemSource, (connect, monitor) => ({
     connectDragSource: connect.dragSource(),
     isDragging: monitor.isDragging()
   }))

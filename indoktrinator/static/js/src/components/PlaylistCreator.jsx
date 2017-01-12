@@ -3,10 +3,11 @@ import * as Reflux from 'reflux'
 import {PlaylistActions, ItemActions, FeedbackActions, BrowserHistory} from '../actions'
 import update from 'react/lib/update'
 import {AutoItem} from './PlaylistCreator/AutoItem'
-import PlaceholderForInitialDrag, {SyntheticItem}  from './PlaylistCreator/SyntheticItem'
+import {Item}  from './PlaylistCreator/Item'
+import {Placeholder} from './PlaylistCreator/Placeholder'
 import {DragDropContext} from 'react-dnd'
 import HTML5Backend from 'react-dnd-html5-backend'
-import {map, filter} from 'lodash'
+import {map, filter, each} from 'lodash'
 import {FormattedMessage} from 'react-intl'
 import {Input} from 'react-bootstrap'
 import {Feedback} from './Feedback'
@@ -16,7 +17,7 @@ import {ItemStore} from '../stores/Item'
 import {confirmModal} from './ModalConfirmMixin'
 import {getItems} from './PlaylistEdit'
 import {StoreTypes} from './../stores/StoreTypes'
-
+import {Playlist} from './PlaylistCreator/Playlist'
 
 var Component = React.createClass({
 
@@ -31,14 +32,14 @@ var Component = React.createClass({
     this.setState({
       uuid: p.playlist.playlist.uuid,
       name: p.playlist.playlist.name,
-      playlist: {list: p.playlist.list, playlist: {}},
-      items: p.items
+      playlist: {list: p.playlist.list, playlist: p.playlist.playlist},
+      items: p.items,
     })
   },
 
   getInitialState() {
     return {
-      playlist: {list: [], playlist: {}},
+      playlist: {list: [], playlist: {items: []}},
       filter: '',
       items: []
     }
@@ -57,17 +58,23 @@ var Component = React.createClass({
     }))
   },
 
-  addToSynth(obj, pos) {
+  addToItems(obj, pos) {
     this.setState(update(this.state, {
       items: {$splice: [[pos, 0, obj]]}
     }))
+  },
+
+  appendItem(obj) {
+    this.setState(update(this.state, {
+      items: {$push: [obj]}
+    }), this.finalizeDrop)
   },
 
   cancelDrop() {
     this.setState(update(this.state, {
       items: {
         $set: this.state.items.filter((item) => {
-          return item._type != 'auto'
+          return item._type === Types.ITEM
         })
       }
     }))
@@ -117,61 +124,82 @@ var Component = React.createClass({
   },
 
   finalizeDrop() {
-    var items = map(this.state.items, (item) => {
+    var items = []
+		var counter = 0
+
+    each(this.state.items, (item) => {
       item.hide = false
-      item._type = 'synth'
-      return item
+			if (item._type === Types.PLAYLIST_ITEM) {
+        item._type = Types.ITEM
+        items.push(item)
+      } else if (item._type === Types.PLAYLIST) {
+        each(item.items, (file) => {
+					var res = {
+            uuid: item.uuid + counter,
+            duration: file.file.duration,
+            file: {
+						  duration: file.file.duration,
+						  path: file.file.path,
+						  uuid: file.file.uuid
+            },
+            hide: false,
+            _type: Types.ITEM
+					}
+          items.push(res)
+					counter++
+        })
+      } else {
+				items.push(item)
+			}
     })
 
-    this.setState(update(this.state, {
+		this.setState(update(this.state, {
       items: {$set: items}
     }))
 
   },
 
-  getSyntheticItem(item, index) {
+  getItem(item, index) {
     if (item.hasOwnProperty('index')) {
       delete item.index
     }
 
-    return <SyntheticItem
+    return <Item
       index={index}
       key={item.uuid}
       hide={item.hide}
-      item={item}
-      type={Types.SYNTH_ITEM}
+      uuid={item.uuid}
+      file={item.file}
+      duration={item.duration}
       deleteItemHandler={this.deleteItemHandler}
       moveItem={this.moveItem}
-      addToSynth={this.addToSynth}
+      addToItems={this.addToItems}
       />
   },
 
-  getAutoItem(file, index) {
-    // normalize for <Item>
-    var item = {
-      uuid: file.uuid,
-      file: {
-        duration: file.duration,
-        name: file.name,
-        preview: file.preview,
-        uuid: file.uuid
+  getAvailablePlaylists() {
+    var result = []
+
+    each(this.state.playlist.list, (item, index) => {
+
+      var items = filter(item.items, (file) => {
+        return file.file.path.toLowerCase().indexOf(this.state.filter.toLowerCase()) >= 0
+      })
+
+      if (items.length > 0) {
+        result.push(<Playlist
+                  finalizeDrop={this.finalizeDrop}
+                  cancelDrop={this.cancelDrop}
+                  addToItems={this.addToItems}
+                  appendItem={this.appendItem}
+                  name={item.name}
+                  items={items}
+                  key={item.uuid}
+                />)
       }
-    }
-
-    return <AutoItem
-      index={index}
-      key={item.uuid}
-      item={item}
-      type={Types.AUTO_ITEM}
-      cancelDrop={this.cancelDrop}
-      finalizeDrop={this.finalizeDrop}
-    />
-  },
-
-  getFilteredAvailableFiles() {
-    return filter(this.props.files, (item) => {
-      return item.name.toLowerCase().indexOf(this.state.filter.toLowerCase()) >= 0
     })
+
+    return result
   },
 
   reloadItems(playlist) {
@@ -200,27 +228,17 @@ var Component = React.createClass({
                 <FormattedMessage
                   id="app.menu.playlist.name"
                   description="Title"
-                  defaultMessage="Playlist"
+                  defaultMessage="Playlist items"
                 />
               </div>
 
               <div className='panel-body'>
-                <div className="form-horizontal">
-                  <Input
-                    type="text"
-                    label="Name"
-                    ref="name"
-                    name="name"
-                    onChange={this.handleChange}
-                    value={this.state.name}
-                    {...this.commonProps} />
                   <div className="list-group list-view-pf list-view-pf-view playlist">
                     {this.state.items.map((item, i) => {
-                      return (this.getSyntheticItem(item, i))
+                      return (this.getItem(item, i))
                     })}
-                    {!this.state.items.length && <PlaceholderForInitialDrag addToSynth={this.addToSynth}/>}
+                    {!this.state.items.length && <Placeholder addToItems={this.addToItems}/>}
                   </div>
-                </div>
               </div>
               <div className='panel-footer'>
                 <div className="row">
@@ -239,28 +257,30 @@ var Component = React.createClass({
             </div>
           </div>
           <div className='col-xs-12 col-md-6'>
-            <div className='row'>
               <div className='panel panel-default'>
                 <div className='panel-heading'>
                   <FormattedMessage
                     id="app.items.title"
                     description="Title"
-                    defaultMessage="Items"
+                    defaultMessage="Available items and playlists"
                   />
                 </div>
                 <div className='panel-body'>
-                  <div className="form-horizontal">
-                    <input onChange={this.handleFilter} type="text" ref="filter"/>
-                    <div className="list-group list-view-pf list-view-pf-view playlist">
-                      {this.getFilteredAvailableFiles().map((item, i) => {
-                          return (this.getAutoItem(item, i))
-                        }
-                      )}
-                    </div>
-                  </div>
+
+										<form class="search-pf">
+											<div className="form-group has-feedback">
+												<div className="search-pf-input-group">
+													<input onChange={this.handleFilter} type="search" className="form-control" placeholder="Search" ref="filter"/>
+ 													<span className="glyphicon glyphicon-search form-control-feedback" aria-hidden="true"></span>
+												</div>
+											</div>
+										</form>
+
+                   <div className="list-group list-view-pf list-view-pf-view playlist">
+                     {this.getAvailablePlaylists()}
+                   </div>
                 </div>
               </div>
-            </div>
           </div>
         </div>
       </div>

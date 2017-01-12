@@ -30,7 +30,7 @@ export var PlaylistDetail = React.createClass({
     playlist.items.forEach((item) => {
       items.push({
         uuid: item.uuid,
-        type: Types.SYNTH_ITEM,
+        type: Types.ITEM,
         state: StoreTypes.LOADED,
         file: {
           name: item.file_path,

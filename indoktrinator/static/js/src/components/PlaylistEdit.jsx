@@ -14,13 +14,9 @@ export function getItems(playlist) {
     return {
       uuid: item.uuid,
       hide: false,
-      file: {
-        name: item.file_path, // TODO cut to relevant part only
-        duration: item.file_duration,
-        preview: item.file_preview,
-        type: item.file_type,
-        uuid: item.file_uuid
-      }
+      file: item.file,
+      duration: item.duration,
+      _type: Types.ITEM,
     }
   })
 }

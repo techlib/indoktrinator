@@ -1,7 +1,5 @@
 export const Types = {
-  SYNTH_ITEM: 'synth_item',
-  AUTO_ITEM: 'auto__item',
-  SYNTH_GROUP: 'synth__group',
-  AUTO_GROUP: 'auto_group',
-  DEFAULT: 'default'
+  ITEM: 'item',
+  PLAYLIST_ITEM: 'playlist_item',
+  PLAYLIST: 'playlist'
 }
