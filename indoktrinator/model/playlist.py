@@ -85,6 +85,7 @@ class Playlist (Model):
                             if item['playlist'] == p['uuid']]
 
             p['items'] = sorted(p['items'], key=lambda item: item['position'])
+            p['system'] = p['token'] is not None
 
             result.append(p)
 
