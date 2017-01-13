@@ -3,13 +3,13 @@ import * as Reflux from 'reflux'
 //import {UserInfoStore} from "../stores/UserInfo"
 import {Nav, Navbar, NavItem} from 'react-bootstrap'
 import {LinkContainer} from 'react-router-bootstrap'
-import {FormattedMessage, FormattedDate} from 'react-intl'
 import {LocaleSwitcher} from './LocaleSwitcher'
+import {translate} from 'react-i18next'
 
 var Header = Navbar.Header
 var Brand = Navbar.Brand
 
-export var AdminNavBar = React.createClass({
+export var AdminNavBar = translate(['app','menu'])(React.createClass({
   mixins: [
     //Reflux.connect(UserInfoStore, 'user')
     ],
@@ -20,15 +20,12 @@ export var AdminNavBar = React.createClass({
 
   getAvailableLinks() {
     var res = []
+    const {t} = this.props
 
     res.push(
       <LinkContainer to='/device/' key='device'>
         <NavItem eventKey={2}>
-          <FormattedMessage
-            id="app.menu.devices.title"
-            description="Title"
-            defaultMessage="Devices"
-          />
+          {t('menu:devices')}
         </NavItem>
       </LinkContainer>
     )
@@ -36,11 +33,7 @@ export var AdminNavBar = React.createClass({
     res.push(
       <LinkContainer to='/program/' key='program'>
         <NavItem eventKey={2}>
-          <FormattedMessage
-            id="app.menu.programmes.title"
-            description="Title"
-            defaultMessage="Programs"
-          />
+          {t('menu:programs')}
         </NavItem>
       </LinkContainer>
     )
@@ -48,11 +41,7 @@ export var AdminNavBar = React.createClass({
     res.push(
       <LinkContainer to='/playlist/' key='playlist'>
         <NavItem eventKey={2}>
-          <FormattedMessage
-            id="app.menu.playlists.title"
-            description="Title"
-            defaultMessage="Playlists"
-          />
+          {t('menu:playlists')}
         </NavItem>
       </LinkContainer>
     )
@@ -61,24 +50,18 @@ export var AdminNavBar = React.createClass({
   },
 
   render() {
+    const {t} = this.props
+
     return (
       <div className='navbar navbar-pf'>
         <Header>
           <Brand>
             <a href="/#/">
               <b>
-                <FormattedMessage
-                  id="app.menu.brand.name"
-                  description="Brand name"
-                  defaultMessage="Indoktrinator"
-                />
+                {t('app:name')}
               </b>
               <p>
-                <FormattedMessage
-                  id="app.menu.brand.description"
-                  description="Branch description"
-                  defaultMessage="Signage management"
-                />
+                {t('app:description')}
               </p>
             </a>
           </Brand>
@@ -106,5 +89,5 @@ export var AdminNavBar = React.createClass({
       </div>
     )
   }
-})
+}))
 
