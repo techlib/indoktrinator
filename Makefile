@@ -17,6 +17,11 @@ build: npm
 dev: npm
 	node_modules/webpack/bin/webpack.js --progress --colors --watch --display-error-details --config webpack/dev.js
 
+lang:
+	mkdir -p scripts/tmp
+	node scripts/extract-lang.js
+	rm -rf scripts/tmp
+
 lint:
 	node_modules/eslint/bin/eslint.js --ext .js,.jsx indoktrinator/static/js/src/ -c .eslintrc.json
 
