@@ -1,7 +1,7 @@
 import i18n from 'i18next';
 
-import {en} from '../lang/en'
-import {cs} from '../lang/cs'
+const en = require('json!../lang/en.json')
+const cs = require('json!../lang/cs.json')
 
 i18n
   .init({
