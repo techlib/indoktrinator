@@ -3,11 +3,14 @@ import {AdminNavBar} from './AdminNavBar'
 import {IntlProvider, addLocaleData} from 'react-intl'
 import enLocaleData from 'react-intl/locale-data/en'
 import {ErrorFeedback} from './ErrorFeedback'
+import { I18nextProvider } from 'react-i18next'
+import i18n from './i18n'
 
 addLocaleData(enLocaleData)
 
 const enMessages = require('json!./../../../dist/lang/en-US.json')
 const czMessages = require('json!./../../../dist/lang/cz.json')
+
 
 export var App = React.createClass({
 
@@ -15,7 +18,7 @@ export var App = React.createClass({
     return {
       'messages': {},
       'language': 'en',
-      'languages': ['en', 'cz'],
+      'languages': ['en', 'cs'],
       'defaultLanguage': 'en'
     }
   },
@@ -35,6 +38,7 @@ export var App = React.createClass({
   },
 
   handleChangeLang(lang) {
+    i18n.changeLanguage(lang)
     this.setState({
       'lang': lang,
       'messages': this.getLocaleMessages(lang)
@@ -42,11 +46,11 @@ export var App = React.createClass({
   },
 
   getLocales() {
-    return ['en', 'cz']
+    return ['en', 'cs']
   },
 
   render() {
-    return <IntlProvider locale={this.state.language} defaultLocale={this.state.defaultLanguage} messages={this.state.messages}>
+    return   <I18nextProvider i18n={ i18n }><IntlProvider locale={this.state.language} defaultLocale={this.state.defaultLanguage} messages={this.state.messages}>
       <div>
         <ErrorFeedback/>
         <AdminNavBar
@@ -58,5 +62,6 @@ export var App = React.createClass({
 
       </div>
     </IntlProvider>
+    </I18nextProvider>
   }
 })
