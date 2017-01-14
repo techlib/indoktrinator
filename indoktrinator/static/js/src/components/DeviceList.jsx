@@ -5,9 +5,9 @@ import {DeviceStore} from '../stores/Device'
 import {DeviceActions} from '../actions'
 import {Link} from 'react-router'
 import {DeviceListPanel} from './DeviceListPanel'
-import {FormattedMessage} from 'react-intl'
+import {translate} from 'react-i18next'
 
-export var DeviceList = React.createClass({
+export var DeviceList = translate(['device'])(React.createClass({
 
   mixins: [Reflux.connect(DeviceStore, 'data')],
 
@@ -25,20 +25,12 @@ export var DeviceList = React.createClass({
         <div className="row">
           <div className="col-xs-12 col-sm-10">
             <h1>
-              <FormattedMessage
-                id="app.menu.devices.title"
-                description="Title"
-                defaultMessage="Devices"
-              />
+              {this.props.t('device:list.title')}
             </h1>
           </div>
           <div className="col-xs-12 col-sm-2 h1 text-right">
             <a className='btn btn-success' href='#/device/new'>
-              <i className='fa fa-plus'></i> <FormattedMessage
-                id="app.menu.device.new"
-                description="Title"
-                defaultMessage="New device"
-              />
+              <i className='fa fa-plus'></i> {this.props.t('device:list.new')}
             </a>
           </div>
         </div>
@@ -54,5 +46,5 @@ export var DeviceList = React.createClass({
     </div>
     )
   }
-})
+}))
 

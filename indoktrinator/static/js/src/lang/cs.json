@@ -1,1 +1,48 @@
-{}
+{
+  "app": {
+    "description": "Signage management",
+    "name": "Indoktrinátor"
+  },
+  "menu": {
+    "devices": "Zařízení",
+    "playlists": "Playlisty",
+    "programs": "Programy"
+  },
+  "device": {
+    "labels": {
+      "id": "Id",
+      "name": "Název",
+      "photo": "Foto",
+      "preview": "Náhled",
+      "program": "Program",
+      "title": "Zařízení"
+    },
+    "list": {
+      "new": "Přidat zařízení",
+      "title": "Zařízení"
+    },
+    "noprogram": "- bez programu -",
+    "status": {
+      "offline": "Offline",
+      "online": "Online",
+      "off": "Vypnuto",
+      "on": "Zapnuto"
+    },
+    "alerts": {
+      "delete": "Zařízení bylo smazáno",
+      "programset": "Program byl nastaven",
+      "update": "Zařízení bylo aktualizováno"
+    },
+    "confirm": {
+      "delete": "Opravdu chcete smazat {{name}}?"
+    }
+  },
+  "common": {
+    "confirm": {
+      "areyousure": "Potvrzení"
+    },
+    "alerts": {
+      "invalidform": "Formulář obsahuje chyby:"
+    }
+  }
+}

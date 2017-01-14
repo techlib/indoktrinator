@@ -1,10 +1,10 @@
 import * as React from 'react'
 import {Link} from 'react-router'
-import {FormattedMessage} from 'react-intl'
 import {programSelectionModal} from './ModalProgramSelect'
 import {DeviceActions, FeedbackActions} from '../actions'
+import {translate} from 'react-i18next'
 
-export var DeviceListPanel = React.createClass({
+export var DeviceListPanel = translate('device')(React.createClass({
 
   selectProgram() {
     programSelectionModal(
@@ -13,7 +13,7 @@ export var DeviceListPanel = React.createClass({
       DeviceActions.update.triggerAsync({id: this.props.id, program: newProgram})
       .then(() => {
         DeviceActions.list()
-        FeedbackActions.set('success', 'Program set')
+        FeedbackActions.set('success', this.props.t('device:alerts.programset'))
 
       })
     })
@@ -21,6 +21,7 @@ export var DeviceListPanel = React.createClass({
 
   render() {
     var onlineIcon = this.props.online ? 'pficon-ok' : 'pficon-error-circle-o'
+    const {t} =this.props
 
     return (
       <div className="col-xs-12 col-sm-6 col-md-4 col-lg-3">
@@ -41,30 +42,23 @@ export var DeviceListPanel = React.createClass({
           </div>
           <div className="panel-footer">
             <span className="pficon" className={onlineIcon}>
-            </span> <FormattedMessage
-              id={'app.menu.device.' + (this.props.online ? 'online' : 'offline')}
-              description="Label"
-              defaultMessage="Online"
-            />
+            </span> {this.props.online ? t('device:status.online')
+                                       : t('device:status.offline')}
+
             {this.props.online ? [
               ', ',
               <span className="fa fa-power-off"> </span>,
-              ' ',
-              <FormattedMessage
-                id={'app.menu.device.' + (this.props.power ? 'on' : 'off')}
-                defaultMessage="on"
-              />]
+                ' ',
+                this.props.power ? t('device:status.on') : t('device:status.off')
+                ]
                 : null}
             <br/>
-            <a onClick={this.selectProgram}>{this.props.program ?
-              this.props._program.name :
-              <FormattedMessage
-                id="app.menu.device.noprogram"
-                defaultMessage="- no program selected -"
-              />}</a>
+            <a onClick={this.selectProgram}>
+              {this.props.program ? this.props._program.name : t('device:noprogram')}
+            </a>
           </div>
         </div>
       </div>
     )
   }
-})
+}))

@@ -1,1 +1,48 @@
-{}
+{
+  "app": {
+    "description": "Signage management",
+    "name": "Indoktrinator"
+  },
+  "menu": {
+    "devices": "Devices",
+    "playlists": "Playlists",
+    "programs": "Programs"
+  },
+  "device": {
+    "labels": {
+      "id": "Id",
+      "name": "Name",
+      "photo": "Photo",
+      "preview": "Preview",
+      "program": "Program",
+      "title": "Device"
+    },
+    "list": {
+      "new": "Create device",
+      "title": "Devices"
+    },
+    "noprogram": "- no program selected -",
+    "status": {
+      "offline": "Offline",
+      "online": "Online",
+      "off": "Off",
+      "on": "On"
+    },
+    "alerts": {
+      "delete": "Device deleted",
+      "programset": "Program set",
+      "update": "Device updated"
+    },
+    "confirm": {
+      "delete": "Do you really want to delete {{name}}?"
+    }
+  },
+  "common": {
+    "confirm": {
+      "areyousure": "Are you sure?"
+    },
+    "alerts": {
+      "invalidform": "Form contains invalid data:"
+    }
+  }
+}

@@ -6,8 +6,9 @@ import {ProgramStore} from '../stores/Program'
 import {DeviceStore} from '../stores/Device'
 import {hashHistory as BrowserHistory} from 'react-router'
 import {confirmModal} from './ModalConfirmMixin'
+import {translate} from 'react-i18next'
 
-export var DeviceEdit = React.createClass({
+export var DeviceEdit = translate(['device','common'])(React.createClass({
 
   mixins: [
     Reflux.connect(DeviceStore, 'device'),
@@ -40,22 +41,26 @@ export var DeviceEdit = React.createClass({
     delete data['preview']
     delete data['state']
 
+    const {t} = this.props
+
     DeviceActions.update.triggerAsync(data)
     .then(() => {
       DeviceActions.read(this.props.params.id)
-      FeedbackActions.set('success', 'Device updated')
+      FeedbackActions.set('success', t('device:alerts.update'))
     })
   },
 
   handleDelete(id) {
+    const {t} = this.props
+
     confirmModal(
-      'Are you sure?',
-      'Would you like to remove device?'
+      t('confirm.areyousure'),
+      t('device:confirm.delete', {name: this.state.device.device.name})
     ).then(() => {
       DeviceActions.delete.triggerAsync(id)
       .then(() => {
         BrowserHistory.push('/device/')
-        FeedbackActions.set('success', 'Device deleted')
+        FeedbackActions.set('success', t('device:alerts.delete'))
       })
     })
   },
@@ -71,5 +76,5 @@ export var DeviceEdit = React.createClass({
       />
     )
   }
-})
+}))
 
