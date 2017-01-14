@@ -43,6 +43,37 @@
     },
     "alerts": {
       "invalidform": "Form contains invalid data:"
+    },
+    "search": "Search",
+    "validation": {
+      "required": "{{name}} is required"
+    },
+    "labels": {
+      "actions": "Actions"
     }
+  },
+  "playlist": {
+    "availabelitems": "Available items and playlists",
+    "buttons": {
+      "save": "Save playlist",
+      "copy": "Copy",
+      "delete": "Delete",
+      "new": "Create playlist",
+      "create": "Create playlist"
+    },
+    "items": "Playlist items",
+    "placeholder": "Drag item or playlist here",
+    "confirm": {
+      "delete": "Do you really want to delete playlist {{name}}?"
+    },
+    "labels": {
+      "duration": "Duration",
+      "name": "Name"
+    },
+    "list": {
+      "title": "Playlists"
+    },
+    "title": "Playlist",
+    "titlenew": "Create new playlist"
   }
 }

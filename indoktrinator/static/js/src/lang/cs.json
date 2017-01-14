@@ -43,6 +43,37 @@
     },
     "alerts": {
       "invalidform": "Formulář obsahuje chyby:"
+    },
+    "search": "Vyhledávání",
+    "validation": {
+      "required": "Pole {{name}} je povinné"
+    },
+    "labels": {
+      "actions": "Úpravy"
     }
+  },
+  "playlist": {
+    "availabelitems": "Dostupné klipy a playlisty",
+    "buttons": {
+      "save": "Uložit playlist",
+      "copy": "Kopírovat",
+      "delete": "Smazat",
+      "new": "Nový playlist",
+      "create": "Vytvořit playlist"
+    },
+    "items": "Klipy",
+    "placeholder": "Sem přetáhněte klip nebo playlist",
+    "confirm": {
+      "delete": "Opravdu chcete smazat playlist {{name}}?"
+    },
+    "labels": {
+      "duration": "Trvání",
+      "name": "Název"
+    },
+    "list": {
+      "title": "Playlisty"
+    },
+    "title": "Playlist",
+    "titlenew": "Nový playlist"
   }
 }

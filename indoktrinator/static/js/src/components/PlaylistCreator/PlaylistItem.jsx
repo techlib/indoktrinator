@@ -4,7 +4,6 @@ import moment from 'moment'
 import {DragSource} from 'react-dnd'
 import {Types} from './Types'
 import {findDOMNode} from 'react-dom'
-import {FormattedMessage} from 'react-intl'
 
 const itemSource = {
   beginDrag(props, monitor, component) {
@@ -49,8 +48,7 @@ var PlaylistItem = React.createClass({
     let res = <div className="list-group-item" onClick={this.void}>
         <div className="list-view-pf-main-info">
           <div className="list-view-pf-left">
-            <img src={this.props.file.preview} width="80" height="45"
-                 alt="placeholder image" />
+            <img src={this.props.file.preview} width="80" height="45" />
           </div>
           <div className="list-view-pf-body">
             <div className="list-view-pf-description">

@@ -1,10 +1,10 @@
 import {DropTarget} from 'react-dnd'
 import {Types} from './Types'
 import * as React from 'react'
-import {FormattedMessage} from 'react-intl'
 import {itemTarget as target} from './Item'
+import {translate} from 'react-i18next'
 
-var Placeholder = React.createClass({
+var Placeholder = translate('playlist')(React.createClass({
 
   render() {
     const {connectDropTarget} = this.props
@@ -14,18 +14,14 @@ var Placeholder = React.createClass({
         <div className="list-view-pf-body">
           <div className="list-view-pf-description">
             <div className="list-group-item-heading" style={{textAlign: 'center'}}>
-              <FormattedMessage
-                id="app.menu.event.item.dragAndDropExample"
-                description="Text"
-                defaultMessage="Drag and drop here!"
-              />
+              {this.props.t('playlist:placeholder')}
             </div>
           </div>
         </div>
       </div>
     </div>)
   }
-})
+}))
 
 export var Placeholder = DropTarget([Types.PLAYLIST_ITEM, Types.PLAYLIST],
   target,

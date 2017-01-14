@@ -8,9 +8,9 @@ import {Link, hashHistory as BrowserHistory} from 'react-router'
 import Griddle from 'griddle-react'
 import {Pager} from './Pager'
 import {regexGridFilter} from '../util/griddle-components'
-import {FormattedMessage} from 'react-intl'
 import {confirmModal} from './ModalConfirmMixin'
 import moment from 'moment'
+import {translate} from 'react-i18next'
 
 let Duration = React.createClass({
   render() {
@@ -29,7 +29,7 @@ let PlaylistLink = React.createClass({
   }
 })
 
-let PlaylistActions = React.createClass({
+let PlaylistActions = translate(['playlist', 'common'])(React.createClass({
 
   mixins: [
     Reflux.connect(PlaylistStore, 'playlist')
@@ -49,8 +49,8 @@ let PlaylistActions = React.createClass({
 
   handleDeletePlayList() {
     confirmModal(
-      'Are you sure?',
-      'Would you like to remove playlist?'
+      this.props.t('confirm.areyousure'),
+      this.props.t('playlist:confirm.delete', {name: this.props.rowData.name})
     ).then(() => {
       pa.delete(this.props.rowData.uuid, () => {
         pa.list()
@@ -60,34 +60,28 @@ let PlaylistActions = React.createClass({
   },
 
   render() {
+    const {t} = this.props
+
     return (
       <span>
         <Button
           label=''
           bsStyle=''
           onClick={this.handleCopyPlayList}>
-      <i className="fa fa-files-o"></i> <FormattedMessage
-             id="app.button.copy"
-             description="Title"
-             defaultMessage="Copy"
-           />
+      <i className="fa fa-files-o"></i> {t('playlist:buttons.copy')}
     </Button>
         {!this.props.rowData.system ? <Button
           label=''
           bsStyle=''
           onClick={this.handleDeletePlayList}>
-          <i className="fa fa-trash"></i> <FormattedMessage
-            id="app.button.delete"
-            description="Title"
-            defaultMessage="Delete"
-          />
+          <i className="fa fa-trash"></i> {t('playlist:buttons.delete')} 
         </Button> : null}
       </span>
     )
   }
-})
+}))
 
-export var PlaylistList = React.createClass({
+export var PlaylistList = translate(['playlist','common'])(React.createClass({
   mixins: [Reflux.connect(PlaylistStore, 'data')],
 
   componentDidMount() {
@@ -100,10 +94,15 @@ export var PlaylistList = React.createClass({
 
   render() {
 
+    const {t} = this.props
+
     let columnMeta = [
-      {columnName: 'name', displayName: 'Name', customComponent: PlaylistLink},
-      {columnName: 'duration', displayName: 'Duration', customComponent: Duration},
-      {columnName: 'c', displayName: 'Actions', customComponent: PlaylistActions, cssClassName: 'griddle-actions'}
+      {columnName: 'name', displayName: t('playlist:labels.name'), 
+          customComponent: PlaylistLink},
+      {columnName: 'duration', displayName: t('playlist:labels.duration'), 
+            customComponent: Duration},
+      {columnName: 'c', displayName: t('labels.actions'), 
+            customComponent: PlaylistActions, cssClassName: 'griddle-actions'}
     ]
 
     return (
@@ -111,20 +110,12 @@ export var PlaylistList = React.createClass({
         <div className="row">
           <div className="col-xs-12 col-sm-10">
             <h1>
-              <FormattedMessage
-                id="app.menu.playlists.title"
-                description="Title"
-                defaultMessage="Playlists"
-              />
+              {t('playlist:list.title')}
             </h1>
           </div>
           <div className="col-xs-12 col-sm-2 h1 text-right">
             <a className='btn btn-success' href='#/playlist/new'>
-              <i className='fa fa-plus'></i> <FormattedMessage
-                id="app.menu.playlist.new"
-                description="Title"
-                defaultMessage="New playlist"
-              />
+              <i className='fa fa-plus'></i> {t('playlist:buttons.new')}
             </a>
           </div>
         </div>
@@ -146,5 +137,5 @@ export var PlaylistList = React.createClass({
       </div>
     )
   }
-})
+}))
 

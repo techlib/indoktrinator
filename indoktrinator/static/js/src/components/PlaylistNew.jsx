@@ -4,11 +4,11 @@ import {PlaylistActions, FeedbackActions} from '../actions'
 import {PlaylistStore} from '../stores/Playlist'
 import {hashHistory as BrowserHistory} from 'react-router'
 import {guid} from '../util/database'
-import {FormattedMessage} from 'react-intl'
 import {Feedback} from './Feedback'
 import {Input} from 'react-bootstrap'
+import {translate} from 'react-i18next'
 
-export var PlaylistNew = React.createClass({
+export var PlaylistNew = translate(['playlist', 'common'])(React.createClass({
 
   commonProps: {
     labelClassName: 'col-xs-2',
@@ -31,11 +31,11 @@ export var PlaylistNew = React.createClass({
     var r = []
 
     if (!this.state.name) {
-      r.push('Name is required')
+      r.push(this.props.t('validation.required', {name: '$t(labels.name)'}))
     }
 
     if (!this.state.uuid) {
-      r.push('Uuid is required')
+      r.push(this.props.t('validation.required', {name: 'uuid'}))
     }
 
     return r
@@ -45,7 +45,7 @@ export var PlaylistNew = React.createClass({
     var errors = this.validate()
 
     if (errors.length > 0) {
-      FeedbackActions.set('error', 'Form contains invalid data:', errors)
+      FeedbackActions.set('error', this.props.t('alerts.invalidform'), errors)
     } else {
       var playlist = {}
       playlist.name = this.state.name
@@ -58,31 +58,25 @@ export var PlaylistNew = React.createClass({
   },
 
   render() {
+    const {t} = this.props
+
     return (
       <div className='col-xs-12 container-fluid'>
         <h1>
-          <FormattedMessage
-            id="app.playlist.title"
-            description="Title"
-            defaultMessage="Create playlist"
-          />
+          {t('playlist:titlenew')}
         </h1>
         <div className='row'>
           <div className='col-xs-12 col-md-6'>
             <Feedback />
             <div className='panel panel-default'>
               <div className='panel-heading'>
-                <FormattedMessage
-                  id="app.menu.playlist.title"
-                  description="Title"
-                  defaultMessage="Playlist"
-                />
+                {t('playlist:title')}
               </div>
               <div className='panel-body'>
                 <div className="form-horizontal">
                   <Input
                     type="text"
-                    label="Name"
+                    label={t('playlist:labels.name')}
                     ref="name"
                     name="name"
                     onChange={this.handleChange}
@@ -95,11 +89,7 @@ export var PlaylistNew = React.createClass({
                   <div className="col-xs-6">
                     <button className='btn btn-primary'
                       onClick={this.save}>
-                      <FormattedMessage
-                        id="app.buttons.save"
-                        description="Save button"
-                        defaultMessage="Save"
-                      />
+                      {t('playlist:buttons.create')}
                     </button>
                   </div>
                 </div>
@@ -110,4 +100,4 @@ export var PlaylistNew = React.createClass({
       </div>)
   }
 
-})
+}))

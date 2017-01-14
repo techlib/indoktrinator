@@ -8,7 +8,6 @@ import {Placeholder} from './PlaylistCreator/Placeholder'
 import {DragDropContext} from 'react-dnd'
 import HTML5Backend from 'react-dnd-html5-backend'
 import {map, filter, each} from 'lodash'
-import {FormattedMessage} from 'react-intl'
 import {Input} from 'react-bootstrap'
 import {Feedback} from './Feedback'
 import {Types} from './PlaylistCreator/Types'
@@ -19,6 +18,7 @@ import {getItems} from './PlaylistEdit'
 import {StoreTypes} from './../stores/StoreTypes'
 import {Playlist} from './PlaylistCreator/Playlist'
 import {NameEdit} from './PlaylistCreator/NameEdit'
+import {translate} from 'react-i18next'
 
 var Component = React.createClass({
 
@@ -89,7 +89,7 @@ var Component = React.createClass({
     var errors = this.validate()
 
     if (errors.length > 0) {
-      FeedbackActions.set('error', 'Form contains invalid data:', errors)
+      FeedbackActions.set('error', this.props.t('alerts.invalidform'), errors)
     } else {
 
       var data = {
@@ -112,7 +112,9 @@ var Component = React.createClass({
 
   validate() {
     var r = []
-    if (!this.state.name) {r.push('Name is required')}
+    if (!this.state.name) {
+      r.push(this.props.t('validation.required', {name: 'Name'}))
+    }
     return r
   },
 
@@ -221,6 +223,8 @@ var Component = React.createClass({
   },
 
   render() {
+    const {t} = this.props
+
     return (
       <div className='col-xs-12 container-fluid'>
         <div className="row">
@@ -234,11 +238,7 @@ var Component = React.createClass({
             <Feedback />
             <div className='panel panel-default'>
               <div className='panel-heading'>
-                <FormattedMessage
-                  id="app.menu.playlist.name"
-                  description="Title"
-                  defaultMessage="Playlist items"
-                />
+                {t('playlist:items')}
               </div>
 
               <div className='panel-body'>
@@ -254,11 +254,7 @@ var Component = React.createClass({
                   <div className="col-xs-6">
                     <button className='btn btn-primary'
                       onClick={this.save}>
-                      <FormattedMessage
-                        id="app.buttons.save"
-                        description="Save button"
-                        defaultMessage="Save"
-                      />
+                      {t('playlist:buttons.save')}
                     </button>
                   </div>
                 </div>
@@ -268,18 +264,14 @@ var Component = React.createClass({
           <div className='col-xs-12 col-md-6'>
               <div className='panel panel-default'>
                 <div className='panel-heading'>
-                  <FormattedMessage
-                    id="app.items.title"
-                    description="Title"
-                    defaultMessage="Available items and playlists"
-                  />
+                  {t('playlist:availabelitems')}
                 </div>
                 <div className='panel-body'>
 
 										<form class="search-pf">
 											<div className="form-group has-feedback">
 												<div className="search-pf-input-group">
-													<input onChange={this.handleFilter} type="search" className="form-control" placeholder="Search" ref="filter"/>
+													<input onChange={this.handleFilter} type="search" className="form-control" placeholder={t('search')} ref="filter"/>
  													<span className="glyphicon glyphicon-search form-control-feedback" aria-hidden="true"></span>
 												</div>
 											</div>
@@ -297,4 +289,6 @@ var Component = React.createClass({
   }
 })
 
-export var PlaylistCreator = DragDropContext(HTML5Backend)(Component)
+export var PlaylistCreator = translate(['playlist', 'common'])(
+  DragDropContext(HTML5Backend)(Component)
+)

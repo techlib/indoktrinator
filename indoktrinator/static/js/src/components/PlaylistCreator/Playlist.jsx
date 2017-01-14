@@ -4,7 +4,6 @@ import moment from 'moment'
 import {DragSource} from 'react-dnd'
 import {Types} from './Types'
 import {findDOMNode} from 'react-dom'
-import {FormattedMessage} from 'react-intl'
 import {PlaylistItem} from './PlaylistItem'
 
 const playlistSource = {

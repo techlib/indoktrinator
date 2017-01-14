@@ -3,7 +3,6 @@ import {Types} from './Types'
 import {flow} from 'lodash'
 import {findDOMNode} from 'react-dom'
 import * as React from 'react'
-import {FormattedMessage} from 'react-intl'
 import moment from 'moment'
 import 'moment-duration-format'
 
