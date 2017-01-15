@@ -50,7 +50,8 @@
     },
     "labels": {
       "actions": "Actions"
-    }
+    },
+    "languagetoggle": "Přepnout do češtiny"
   },
   "playlist": {
     "availabelitems": "Available items and playlists",

@@ -57,6 +57,7 @@ export var App = React.createClass({
           changeLocaleHandler={this.handleChangeLang}
           defaultLanguage={this.state.defaultLanguage}
           languages={this.state.languages}
+          i18n={i18n}
         />
         {this.props.children}
 

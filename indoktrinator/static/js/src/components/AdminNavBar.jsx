@@ -53,7 +53,7 @@ export var AdminNavBar = translate(['app','menu'])(React.createClass({
     const {t} = this.props
 
     return (
-      <div className='navbar navbar-pf'>
+      <div className='navbar navbar-pf navbar-default'>
         <Header>
           <Brand>
             <a href="/#/">
@@ -66,21 +66,14 @@ export var AdminNavBar = translate(['app','menu'])(React.createClass({
             </a>
           </Brand>
         </Header>
-
         <Nav className="nav navbar-nav navbar-utility">
-          <li>
             <LocaleSwitcher
               changeLocaleHandler={this.props.changeLocaleHandler}
-              defaultLanguage={this.props.defaultLanguage}
-              languages={this.props.languages}
+              language={this.props.i18n.language}
             />
-          </li>
-          <li>
-            <a href="#">
-              <span className="pficon pficon-user"></span>
-              {this.state.user.username}
-            </a>
-          </li>
+            <NavItem href="#">
+              <i className="pficon pficon-user"> </i> {this.state.user.username}
+            </NavItem>
         </Nav>
 
         <Nav className='navbar-nav navbar-primary'>

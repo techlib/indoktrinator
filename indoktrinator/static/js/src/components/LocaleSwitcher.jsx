@@ -1,20 +1,16 @@
 import * as React from 'react'
+import {Nav, Navbar, NavItem} from 'react-bootstrap'
+import {translate} from 'react-i18next'
 
-export var LocaleSwitcher = React.createClass({
+export var LocaleSwitcher = translate('common')(React.createClass({
 
-  getInitialState() {
-    return {}
-  },
-
-  handleChangeLang(e) {
-    this.props.changeLocaleHandler(e.target.value)
+  toggle() {
+    let language = this.props.language == 'cs' ? 'en' : 'cs'
+    this.props.changeLocaleHandler(language)
   },
 
   render() {
-    return (<select defaultValue={this.state.defaultLanguage} onChange={this.handleChangeLang}>
-      {this.props.languages.map((item) => {
-        return <option>{item}</option>
-      })}
-    </select>)
+    let text = this.props.t('common:languagetoggle')
+    return <NavItem href="#" onClick={this.toggle}>{text}</NavItem>
   }
-})
+}))

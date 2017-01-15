@@ -50,7 +50,8 @@
     },
     "labels": {
       "actions": "Úpravy"
-    }
+    },
+    "languagetoggle": "Switch to english"
   },
   "playlist": {
     "availabelitems": "Dostupné klipy a playlisty",
