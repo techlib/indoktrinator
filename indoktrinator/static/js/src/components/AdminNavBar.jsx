@@ -57,12 +57,7 @@ export var AdminNavBar = translate(['app','menu'])(React.createClass({
         <Header>
           <Brand>
             <a href="/#/">
-              <b>
-                {t('app:name')}
-              </b>
-              <p>
-                {t('app:description')}
-              </p>
+              <b>{t('app:name')}</b> {t('app:description')}
             </a>
           </Brand>
         </Header>
