@@ -108,6 +108,6 @@ class Playlist (Model):
 
                 self.manager.item.e().insert(**newVal)
 
-        self.update(data)
+        return self.update(data)
 
 # vim:set sw=4 ts=4 et:
