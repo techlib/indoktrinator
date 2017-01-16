@@ -7,9 +7,9 @@ import {Pager} from './Pager'
 import {Button} from 'react-bootstrap'
 import {Link, hashHistory as BrowserHistory} from 'react-router'
 import {regexGridFilter} from '../util/griddle-components'
-import {FormattedMessage} from 'react-intl'
 import {ProgramStore} from '../stores/Program'
 import {confirmModal} from './ModalConfirmMixin'
+import {translate} from 'react-i18next'
 
 let ProgramLink = React.createClass({
   render() {
@@ -19,18 +19,18 @@ let ProgramLink = React.createClass({
   }
 })
 
-let ProgramActions = React.createClass({
+let ProgramActions = translate(['program', 'common'])(React.createClass({
 
   handleDeleteProgram() {
     confirmModal(
-      'Are you sure?',
-      'Would you like to remove program?'
+      this.props.t('common:confirm.areyousure'),
+      this.props.t('program:confirm.delete', {name: this.props.rowData.name})
     ).then(() => {
       pa.delete(this.props.rowData.uuid)
         .then(() => {
           pa.list()
           BrowserHistory.push('/program/')
-          FeedbackActions.set('success', 'Program deleted')
+          FeedbackActions.set('success', this.props.t('program:alerts.delete'))
       })
     })
   },
@@ -42,18 +42,14 @@ let ProgramActions = React.createClass({
       label=''
       bsStyle=''
       onClick={this.handleDeleteProgram}>
-      <i className="fa fa-trash"></i> <FormattedMessage
-        id="app.button.delete"
-        description="Title"
-        defaultMessage="Delete"
-      />
+      <i className="fa fa-trash"></i> {this.props.t('program:buttons.delete')}
       </Button>
       </span>
     )
   }
-})
+}))
 
-export var ProgramList = React.createClass({
+export var ProgramList = translate(['program', 'common'])(React.createClass({
 
   mixins: [
     Reflux.connect(ProgramStore, 'program')
@@ -70,8 +66,10 @@ export var ProgramList = React.createClass({
   render() {
 
     let columnMeta = [
-      {columnName: 'name', displayName: 'Name', customComponent: ProgramLink},
-      {columnName: 'c', displayName: 'Actions', customComponent: ProgramActions, cssClassName: 'griddle-actions'}
+      {columnName: 'name', displayName: this.props.t('program:labels.name'),
+        customComponent: ProgramLink},
+      {columnName: 'c', displayName: this.props.t('common:labels.actions'),
+        customComponent: ProgramActions, cssClassName: 'griddle-actions'}
     ]
 
     return (
@@ -79,20 +77,12 @@ export var ProgramList = React.createClass({
         <div className="row">
           <div className="col-xs-12 col-sm-10">
             <h1>
-              <FormattedMessage
-                id="app.menu.programs.title"
-                description="Title"
-                defaultMessage="Programs"
-              />
+              {this.props.t('program:list.title')}
             </h1>
           </div>
           <div className="col-xs-12 col-sm-2 h1 text-right">
             <a className='btn btn-success' href='#/program/new'>
-              <i className='fa fa-plus'></i> <FormattedMessage
-                id="app.menu.program.new"
-                description="Title"
-                defaultMessage="New Program"
-              />
+              <i className='fa fa-plus'></i> {this.props.t('program:buttons.create')}
             </a>
           </div>
         </div>
@@ -114,5 +104,5 @@ export var ProgramList = React.createClass({
       </div>
     )
   }
-})
+}))
 

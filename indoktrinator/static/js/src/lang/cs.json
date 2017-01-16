@@ -80,5 +80,23 @@
       "update": "Playlist byl aktualizován",
       "delete": "Playlist byl smazán"
     }
+  },
+  "program": {
+    "alerts": {
+      "delete": "Program byl smazán"
+    },
+    "buttons": {
+      "create": "Vytvořit program",
+      "delete": "Smazat"
+    },
+    "confirm": {
+      "delete": "Opravdu chcete smazat program {{name}}?"
+    },
+    "labels": {
+      "name": "Název programu"
+    },
+    "list": {
+      "title": "Programy"
+    }
   }
 }

@@ -80,5 +80,23 @@
       "update": "Playlist updated",
       "delete": "Playlist deleted"
     }
+  },
+  "program": {
+    "alerts": {
+      "delete": "Program deleted"
+    },
+    "buttons": {
+      "create": "Create program",
+      "delete": "Delete"
+    },
+    "confirm": {
+      "delete": "Do you really want to delete program {{name}}?"
+    },
+    "labels": {
+      "name": "Name"
+    },
+    "list": {
+      "title": "Programs"
+    }
   }
 }
