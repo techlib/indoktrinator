@@ -10,7 +10,6 @@ import {Types} from './PlaylistCreator/Types'
 import {v4 as uuid} from 'uuid'
 
 export function getItems(playlist) {
-  console.log('moo', playlist)
   return playlist.items.map(item => {
     return {
       uuid: item.uuid,
@@ -43,7 +42,6 @@ export var PlaylistEdit = React.createClass({
   },
 
   render() {
-    console.log(this.state.playlist.playlist.system)
     return <div>{this.state.playlist.playlist.system ?
        <PlaylistDetail
          uuid={this.state.playlist.playlist.uuid}
