@@ -75,6 +75,10 @@
       "title": "Playlisty"
     },
     "title": "Playlist",
-    "titlenew": "Nový playlist"
+    "titlenew": "Nový playlist",
+    "alerts": {
+      "update": "Playlist byl aktualizován",
+      "delete": "Playlist byl smazán"
+    }
   }
 }

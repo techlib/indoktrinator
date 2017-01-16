@@ -2,7 +2,7 @@ import * as React from 'react'
 import * as Reflux from 'reflux'
 import {Feedback} from './Feedback'
 import {PlaylistStore} from '../stores/Playlist'
-import {PlaylistActions as pa} from '../actions'
+import {PlaylistActions as pa, FeedbackActions} from '../actions'
 import {Button} from 'react-bootstrap'
 import {Link, hashHistory as BrowserHistory} from 'react-router'
 import Griddle from 'griddle-react'
@@ -52,9 +52,10 @@ let PlaylistActions = translate(['playlist', 'common'])(React.createClass({
       this.props.t('confirm.areyousure'),
       this.props.t('playlist:confirm.delete', {name: this.props.rowData.name})
     ).then(() => {
-      pa.delete(this.props.rowData.uuid, () => {
+      pa.delete(this.props.rowData.uuid)
+      .then(() => {
         pa.list()
-        BrowserHistory.push('/playlist/')
+        FeedbackActions.set('success', this.props.t('playlist:alerts.delete'))
       })
     })
   },

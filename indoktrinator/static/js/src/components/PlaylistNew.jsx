@@ -51,7 +51,8 @@ export var PlaylistNew = translate(['playlist', 'common'])(React.createClass({
       playlist.name = this.state.name
       playlist.uuid = this.state.uuid
 
-      PlaylistActions.create(playlist, () => {
+      PlaylistActions.create.triggerAsync(playlist)
+      .then(() => {
         BrowserHistory.push('/playlist/' + playlist.uuid)
       })
     }

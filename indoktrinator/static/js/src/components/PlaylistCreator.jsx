@@ -30,18 +30,28 @@ var Component = React.createClass({
   },
 
   componentWillReceiveProps(p) {
-    this.setState({
+    // FIXME - this is a terrible hack and should be done in a more elegant manner
+    var newState = {
       uuid: p.playlist.playlist.uuid,
-      name: p.playlist.playlist.name,
       playlist: {list: p.playlist.list, playlist: p.playlist.playlist},
-      items: p.items,
-    })
+    }
+
+    if (this.state.items.length == 0) {
+      newState['items'] = p.items
+    }
+
+    if (this.state.name == '') {
+      newState['name'] = p.playlist.playlist.name
+    }
+
+    this.setState(newState)
   },
 
   getInitialState() {
     return {
       playlist: {list: [], playlist: {items: []}},
       filter: '',
+      name: '',
       items: []
     }
   },
@@ -105,7 +115,7 @@ var Component = React.createClass({
 
       PlaylistActions.update.triggerAsync(data)
       .then(() => {
-
+          FeedbackActions.set('success', this.props.t('playlist:alerts.update'))
       })
     }
   },

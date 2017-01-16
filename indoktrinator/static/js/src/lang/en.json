@@ -75,6 +75,10 @@
       "title": "Playlists"
     },
     "title": "Playlist",
-    "titlenew": "Create new playlist"
+    "titlenew": "Create new playlist",
+    "alerts": {
+      "update": "Playlist updated",
+      "delete": "Playlist deleted"
+    }
   }
 }
