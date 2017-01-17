@@ -30,30 +30,16 @@ DEFAULT_FILE_PREVIEW = join(dirname(__file__), '../static/img/video.png')
 
 
 def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
-    '''
-    Create wsgi site object
-    '''
+    """
+    Create the WSGI site object using Flask.
+    """
+
     app = flask.Flask('.'.join(__name__.split('.')[:-1]))
     app.secret_key = os.urandom(16)
     app.debug = debug
 
     if cors:
         CORS(app)
-
-    # register methods
-    @app.template_filter('to_alert')
-    def category_to_alert(category):
-        return {
-            'warning': 'alert-warning',
-            'error': 'alert-danger',
-        }[category]
-
-    @app.template_filter('to_icon')
-    def category_to_icon(category):
-        return {
-            'warning': 'pficon-warning-triangle-o',
-            'error': 'pficon-error-circle-o',
-        }[category]
 
     def has_privilege(privilege):
         roles = flask.request.headers.get('X-Roles', '')
