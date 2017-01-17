@@ -207,7 +207,9 @@ class Harvester (Tree):
 
         log.msg('Probing file {!r}...'.format(path))
         d = probe_file(node.path)
-        d.addCallbacks(probe_done, probe_failed)
+
+        if d is not None:
+            d.addCallbacks(probe_done, probe_failed)
 
     @with_session
     def update_item_with_info(self, playlist, item, node, info):
@@ -363,6 +365,7 @@ def probe_file(filepath):
 
     if not paths:
         log.msg('The indoktrinator-probe is not in PATH, aborting.')
+        return
 
     d = utils.getProcessOutput(paths[0], (filepath,))
     d.addCallback(decode_preview)
