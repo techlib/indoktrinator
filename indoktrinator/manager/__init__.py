@@ -21,6 +21,7 @@ from indoktrinator.model.segment import Segment
 from indoktrinator.utils import with_session
 from indoktrinator.manager.schema import schema
 from indoktrinator.manager.scheduler import *
+from indoktrinator.manager.store import *
 
 
 __all__ = ['Manager']
