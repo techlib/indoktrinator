@@ -4,7 +4,7 @@
 from twisted.python import log
 
 from itertools import cycle
-from collections import Mapping
+from collections.abc import Mapping, Iterable
 from intervaltree import IntervalTree, Interval
 
 from datetime import datetime, timedelta, time
@@ -14,7 +14,54 @@ from re import findall
 from uuid import uuid4
 
 
-__all__ = ['Store']
+__all__ = ['Store', 'Query']
+
+
+class Query (Iterable):
+    """
+    Implements queries on a single table with the ability to filter rows
+    and join them with other table rows to form complex responses.
+    """
+
+    def __init__(self, table):
+        self.table = table
+        self._filters = {}
+        self._joins = {}
+
+    def filter(self, **filters):
+        """
+        Filter out rows whose fields to not equal to those specified.
+        """
+
+        self._filters.update(filters)
+        return self
+
+    def join(self, as_field, on_key, other_table):
+        """
+        Insert ``as_field`` field to every resulting row where ``on_key``
+        matches the ``other_table`` primary key.
+        """
+
+        assert other_table in self.table.store, 'Invalid table to join with'
+        self._joins[as_field] = (on_key, other_table)
+        return self
+
+    def list(self):
+        return list(self)
+
+    def __iter__(self):
+        if not self._joins:
+            return self.table.filter(**self._filters)
+
+        for value in self.table.filter(**self._filters):
+            value = dict(value)
+
+            for key, (on_key, other_table) in self._joins.items():
+                local_key = value.get(on_key)
+                remote = self.table.store[other_table].get(local_key)
+                value[key] = remote
+
+            yield value
 
 
 class Table (Mapping):
@@ -23,13 +70,19 @@ class Table (Mapping):
         self.rows = {}
         self.dirty = set()
 
+    def query(self):
+        return Query(self)
+
     def values(self):
         return self.rows.values()
 
     def filter(self, **filters):
         """
-        Returns values whose fields match specified parameters.
+        Return values whose fields match specified parameters.
         """
+
+        if not filters:
+            return self.values()
 
         def matching(value):
             for key, flt in filters.items():
