@@ -21,12 +21,15 @@
       "new": "Create device",
       "title": "Devices"
     },
-    "noprogram": "- no program selected -",
+    "noprogram": "Select program",
     "status": {
       "offline": "Offline",
       "online": "Online",
-      "off": "Off",
-      "on": "On"
+      "standby": "Standby",
+      "on": "On",
+      "to-on": "Turning On",
+      "to-standby": "Turning Off",
+      "unknown": "Status Unknown"
     },
     "alerts": {
       "delete": "Device deleted",

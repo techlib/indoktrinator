@@ -21,12 +21,15 @@
       "new": "Přidat zařízení",
       "title": "Zařízení"
     },
-    "noprogram": "- bez programu -",
+    "noprogram": "Zvolit program",
     "status": {
-      "offline": "Offline",
-      "online": "Online",
-      "off": "Vypnuto",
-      "on": "Zapnuto"
+      "offline": "Odpojené",
+      "online": "Připojené",
+      "standby": "V pohotovosti",
+      "on": "Běží",
+      "to-on": "Zapíná se",
+      "to-standby": "Vypíná se",
+      "unknown": "Neznámý stav"
     },
     "alerts": {
       "delete": "Zařízení bylo smazáno",
@@ -68,7 +71,7 @@
       "delete": "Opravdu chcete smazat playlist {{name}}?"
     },
     "labels": {
-      "duration": "Trvání",
+      "duration": "Délka",
       "name": "Název"
     },
     "list": {

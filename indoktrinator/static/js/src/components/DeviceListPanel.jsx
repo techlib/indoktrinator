@@ -48,10 +48,8 @@ export var DeviceListPanel = translate('device')(React.createClass({
             {this.props.online ? [
               ', ',
               <span className="fa fa-power-off"> </span>,
-                ' ',
-                this.props.power ? t('device:status.on') : t('device:status.off')
-                ]
-                : null}
+                ' ', t('device:status.' + this.props.power)
+            ] : null}
             <br/>
             <a onClick={this.selectProgram}>
               {this.props.program ? this.props._program.name : t('device:noprogram')}
