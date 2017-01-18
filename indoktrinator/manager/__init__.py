@@ -206,11 +206,10 @@ class Manager:
         # Find the persistent device record.
         device = self.store.device.get(id)
 
-        if device is None:
+        if device is None or device.get('program') is None:
             # Device is not configured.
             # Such devices have simply an empty plan.
             self.send(id, 'plan', EMPTY_PLAN)
-
             return
 
         # Find plan for device program.
