@@ -88,12 +88,6 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
         db.rollback()
         return response
 
-    @app.route('/custom')
-    def custom():
-        nonlocal has_privilege
-        get = flask.request.args.get('get')
-        return flask.render_template('custom.html', **locals())
-
     @app.route('/')
     @authorized_only('user')
     def index():
