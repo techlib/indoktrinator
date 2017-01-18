@@ -1,6 +1,8 @@
 #!/usr/bin/python3 -tt
 # -*- coding: utf-8 -*-
 
+from twisted.python import log
+
 from sqlalchemy import *
 from sqlalchemy.exc import *
 from werkzeug.exceptions import *
@@ -83,7 +85,10 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
 
     @app.errorhandler(SQLAlchemyError)
     def handle_sqlalchemy_error(error):
-        response = flask.jsonify({'message': str(error)})
+        log.msg('SQLAlchemyError: {}'.format(error))
+        response = flask.jsonify({
+            'message': str(error.orig),
+        })
         response.status_code = 500
         return response
 
