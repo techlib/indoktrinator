@@ -264,37 +264,6 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
 
             return flask.jsonify(result)
 
-    @app.route('/api/playlist/<uuid>/copy', methods=['GET'])
-    @authorized_only('user')
-    def playlist_item_copy_handler(uuid, **kwargs):
-        # FIXME: Should not be a GET, since it has an effect.
-        #        Better call it COPY and require a Destination header.
-        if 'GET' == flask.request.method:
-            old_playlist = manager.playlist.get_item(uuid)
-            new_playlist = old_playlist.copy()
-            new_playlist['uuid'] = None
-            new_playlist['system'] = False
-
-            # FIXME: This is a horrible way to pick a new name.
-            #        User should give us one before we start!
-            for i in range(1, 101):
-                try:
-                    name = '{} Copy {}'.format(old_playlist['name'], i)
-                    new_playlist['name'] = name
-                    new = manager.playlist.insert(new_playlist)
-                    break
-                except:
-                    continue
-
-            new['items'] = []
-
-            for item in old_playlist['items']:
-                item['playlist'] = new['uuid']
-                item['uuid'] = None
-                new['items'].append(manager.item.insert(item))
-
-            return flask.jsonify(new)
-
     @app.route('/api/program/', methods=['GET', 'POST'])
     @authorized_only('user')
     def program_handler(**kwargs):
