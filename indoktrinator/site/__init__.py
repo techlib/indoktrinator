@@ -10,6 +10,7 @@ from werkzeug.exceptions import *
 from functools import wraps
 from base64 import b64decode
 from os.path import dirname, join
+from time import time
 
 from sqlalchemy import desc
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
@@ -42,6 +43,9 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
 
     if cors:
         CORS(app)
+
+    # Shortcut for the endpoints below.
+    store = manager.store
 
     def has_privilege(privilege):
         roles = flask.request.headers.get('X-Roles', '')
@@ -98,16 +102,25 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
         nonlocal has_privilege
         return flask.render_template('index.html', **locals())
 
-    # Devices
     @app.route('/api/device/', methods=['GET', 'POST'])
     @authorized_only('user')
     def device_handler(**kwargs):
         if 'GET' == flask.request.method:
-            result = manager.device.list()
-            for r in result:
-                r['photo'] = flask.url_for('device_photo', id=r['id'])
+            devices = []
 
-            return flask.jsonify(result=result)
+            query = store.device.query() \
+                .join('_program', 'program', 'program') \
+                .list()
+
+            for device in query:
+                status = manager.devices.get(device['id'], {})
+                devices.append(dict(device, **{
+                    'photo': flask.url_for('device_photo', id=device['id']),
+                    'online': status.get('last_seen', 0) > time() - 300,
+                    'power': status.get('power', False),
+                }))
+
+            return flask.jsonify(result=devices)
 
         if 'POST' == flask.request.method:
             device = flask.request.get_json(force=True)
