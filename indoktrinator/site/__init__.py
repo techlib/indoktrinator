@@ -85,7 +85,6 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     def handle_sqlalchemy_error(error):
         response = flask.jsonify({'message': str(error)})
         response.status_code = 500
-        db.rollback()
         return response
 
     @app.route('/')
@@ -159,7 +158,6 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
                 #        Plus this is definitely not a 500 error.
                 response = flask.jsonify({'message': 'Invalid intersection'})
                 response.status_code = 500
-                db.rollback()
                 return response
 
     @app.route('/api/event/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
@@ -179,7 +177,6 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             except IntegrityError as e:
                 response = flask.jsonify({'message': 'Invalid intersection'})
                 response.status_code = 500
-                db.rollback()
                 return response
 
     @app.route('/api/item/', methods=['GET', 'POST'])
@@ -287,7 +284,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
                     new = manager.playlist.insert(new_playlist)
                     break
                 except:
-                    db.rollback()
+                    continue
 
             new['items'] = []
 
@@ -345,7 +342,6 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             except IntegrityError as e:
                 response = flask.jsonify({'message': 'Invalid intersection'})
                 response.status_code = 500
-                db.rollback()
                 return response
 
     @app.route('/api/segment/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
@@ -374,7 +370,6 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             except IntegrityError as e:
                 response = flask.jsonify({'message': 'Invalid intersection'})
                 response.status_code = 500
-                db.rollback()
                 return response
 
     @app.route('/api/user-info/', methods=['GET'])
