@@ -1,8 +1,9 @@
 #!/usr/bin/python3 -tt
 # -*- coding: utf-8 -*-
 
-from psycopg2.extras import DateTimeRange, Range, RangeCaster
-from psycopg2.extensions import AsIs
+from psycopg2 import STRING
+from psycopg2.extras import RangeCaster
+from psycopg2.extensions import AsIs, register_type, new_type
 from sqlalchemy.types import UserDefinedType
 from sqlalchemy.dialects.postgresql.base import ischema_names
 
@@ -12,7 +13,7 @@ import base64
 __all__ = []
 
 
-class Int4RangeType(UserDefinedType):
+class Int4RangeType (UserDefinedType):
     def __init__(self):
         self.caster = RangeCaster('int4range', 'Int4Range', None, None)
 
@@ -31,6 +32,8 @@ class Int4RangeType(UserDefinedType):
                 return (value.lower, value.upper)
         return process
 
+
+register_type(new_type((1082,), 'DATE', STRING))
 
 ischema_names['int4range'] = Int4RangeType
 

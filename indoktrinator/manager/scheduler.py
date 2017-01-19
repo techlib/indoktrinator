@@ -91,10 +91,10 @@ def make_plan(store, base_url, uuid):
             'panel': interval.data['panel'],
         })
 
-    for event in store.event.filter(program=uuid, date=today):
+    for event in store.event.filter(program=uuid, date=today.isoformat()):
         insert_segment(ptree, today, event)
 
-    for event in store.event.filter(program=uuid, date=tomorrow):
+    for event in store.event.filter(program=uuid, date=tomorrow.isoformat()):
         insert_segment(ptree, tomorrow, event)
 
     # Ordered playlist items.
