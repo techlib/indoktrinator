@@ -65,6 +65,8 @@ class Query (Iterable):
 
 
 class Table (Mapping):
+    PKEY = 'uuid'
+
     def __init__(self, store):
         self.store = store
         self.rows = {}
@@ -105,7 +107,7 @@ class Table (Mapping):
         self.rows.clear()
 
         for row in table.all():
-            pkey = getattr(row, 'uuid', None) or getattr(row, 'id')
+            pkey = getattr(row, self.PKEY)
             self.rows[pkey] = {}
 
             for key, value in row.__dict__.items():
@@ -121,14 +123,14 @@ class Table (Mapping):
         """
 
         if old is not None:
-            pkey = old.get('uuid') or old['id']
+            pkey = old[self.PKEY]
             self.mark_dirty(pkey)
 
             if pkey in self.rows:
                 self.rows.pop(pkey)
 
         if new is not None:
-            pkey = new.get('uuid') or new['id']
+            pkey = new[self.PKEY]
             self.rows[pkey] = new
             self.mark_dirty(pkey)
 
@@ -143,7 +145,7 @@ class Table (Mapping):
 
 
 class Device (Table):
-    pass
+    PKEY = 'id'
 
 
 class Program (Table):
