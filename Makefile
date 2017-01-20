@@ -33,8 +33,7 @@ npm:
 
 clean:
 	rm -rf node_modules
-	rm indoktrinator/static/dist/app.bundle.js
-	rm indoktrinator/static/dist/reactIntlMessages.json
+	rm -f indoktrinator/static/dist/app.bundle.js
 	rm -f doc/*.html doc/*.png doc/*.cache
 
 
