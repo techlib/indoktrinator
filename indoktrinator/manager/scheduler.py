@@ -13,7 +13,7 @@ from time import mktime
 from re import findall
 from uuid import uuid4
 
-from indoktrinator.utils import with_session
+from indoktrinator.db import with_session
 
 
 __all__ = ['make_plan', 'EMPTY_PLAN']

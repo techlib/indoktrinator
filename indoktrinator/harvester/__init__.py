@@ -12,7 +12,7 @@ from simplejson import loads
 from base64 import b64decode
 
 from indoktrinator.harvester.shadow_tree import *
-from indoktrinator.utils import with_session
+from indoktrinator.db import with_session
 
 
 __all__ = ['Harvester']

@@ -10,15 +10,7 @@ from json import loads, dumps, JSONDecodeError
 from uuid import uuid4
 from time import time
 
-from indoktrinator.model.device import Device
-from indoktrinator.model.file import File
-from indoktrinator.model.event import Event
-from indoktrinator.model.item import Item
-from indoktrinator.model.playlist import Playlist
-from indoktrinator.model.program import Program
-from indoktrinator.model.segment import Segment
-
-from indoktrinator.utils import with_session
+from indoktrinator.db import with_session
 from indoktrinator.manager.schema import schema
 from indoktrinator.manager.scheduler import *
 from indoktrinator.manager.store import *
@@ -44,15 +36,6 @@ class Manager:
 
         # Plans based on the store data.
         self.plans = {}
-
-        # FIXME: Move these to site, we don't need them here.
-        self.device = Device(self)
-        self.file = File(self)
-        self.event = Event(self)
-        self.item = Item(self)
-        self.playlist = Playlist(self)
-        self.program = Program(self)
-        self.segment = Segment(self)
 
     def start(self):
         log.msg('Starting manager...')

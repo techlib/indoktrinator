@@ -348,13 +348,6 @@ COMMENT ON COLUMN file.duration IS 'Duration of the file playback in seconds.';
 
 
 --
--- Name: COLUMN file.preview; Type: COMMENT; Schema: public; Owner: indoktrinator
---
-
-COMMENT ON COLUMN file.preview IS 'Image preview for the file. A JPEG with dimensions of 160x90 pixels.';
-
-
---
 -- Name: file_preview; Type: TABLE; Schema: public; Owner: indoktrinator
 --
 

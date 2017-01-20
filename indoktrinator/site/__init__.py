@@ -3,7 +3,7 @@
 
 from twisted.python import log
 
-from werkzeug.exceptions import Forbidden
+from werkzeug.exceptions import Forbidden, NotFound
 from flask_cors import CORS
 from flask import Flask, Response, request, render_template, jsonify, \
                   url_for, send_file, send_from_directory
@@ -18,7 +18,9 @@ from time import time
 from os import urandom
 from re import findall
 
-from indoktrinator.site.util import *
+from indoktrinator.site.util import internal_origin_only
+from indoktrinator.site.model import Model
+from indoktrinator.db import with_db_session
 
 
 __all__ = ['make_site']
@@ -40,8 +42,8 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     if cors:
         CORS(app)
 
-    # Shortcut for the endpoints below.
-    store = manager.store
+    # JSON-compatible database access layer for the endpoints below.
+    model = Model(db)
 
     def has_privilege(privilege):
         roles = request.headers.get('X-Roles', '')
@@ -83,13 +85,52 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     def unauthorized(e):
         return render_template('forbidden.html')
 
-    @app.errorhandler(SQLAlchemyError)
-    def handle_sqlalchemy_error(error):
-        log.msg('SQLAlchemyError: {}'.format(error))
+    @app.errorhandler(IntegrityError)
+    def integrity_error(error):
+        log.msg('IntegrityError: {}'.format(error))
+
         response = jsonify({
+            'error': 'integrity',
             'message': str(error.orig),
         })
-        response.status_code = 500
+
+        response.status_code = 400
+        return response
+
+    @app.errorhandler(SQLAlchemyError)
+    def sqlalchemy_error(error):
+        log.msg('SQLAlchemyError: {}'.format(error))
+
+        response = jsonify({
+            'error': 'database',
+            'message': str(error.orig),
+        })
+
+        response.status_code = 400
+        return response
+
+    @app.errorhandler(KeyError)
+    def key_error(error):
+        log.msg('KeyError: {}'.format(error))
+
+        response = jsonify({
+            'error': 'key',
+            'message': str(error),
+        })
+
+        response.status_code = 404
+        return response
+
+    @app.errorhandler(ValueError)
+    def value_error(error):
+        log.msg('ValueError: {}'.format(error))
+
+        response = jsonify({
+            'error': 'value',
+            'message': str(error),
+        })
+
+        response.status_code = 400
         return response
 
     @app.route('/')
@@ -100,18 +141,15 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
 
     @app.route('/api/device/', methods=['GET', 'POST'])
     @authorized_only('user')
-    def device_handler(**kwargs):
+    @with_db_session(db)
+    def api_devices(**kwargs):
         if 'GET' == request.method:
             devices = []
 
-            query = store.device.query() \
-                .join('_program', 'program', 'program') \
-                .list()
-
-            for device in query:
+            for device in model.device.list():
                 status = manager.devices.get(device['id'], {})
                 devices.append(dict(device, **{
-                    'photo': url_for('device_photo', id=device['id']),
+                    'photo': url_for('api_device_photo', id=device['id']),
                     'online': status.get('last_seen', 0) > time() - 300,
                     'power': status.get('power', False),
                 }))
@@ -120,244 +158,234 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
 
         if 'POST' == request.method:
             device = request.get_json(force=True)
-            return jsonify(manager.device.insert(device))
+            return jsonify(model.device.insert(device))
 
     @app.route('/api/device/<id>', methods=['GET', 'DELETE', 'PATCH'])
     @authorized_only('user')
-    def device_item_handler(id, **kwargs):
+    @with_db_session(db)
+    def api_device(id, **kwargs):
         if 'GET' == request.method:
-            result = manager.device.get_item(id)
-            result['photo'] = url_for('device_photo', id=result['id'])
-            return jsonify(result)
+            device = model.device.get(id)
+            status = manager.devices.get(id, {})
+
+            return jsonify(dict(device, **{
+                'photo': url_for('api_device_photo', id=id),
+                'online': status.get('last_seen', 0) > time() - 300,
+                'power': status.get('power', False),
+            }))
 
         if 'DELETE' == request.method:
-            return jsonify(manager.device.delete(id))
+            return jsonify(deleted=model.device.delete(id))
 
         if 'PATCH' == request.method:
-            device = request.get_json(force=True)
-            device['id'] = id
-            return jsonify(manager.device.update(device))
+            patch = request.get_json(force=True)
+            return jsonify(model.device.update(id, patch))
 
     @app.route('/api/file/', methods=['GET'])
     @authorized_only('user')
-    def file_handler(**kwargs):
+    @with_db_session(db)
+    def api_files(**kwargs):
         if 'GET' == request.method:
-            result = manager.file.list()
-            for r in result:
-                r['preview'] = url_for('file_preview', uuid=r['uuid'])
+            files = []
 
-            return jsonify(result=result)
+            for file in model.file.list():
+                files.append(dict(file, **{
+                    'preview': url_for('api_file_preview', uuid=file['uuid']),
+                }))
+
+            return jsonify(result=files)
 
     @app.route('/api/file/<uuid>', methods=['GET'])
     @authorized_only('user')
-    def file_item_handler(uuid, **kwargs):
+    @with_db_session(db)
+    def api_file(uuid, **kwargs):
         if 'GET' == request.method:
-            r = manager.file.get_item(uuid)
-            r['preview'] = url_for('file_preview', uuid=r['uuid'])
-            return jsonify(r)
+            file = model.file.get(uuid)
+
+            return jsonify(dict(file, **{
+                'preview': url_for('api_file_preview', uuid=uuid),
+            }))
 
     @app.route('/api/event/', methods=['GET', 'POST'])
     @authorized_only('user')
-    def event_handler(**kwargs):
+    @with_db_session(db)
+    def api_events(**kwargs):
         if 'GET' == request.method:
-            return jsonify(result=manager.event.list())
-
-        if 'POST' == request.method:
-            try:
-                return jsonify(manager.event.insert(
-                    request.get_json(force=True)
-                ))
-            except IntegrityError as e:
-                # FIXME: Use some generic DB error handling infrastructure.
-                #        Plus this is definitely not a 500 error.
-                response = jsonify({'message': 'Invalid intersection'})
-                response.status_code = 500
-                return response
-
-    @app.route('/api/event/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
-    @authorized_only('user')
-    def event_item_handler(uuid, **kwargs):
-        if 'GET' == request.method:
-            return jsonify(manager.event.get_item(uuid))
-
-        if 'DELETE' == request.method:
-            return jsonify(manager.event.delete(uuid))
-
-        if 'PATCH' == request.method:
-            try:
-                event = request.get_json(force=True)
-                event['uuid'] = uuid
-                return jsonify(manager.event.update(event))
-            except IntegrityError as e:
-                response = jsonify({'message': 'Invalid intersection'})
-                response.status_code = 500
-                return response
-
-    @app.route('/api/item/', methods=['GET', 'POST'])
-    @authorized_only('user')
-    def item_handler(**kwargs):
-        if 'GET' == request.method:
-            result = manager.item.list()
-            for r in result:
-                preview = url_for('file_preview', uuid=r['_file']['id'])
-                r['_file']['preview'] = preview
-
-            return jsonify(result=result)
+            return jsonify(result=model.event.list(order_by=['date', 'range']))
 
         if 'POST' == request.method:
             data = request.get_json(force=True)
-            item = manager.item.insert(data)
-            return jsonify(item)
+            return jsonify(model.event.insert(data))
+
+    @app.route('/api/event/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
+    @authorized_only('user')
+    @with_db_session(db)
+    def api_event(uuid, **kwargs):
+        if 'GET' == request.method:
+            return jsonify(model.event.get(uuid))
+
+        if 'DELETE' == request.method:
+            return jsonify(model.event.delete(uuid))
+
+        if 'PATCH' == request.method:
+            event = request.get_json(force=True)
+            return jsonify(model.event.update(uuid, event))
+
+    @app.route('/api/item/', methods=['GET', 'POST'])
+    @authorized_only('user')
+    @with_db_session(db)
+    def api_items(**kwargs):
+        if 'GET' == request.method:
+            items = []
+
+            for item in model.item.list(order_by=['playlist', 'position']):
+                preview = url_for('api_file_preview', uuid=item['_file']['uuid'])
+                items.append(dict(item, preview=preview))
+
+            return jsonify(result=items)
+
+        if 'POST' == request.method:
+            item = request.get_json(force=True)
+            return jsonify(model.item.insert(item))
 
     @app.route('/api/item/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
     @authorized_only('user')
-    def item_item_handler(uuid, **kwargs):
+    @with_db_session(db)
+    def api_item(uuid, **kwargs):
         if 'GET' == request.method:
-            result = manager.item.get_item(uuid)
-            preview = url_for('file_preview', uuid=result['_file']['id'])
-            result['_file']['preview'] = preview
-
-            return jsonify(result)
+            item = model.item.get(uuid)
+            preview = url_for('api_file_preview', uuid=item['_file']['uuid'])
+            return jsonify(dict(item, preview=preview))
 
         if 'DELETE' == request.method:
-            return jsonify(manager.item.delete(uuid))
+            return jsonify(deleted=model.item.delete(uuid))
 
         if 'PATCH' == request.method:
-            item = request.get_json(force=True)
-            item['uuid'] = uuid
-            return jsonify(manager.item.update(item))
+            patch = request.get_json(force=True)
+            return jsonify(model.item.update(uuid, patch))
 
     @app.route('/api/playlist/', methods=['GET', 'POST'])
     @authorized_only('user')
-    def playlist_handler(**kwargs):
+    @with_db_session(db)
+    def api_playlists(**kwargs):
         if 'GET' == request.method:
-            return jsonify(result=manager.playlist.list())
+            return jsonify(result=model.playlist.list(order_by=['name']))
 
         if 'POST' == request.method:
             playlist = request.get_json(force=True)
-            playlist['system'] = False
-            return jsonify(manager.playlist.insert(playlist))
+            return jsonify(model.playlist.insert(playlist))
 
     @app.route('/api/playlist/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
     @authorized_only('user')
-    def playlist_item_handler(uuid, **kwargs):
+    @with_db_session(db)
+    def api_playlist(uuid, **kwargs):
         if 'GET' == request.method:
-            result = manager.playlist.get_item(uuid)
-            for i in result['items']:
-                preview = url_for('file_preview', uuid=i['file']['uuid'])
-                i['file']['preview'] = preview
+            playlist = model.playlist.get(uuid)
+            items = []
 
-            return jsonify(result)
+            for item in playlist['items']:
+                preview = url_for('api_file_preview', uuid=item['_file']['uuid'])
+                items.append(dict(item, preview=preview))
+
+            return jsonify(dict(playlist, items=items))
 
         if 'DELETE' == request.method:
-            return jsonify(manager.playlist.delete(uuid))
+            return jsonify(deleted=model.playlist.delete(uuid))
 
         if 'PATCH' == request.method:
-            playlist = request.get_json(force=True)
-            playlist['uuid'] = uuid
+            # We are going to play around with playlist items.
+            # Make sure that the playlist is not managed by harvester.
+            playlist = model.playlist.get(uuid)
 
-            tmp = manager.playlist.get_item(uuid)
-            if tmp['system']:
-                return Forbidden('System playlist can not be modified')
+            if playlist['system']:
+                raise Forbidden()
 
-            tmp['system'] = False
+            # Apply the patch without the `items` key.
+            # We need to process it separately.
+            patch = request.get_json(force=True)
+            items = patch.pop('items', [])
 
-            if 'path' in playlist and playlist['path']:
-                manager.item.e().filter_by(playlist=uuid).delete()
+            model.playlist.update(uuid, patch)
 
-            return jsonify(manager.playlist.patch(playlist, uuid))
+            # Delete all current items in that playlist.
+            model.item.table.filter_by(playlist=uuid).delete()
 
-    @app.route('/api/playlist/<uuid>/items', methods=['GET'])
-    @authorized_only('user')
-    def playlist_item_items_handler(uuid, **kwargs):
-        if 'GET' == request.method:
-            result = manager.item.list({'playlist': uuid})
-            for r in result:
-                p = url_for('file_preview', uuid=r['_file']['uuid'])
-                r['_file']['preview'] = p
+            # Insert all the new items as usual.
+            for item in items:
+                mode.item.insert(item)
 
-            return jsonify(result)
+            # NOTE: We can reconstruct the data structure without querying
+            #       the database here, but one more round-trip will not hurt
+            #       that much and the code will be a little bit simpler.
+            return jsonify(model.playlist.get(uuid))
 
     @app.route('/api/program/', methods=['GET', 'POST'])
     @authorized_only('user')
-    def program_handler(**kwargs):
+    @with_db_session(db)
+    def api_programs(**kwargs):
         if 'GET' == request.method:
-            return jsonify(result=manager.program.list(order_by=['name']))
+            return jsonify(result=model.program.list(order_by=['name']))
 
         if 'POST' == request.method:
-            return jsonify(manager.program.insert(
-                request.get_json(force=True)
-            ))
+            program = request.get_json(force=True)
+            return jsonify(model.program.insert(program))
 
     @app.route('/api/program/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
     @authorized_only('user')
-    def program_item_handler(uuid, **kwargs):
+    @with_db_session(db)
+    def api_program(uuid, **kwargs):
         if 'GET' == request.method:
-            return jsonify(manager.program.get_item(uuid))
+            return jsonify(model.program.get(uuid))
 
         if 'DELETE' == request.method:
-            return jsonify(manager.program.delete(uuid))
+            return jsonify(deleted=model.program.delete(uuid))
 
         if 'PATCH' == request.method:
-            program = request.get_json(force=True)
-            program['uuid'] = uuid
-            return jsonify(manager.program.update(program))
+            patch = request.get_json(force=True)
+            return jsonify(model.program.update(uuid, patch))
 
-    # Segments
     @app.route('/api/segment/', methods=['GET', 'POST'])
     @authorized_only('user')
-    def segment_handler(**kwargs):
+    @with_db_session(db)
+    def api_segments(**kwargs):
         if 'GET' == request.method:
-            return jsonify(result=manager.segment.list())
+            return jsonify(result=model.segment.list())
 
         if 'POST' == request.method:
             segment = request.get_json(force=True)
-            segment['day'] %= 7
 
             if segment.get('sidebar') and '://' not in segment['sidebar']:
-                segment['sidebar'] = 'http://' + segment['sidebar']
+                raise ValueError(segment)
 
             if segment.get('panel') and '://' not in segment['panel']:
-                segment['panel'] = 'http://' + segment['panel']
+                raise ValueError(segment)
 
-            try:
-                return jsonify(manager.segment.insert(segment))
-            except IntegrityError as e:
-                response = jsonify({'message': 'Invalid intersection'})
-                response.status_code = 500
-                return response
+            return jsonify(model.segment.insert(segment))
 
     @app.route('/api/segment/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
     @authorized_only('user')
-    def segment_item_handler(uuid, **kwargs):
+    @with_db_session(db)
+    def api_segment(uuid, **kwargs):
         if 'GET' == request.method:
-            return jsonify(manager.segment.get_item(uuid))
+            return jsonify(model.segment.get_item(uuid))
 
         if 'DELETE' == request.method:
-            return jsonify(manager.segment.delete(uuid))
+            return jsonify(deleted=model.segment.delete(uuid))
 
         if 'PATCH' == request.method:
-            segment = request.get_json(force=True)
+            patch = request.get_json(force=True)
 
-            segment['uuid'] = uuid
-            segment['day'] %= 7
+            if patch.get('sidebar') and '://' not in patch['sidebar']:
+                raise ValueError(patch)
 
-            if segment.get('sidebar') and '://' not in segment['sidebar']:
-                segment['sidebar'] = 'http://' + segment['sidebar']
+            if patch.get('panel') and '://' not in patch['panel']:
+                raise ValueError(patch)
 
-            if segment.get('panel') and '://' not in segment['panel']:
-                segment['panel'] = 'http://' + segment['panel']
-
-            try:
-                return jsonify(manager.segment.update(segment))
-            except IntegrityError as e:
-                response = jsonify({'message': 'Invalid intersection'})
-                response.status_code = 500
-                return response
+            return jsonify(model.segment.update(uuid, patch))
 
     @app.route('/api/user-info/', methods=['GET'])
     @pass_user_info
-    def userinfo_handler(**kwargs):
+    def api_user_info(**kwargs):
         return jsonify(kwargs)
 
     @app.route('/media/<path:path>')
@@ -369,7 +397,8 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
                                    mimetype='application/octet-stream')
 
     @app.route('/api/preview-image/device/<id>')
-    def device_photo(id):
+    @with_db_session(db)
+    def api_device_photo(id):
         device_photo = db.device_photo.filter_by(id=id).one_or_none()
 
         if device_photo is None:
@@ -380,7 +409,8 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
         return resp
 
     @app.route('/api/preview-image/file/<uuid>')
-    def file_preview(uuid):
+    @with_db_session(db)
+    def api_file_preview(uuid):
         file_preview = db.file_preview.filter_by(uuid=uuid).one_or_none()
 
         if file_preview is None:
