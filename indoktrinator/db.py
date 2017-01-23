@@ -28,8 +28,7 @@ def with_session(fn):
     def wrapper(self, *args, **kwargs):
         with self.db.session.begin(subtransactions=True):
             return fn(self, *args, **kwargs)
-        return wrapper
-    return decorate
+    return wrapper
 
 
 class Int4RangeType (UserDefinedType):
