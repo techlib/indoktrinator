@@ -89,7 +89,7 @@ class Device(Table):
 
 class Event(Table):
     NAME = 'event'
-    RELS = [('_program', 'program'), ('_playlist', 'playlist')]
+    RELS = [('_playlist', 'playlist')]
 
 
 class File(Table):
@@ -133,11 +133,12 @@ class Playlist(Table):
 
 class Program(Table):
     NAME = 'program'
+    RELS = [('segments', 'segment')]
 
 
 class Segment(Table):
     NAME = 'segment'
-    RELS = [('_program', 'program'), ('_playlist', 'playlist')]
+    RELS = [('_playlist', 'playlist')]
 
 
 class Model:
