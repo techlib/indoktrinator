@@ -17,6 +17,8 @@ from base64 import b64decode
 from time import time
 from os import urandom
 from re import findall
+from io import BytesIO
+from imghdr import what
 
 from indoktrinator.site.util import internal_origin_only
 from indoktrinator.site.model import Model
@@ -413,19 +415,53 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
         return send_from_directory(manager.media_path, path,
                                    mimetype='application/octet-stream')
 
-    @app.route('/api/preview-image/device/<id>')
+    @app.route('/api/preview-image/device/<id>', methods=['GET', 'PUT', 'DELETE'])
+    @authorized_only('user')
     @with_db_session(db)
     def api_device_photo(id):
-        device_photo = db.device_photo.filter_by(id=id).one_or_none()
+        if 'GET' == request.method:
+            device_photo = db.device_photo.filter_by(id=id).one_or_none()
 
-        if device_photo is None:
-            return send_file(DEFAULT_DEVICE_PHOTO)
+            if device_photo is None:
+                return send_file(DEFAULT_DEVICE_PHOTO)
 
-        resp = Response(device_photo.photo)
-        resp.headers['Content-Type'] = device_photo.mime
-        return resp
+            resp = Response(device_photo.photo)
+            resp.headers['Content-Type'] = device_photo.mime
+            return resp
+
+        elif 'PUT' == request.method:
+            if request.content_length > 10e20:
+                raise ValueError('image too large')
+
+            with BytesIO(request.data) as fp:
+                mime = what(fp)
+
+            if mime not in ('jpeg', 'png', 'gif'):
+                raise ValueError('image type {!r}'.format(mime))
+
+            mime = 'image/{}'.format(mime)
+            photo = db.device_photo.filter_by(id=id).one_or_none()
+
+            if photo is None:
+                db.device_photo.insert(id=id, photo=request.data, mime=mime)
+            else:
+                photo.mime = mime
+                photo.photo = request.data
+
+            return jsonify({'photo': id})
+
+        elif 'DELETE' == request.method:
+            photo = db.device_photo.filter_by(id=id).one_or_none()
+
+            if photo is None:
+                raise KeyError(id)
+
+            db.delete(photo)
+
+            return jsonify(deleted=id)
 
     @app.route('/api/preview-image/file/<uuid>')
+    @authorized_only('user')
     @with_db_session(db)
     def api_file_preview(uuid):
         file_preview = db.file_preview.filter_by(uuid=uuid).one_or_none()
