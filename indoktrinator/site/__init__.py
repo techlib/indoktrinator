@@ -332,6 +332,11 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
 
             # Insert all the new items as usual.
             for item in items:
+                # Make sure that we are not inserting items for a different
+                # playlist. Set correct playlist for those without it.
+                if item.setdefault('playlist', uuid) != uuid:
+                    raise ValueError(item)
+
                 mode.item.insert(item)
 
             return jsonify(model.playlist.get(uuid, depth=depth))
@@ -361,8 +366,26 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             return jsonify(deleted=model.program.delete(uuid))
 
         if 'PATCH' == request.method:
+            # Apply the patch without the `segments` key.
+            # We need to process it separately.
             patch = request.get_json(force=True)
-            return jsonify(model.program.update(uuid, patch, depth=depth))
+            segments = patch.pop('segments', [])
+
+            model.program.update(uuid, patch)
+
+            # Delete all current segments in that program.
+            model.segment.table.filter_by(program=uuid).delete()
+
+            # Insert all the new segments as usual.
+            for segment in segments:
+                # Make sure that we are not inserting segments for a different
+                # program. Set correct program for those without it.
+                if segment.setdefault('program', uuid) != uuid:
+                    raise ValueError(segment)
+
+                mode.segment.insert(segment)
+
+            return jsonify(model.program.get(uuid, depth=depth))
 
     @app.route('/api/segment/', methods=['GET', 'POST'])
     @authorized_only('user')
