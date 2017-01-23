@@ -21,15 +21,15 @@ class Table:
 
         self.safe_cols = {col.name for col in self.table._table.columns}
 
-    def get(self, key):
+    def get(self, key, depth=0):
         obj = self.table.get(key)
 
         if obj is None:
             raise KeyError(key)
 
-        return dbdict(obj)
+        return dbdict(obj, depth)
 
-    def insert(self, value):
+    def insert(self, value, depth=0):
         obj = self.table.insert(value)
 
         for key in value:
@@ -40,9 +40,9 @@ class Table:
             raise ValueError(value)
 
         self.db.flush()
-        return dbdict(obj)
+        return dbdict(obj, depth)
 
-    def update(self, key, value):
+    def update(self, key, value, depth=0):
         obj = self.table.get(key)
 
         if obj is None:
@@ -59,7 +59,7 @@ class Table:
             setattr(obj, name, field)
 
         self.db.flush()
-        return dbdict(obj)
+        return dbdict(obj, depth)
 
     def delete(self, key):
         obj = self.table.get(key)
@@ -71,12 +71,12 @@ class Table:
         self.db.flush()
         return key
 
-    def list(self, filter_by={}, order_by=[]):
+    def list(self, filter_by={}, order_by=[], depth=0):
         objs = self.table.filter_by(**filter_by).order_by(*order_by).all()
         results = []
 
         for obj in objs:
-            results.append(dbdict(obj))
+            results.append(dbdict(obj, depth))
 
         return results
 
@@ -151,7 +151,7 @@ class Model:
             setattr(self, table.NAME, table(db))
 
 
-def dbdict(obj):
+def dbdict(obj, depth=0):
     """
     Convert an SQLAlchemy object to a dictionary.
     """
@@ -159,11 +159,17 @@ def dbdict(obj):
     mapper = class_mapper(obj.__class__)
     data = {col.key: getattr(obj, col.key) for col in mapper.columns}
 
+    if depth == 0:
+        return data
+
     for (name, rel) in mapper.relationships.items():
         ref = getattr(obj, name)
 
         if ref is not None:
-            data[name] = list(map(dbdict, ref)) if rel.uselist else dbdict(ref)
+            if rel.uselist:
+                data[name] = [dbdict(item, depth - 1) for item in ref]
+            else:
+                data[name] = dbdict(ref, depth - 1)
 
     return data
 

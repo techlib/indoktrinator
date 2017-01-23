@@ -69,6 +69,13 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             return fn(*args, **kwargs)
         return wrapper
 
+    def pass_depth(fn):
+        @wraps(fn)
+        def wrapper(*args, **kwargs):
+            kwargs['depth'] = int(request.args.get('depth', '0'))
+            return fn(*args, **kwargs)
+        return wrapper
+
     def authorized_only(privilege='user'):
         def make_wrapper(fn):
             @wraps(fn)
@@ -141,12 +148,13 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
 
     @app.route('/api/device/', methods=['GET', 'POST'])
     @authorized_only('user')
+    @pass_depth
     @with_db_session(db)
-    def api_devices(**kwargs):
+    def api_devices(depth, **kwargs):
         if 'GET' == request.method:
             devices = []
 
-            for device in model.device.list():
+            for device in model.device.list(depth=depth):
                 status = manager.devices.get(device['id'], {})
                 devices.append(dict(device, **{
                     'photo': url_for('api_device_photo', id=device['id']),
@@ -158,14 +166,15 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
 
         if 'POST' == request.method:
             device = request.get_json(force=True)
-            return jsonify(model.device.insert(device))
+            return jsonify(model.device.insert(device, depth=depth))
 
     @app.route('/api/device/<id>', methods=['GET', 'DELETE', 'PATCH'])
     @authorized_only('user')
+    @pass_depth
     @with_db_session(db)
-    def api_device(id, **kwargs):
+    def api_device(id, depth, **kwargs):
         if 'GET' == request.method:
-            device = model.device.get(id)
+            device = model.device.get(id, depth=depth)
             status = manager.devices.get(id, {})
 
             return jsonify(dict(device, **{
@@ -179,16 +188,17 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
 
         if 'PATCH' == request.method:
             patch = request.get_json(force=True)
-            return jsonify(model.device.update(id, patch))
+            return jsonify(model.device.update(id, patch, depth=depth))
 
     @app.route('/api/file/', methods=['GET'])
     @authorized_only('user')
+    @pass_depth
     @with_db_session(db)
-    def api_files(**kwargs):
+    def api_files(depth, **kwargs):
         if 'GET' == request.method:
             files = []
 
-            for file in model.file.list():
+            for file in model.file.list(depth=depth):
                 files.append(dict(file, **{
                     'preview': url_for('api_file_preview', uuid=file['uuid']),
                 }))
@@ -197,10 +207,11 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
 
     @app.route('/api/file/<uuid>', methods=['GET'])
     @authorized_only('user')
+    @pass_depth
     @with_db_session(db)
-    def api_file(uuid, **kwargs):
+    def api_file(uuid, depth, **kwargs):
         if 'GET' == request.method:
-            file = model.file.get(uuid)
+            file = model.file.get(uuid, depth=depth)
 
             return jsonify(dict(file, **{
                 'preview': url_for('api_file_preview', uuid=uuid),
@@ -208,37 +219,42 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
 
     @app.route('/api/event/', methods=['GET', 'POST'])
     @authorized_only('user')
+    @pass_depth
     @with_db_session(db)
-    def api_events(**kwargs):
+    def api_events(depth, **kwargs):
         if 'GET' == request.method:
-            return jsonify(result=model.event.list(order_by=['date', 'range']))
+            events = model.event.list(order_by=['date', 'range'], depth=depth)
+            return jsonify(result=events)
 
         if 'POST' == request.method:
             data = request.get_json(force=True)
-            return jsonify(model.event.insert(data))
+            return jsonify(model.event.insert(data, depth=depth))
 
     @app.route('/api/event/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
     @authorized_only('user')
+    @pass_depth
     @with_db_session(db)
-    def api_event(uuid, **kwargs):
+    def api_event(uuid, depth, **kwargs):
         if 'GET' == request.method:
-            return jsonify(model.event.get(uuid))
+            return jsonify(model.event.get(uuid, depth=depth))
 
         if 'DELETE' == request.method:
             return jsonify(model.event.delete(uuid))
 
         if 'PATCH' == request.method:
             event = request.get_json(force=True)
-            return jsonify(model.event.update(uuid, event))
+            return jsonify(model.event.update(uuid, event, depth=depth))
 
     @app.route('/api/item/', methods=['GET', 'POST'])
     @authorized_only('user')
+    @pass_depth
     @with_db_session(db)
-    def api_items(**kwargs):
+    def api_items(depth, **kwargs):
         if 'GET' == request.method:
+            order = ['playlist', 'position']
             items = []
 
-            for item in model.item.list(order_by=['playlist', 'position']):
+            for item in model.item.list(order_by=order, depth=depth):
                 preview = url_for('api_file_preview', uuid=item['_file']['uuid'])
                 items.append(dict(item, preview=preview))
 
@@ -246,14 +262,15 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
 
         if 'POST' == request.method:
             item = request.get_json(force=True)
-            return jsonify(model.item.insert(item))
+            return jsonify(model.item.insert(item, depth=depth))
 
     @app.route('/api/item/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
     @authorized_only('user')
+    @pass_depth
     @with_db_session(db)
-    def api_item(uuid, **kwargs):
+    def api_item(uuid, depth, **kwargs):
         if 'GET' == request.method:
-            item = model.item.get(uuid)
+            item = model.item.get(uuid, depth=depth)
             preview = url_for('api_file_preview', uuid=item['_file']['uuid'])
             return jsonify(dict(item, preview=preview))
 
@@ -262,25 +279,28 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
 
         if 'PATCH' == request.method:
             patch = request.get_json(force=True)
-            return jsonify(model.item.update(uuid, patch))
+            return jsonify(model.item.update(uuid, patch, depth=depth))
 
     @app.route('/api/playlist/', methods=['GET', 'POST'])
     @authorized_only('user')
+    @pass_depth
     @with_db_session(db)
-    def api_playlists(**kwargs):
+    def api_playlists(depth, **kwargs):
         if 'GET' == request.method:
-            return jsonify(result=model.playlist.list(order_by=['name']))
+            playlists = model.playlist.list(order_by=['name'], depth=depth)
+            return jsonify(result=playlists)
 
         if 'POST' == request.method:
             playlist = request.get_json(force=True)
-            return jsonify(model.playlist.insert(playlist))
+            return jsonify(model.playlist.insert(playlist, depth=depth))
 
     @app.route('/api/playlist/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
     @authorized_only('user')
+    @pass_depth
     @with_db_session(db)
-    def api_playlist(uuid, **kwargs):
+    def api_playlist(uuid, depth, **kwargs):
         if 'GET' == request.method:
-            playlist = model.playlist.get(uuid)
+            playlist = model.playlist.get(uuid, depth=depth)
             items = []
 
             for item in playlist['items']:
@@ -314,42 +334,43 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             for item in items:
                 mode.item.insert(item)
 
-            # NOTE: We can reconstruct the data structure without querying
-            #       the database here, but one more round-trip will not hurt
-            #       that much and the code will be a little bit simpler.
-            return jsonify(model.playlist.get(uuid))
+            return jsonify(model.playlist.get(uuid, depth=depth))
 
     @app.route('/api/program/', methods=['GET', 'POST'])
     @authorized_only('user')
+    @pass_depth
     @with_db_session(db)
-    def api_programs(**kwargs):
+    def api_programs(depth, **kwargs):
         if 'GET' == request.method:
-            return jsonify(result=model.program.list(order_by=['name']))
+            programs = model.program.list(order_by=['name'], depth=depth)
+            return jsonify(result=programs)
 
         if 'POST' == request.method:
             program = request.get_json(force=True)
-            return jsonify(model.program.insert(program))
+            return jsonify(model.program.insert(program, depth=depth))
 
     @app.route('/api/program/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
     @authorized_only('user')
+    @pass_depth
     @with_db_session(db)
-    def api_program(uuid, **kwargs):
+    def api_program(uuid, depth, **kwargs):
         if 'GET' == request.method:
-            return jsonify(model.program.get(uuid))
+            return jsonify(model.program.get(uuid, depth=depth))
 
         if 'DELETE' == request.method:
             return jsonify(deleted=model.program.delete(uuid))
 
         if 'PATCH' == request.method:
             patch = request.get_json(force=True)
-            return jsonify(model.program.update(uuid, patch))
+            return jsonify(model.program.update(uuid, patch, depth=depth))
 
     @app.route('/api/segment/', methods=['GET', 'POST'])
     @authorized_only('user')
+    @pass_depth
     @with_db_session(db)
-    def api_segments(**kwargs):
+    def api_segments(depth, **kwargs):
         if 'GET' == request.method:
-            return jsonify(result=model.segment.list())
+            return jsonify(result=model.segment.list(depth=depth))
 
         if 'POST' == request.method:
             segment = request.get_json(force=True)
@@ -360,14 +381,15 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             if segment.get('panel') and '://' not in segment['panel']:
                 raise ValueError(segment)
 
-            return jsonify(model.segment.insert(segment))
+            return jsonify(model.segment.insert(segment, depth=depth))
 
     @app.route('/api/segment/<uuid>', methods=['GET', 'DELETE', 'PATCH'])
     @authorized_only('user')
+    @pass_depth
     @with_db_session(db)
-    def api_segment(uuid, **kwargs):
+    def api_segment(uuid, depth, **kwargs):
         if 'GET' == request.method:
-            return jsonify(model.segment.get_item(uuid))
+            return jsonify(model.segment.get(uuid, depth=depth))
 
         if 'DELETE' == request.method:
             return jsonify(deleted=model.segment.delete(uuid))
@@ -381,7 +403,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             if patch.get('panel') and '://' not in patch['panel']:
                 raise ValueError(patch)
 
-            return jsonify(model.segment.update(uuid, patch))
+            return jsonify(model.segment.update(uuid, patch, depth=depth))
 
     @app.route('/api/user-info/', methods=['GET'])
     @pass_user_info
