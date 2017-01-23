@@ -65,7 +65,7 @@ export var Device = translate('device')(React.createClass({
     if (errors.length > 0) {
       FeedbackActions.set('error', this.props.t('common:alerts.invalidform'), errors)
     } else {
-      this.props.saveHandler(this.state)
+      this.props.saveHandler({id: this.state.id, name: this.state.name, program: this.state.program})
     }
   },
 
