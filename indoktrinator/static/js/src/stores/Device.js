@@ -36,7 +36,7 @@ export var DeviceStore = Reflux.createStore({
   },
 
   onList() {
-    this.req('GET', `${API_URL}/api/device/`,
+    this.req('GET', `${API_URL}/api/device/?depth=1`,
              {action: DeviceActions.list, dest: 'list'})
   }
 })
