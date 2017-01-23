@@ -30,7 +30,7 @@ class Table:
         return dbdict(obj, depth)
 
     def insert(self, value, depth=0):
-        obj = self.table.insert(value)
+        obj = self.table.insert(**value)
 
         for key in value:
             if key not in self.safe_cols:
