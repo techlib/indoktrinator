@@ -93,6 +93,12 @@ class Device(Table):
     PKEY = 'id'
     RELS = [('_program', 'program')]
 
+    def __init__(self, db):
+        super().__init__(db)
+
+        # Devices have mutable primary keys.
+        self.safe_cols.add('id')
+
     def fixup(self, data):
         data['photo'] = urljoin('/api/preview-image/device', data['id'])
         return data
