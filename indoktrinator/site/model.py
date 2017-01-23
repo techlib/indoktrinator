@@ -77,7 +77,7 @@ class Table:
         if obj is None:
             raise KeyError(key)
 
-        obj.delete()
+        self.db.delete(obj)
         self.db.flush()
         return key
 
