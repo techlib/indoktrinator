@@ -13,6 +13,10 @@ class Table:
     PKEY = 'uuid'
     RELS = []
 
+    # Do not allow primary key modifications or custom value on insert.
+    # This is the default since we have mostly `uuid` primary keys.
+    PROTECTED_PKEY = True
+
     def __init__(self, db):
         self.db = db
         self.table = getattr(db, self.NAME)
@@ -40,8 +44,9 @@ class Table:
             if key not in self.safe_cols:
                 raise ValueError(value)
 
-        if self.PKEY in value:
-            raise ValueError(value)
+        if self.PROTECTED_PKEY:
+            if self.PKEY in value:
+                raise ValueError(value)
 
         self.db.flush()
         return dbdict(obj, depth)
@@ -56,8 +61,9 @@ class Table:
             while name not in self.safe_cols:
                 raise ValueError(value)
 
-        if value.get(self.PKEY) != getattr(obj, self.PKEY):
-            raise ValueError(value)
+        if self.PROTECTED_PKEY:
+            if value.get(self.PKEY) != getattr(obj, self.PKEY):
+                raise ValueError(value)
 
         for (name, field) in value.items():
             setattr(obj, name, field)
@@ -93,11 +99,8 @@ class Device(Table):
     PKEY = 'id'
     RELS = [('_program', 'program')]
 
-    def __init__(self, db):
-        super().__init__(db)
-
-        # Devices have mutable primary keys.
-        self.safe_cols.add('id')
+    # Devices have mutable primary keys.
+    PROTECTED_PKEY = False
 
     def fixup(self, data):
         data['photo'] = urljoin('/api/preview-image/device', data['id'])
