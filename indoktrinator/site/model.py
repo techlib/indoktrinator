@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from sqlalchemy.orm import class_mapper
+from urllib.parse import urljoin
 
 
 __all__ = ['Model']
@@ -20,6 +21,9 @@ class Table:
             self.table.relate(key, getattr(db, other_table))
 
         self.safe_cols = {col.name for col in self.table._table.columns}
+
+        # Fox the `dbdict` function.
+        self.table._table.fixup = self.fixup
 
     def get(self, key, depth=0):
         obj = self.table.get(key)
@@ -80,11 +84,18 @@ class Table:
 
         return results
 
+    def fixup(self, data):
+        return data
+
 
 class Device(Table):
     NAME = 'device'
     PKEY = 'id'
     RELS = [('_program', 'program')]
+
+    def fixup(self, data):
+        data['photo'] = urljoin('/api/preview-image/device', data['id'])
+        return data
 
 
 class Event(Table):
@@ -101,6 +112,10 @@ class File(Table):
         # Do not allow changes to columns administered
         # by the harvester or database triggers.
         self.safe_cols.clear()
+
+    def fixup(self, data):
+        data['preview'] = urljoin('/api/preview-image/file', data['uuid'])
+        return data
 
 
 class Item(Table):
@@ -156,11 +171,12 @@ def dbdict(obj, depth=0):
     Convert an SQLAlchemy object to a dictionary.
     """
 
+    fixup = obj._table.fixup
     mapper = class_mapper(obj.__class__)
     data = {col.key: getattr(obj, col.key) for col in mapper.columns}
 
     if depth == 0:
-        return data
+        return fixup(data)
 
     for (name, rel) in mapper.relationships.items():
         ref = getattr(obj, name)
@@ -171,7 +187,7 @@ def dbdict(obj, depth=0):
             else:
                 data[name] = dbdict(ref, depth - 1)
 
-    return data
+    return fixup(data)
 
 
 # vim:set sw=4 ts=4 et:

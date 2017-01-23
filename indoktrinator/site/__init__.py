@@ -6,7 +6,7 @@ from twisted.python import log
 from werkzeug.exceptions import Forbidden, NotFound
 from flask_cors import CORS
 from flask import Flask, Response, request, render_template, jsonify, \
-                  url_for, send_file, send_from_directory
+                  send_file, send_from_directory
 
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from sqlalchemy import desc
@@ -157,7 +157,6 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             for device in model.device.list(depth=depth):
                 status = manager.devices.get(device['id'], {})
                 devices.append(dict(device, **{
-                    'photo': url_for('api_device_photo', id=device['id']),
                     'online': status.get('last_seen', 0) > time() - 300,
                     'power': status.get('power', False),
                 }))
@@ -178,7 +177,6 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             status = manager.devices.get(id, {})
 
             return jsonify(dict(device, **{
-                'photo': url_for('api_device_photo', id=id),
                 'online': status.get('last_seen', 0) > time() - 300,
                 'power': status.get('power', False),
             }))
@@ -196,14 +194,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     @with_db_session(db)
     def api_files(depth, **kwargs):
         if 'GET' == request.method:
-            files = []
-
-            for file in model.file.list(depth=depth):
-                files.append(dict(file, **{
-                    'preview': url_for('api_file_preview', uuid=file['uuid']),
-                }))
-
-            return jsonify(result=files)
+            return jsonify(result=model.file.list(depth=depth))
 
     @app.route('/api/file/<uuid>', methods=['GET'])
     @authorized_only('user')
@@ -211,11 +202,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     @with_db_session(db)
     def api_file(uuid, depth, **kwargs):
         if 'GET' == request.method:
-            file = model.file.get(uuid, depth=depth)
-
-            return jsonify(dict(file, **{
-                'preview': url_for('api_file_preview', uuid=uuid),
-            }))
+            return jsonify(model.file.get(uuid, depth=depth))
 
     @app.route('/api/event/', methods=['GET', 'POST'])
     @authorized_only('user')
@@ -252,13 +239,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     def api_items(depth, **kwargs):
         if 'GET' == request.method:
             order = ['playlist', 'position']
-            items = []
-
-            for item in model.item.list(order_by=order, depth=depth):
-                preview = url_for('api_file_preview', uuid=item['_file']['uuid'])
-                items.append(dict(item, preview=preview))
-
-            return jsonify(result=items)
+            return jsonify(result=model.item.list(order_by=order, depth=depth))
 
         if 'POST' == request.method:
             item = request.get_json(force=True)
@@ -270,9 +251,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     @with_db_session(db)
     def api_item(uuid, depth, **kwargs):
         if 'GET' == request.method:
-            item = model.item.get(uuid, depth=depth)
-            preview = url_for('api_file_preview', uuid=item['_file']['uuid'])
-            return jsonify(dict(item, preview=preview))
+            return jsonify(model.item.get(uuid, depth=depth))
 
         if 'DELETE' == request.method:
             return jsonify(deleted=model.item.delete(uuid))
@@ -300,14 +279,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     @with_db_session(db)
     def api_playlist(uuid, depth, **kwargs):
         if 'GET' == request.method:
-            playlist = model.playlist.get(uuid, depth=depth)
-            items = []
-
-            for item in playlist['items']:
-                preview = url_for('api_file_preview', uuid=item['_file']['uuid'])
-                items.append(dict(item, preview=preview))
-
-            return jsonify(dict(playlist, items=items))
+            return jsonify(model.playlist.get(uuid, depth=depth))
 
         if 'DELETE' == request.method:
             return jsonify(deleted=model.playlist.delete(uuid))
