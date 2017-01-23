@@ -309,7 +309,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
                 if item.setdefault('playlist', uuid) != uuid:
                     raise ValueError(item)
 
-                mode.item.insert(item)
+                model.item.insert(item)
 
             return jsonify(model.playlist.get(uuid, depth=depth))
 
