@@ -149,7 +149,6 @@ class Playlist(Table):
 
         # Do not allow changes to columns administered
         # by the harvester or database triggers.
-        self.safe_cols.discard('system')
         self.safe_cols.discard('path')
         self.safe_cols.discard('token')
         self.safe_cols.discard('duration')

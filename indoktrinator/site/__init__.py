@@ -289,7 +289,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             # Make sure that the playlist is not managed by harvester.
             playlist = model.playlist.get(uuid)
 
-            if playlist['system']:
+            if playlist['token'] is not None:
                 raise Forbidden()
 
             # Apply the patch without the `items` key.
