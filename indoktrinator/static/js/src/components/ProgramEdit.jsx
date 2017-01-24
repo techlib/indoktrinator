@@ -104,6 +104,11 @@ var Component = React.createClass({
 
           <div className="col-md-2">
             <ul className="list-group">
+              <li className="list-group-item">
+                <h4 className="list-group-item-heading">
+                  {this.props.t('program:availableplaylists')}
+                </h4>
+              </li>
               {this.state.playlist.list.map((item, index) => {
                 return <Playlist name={item.name}
                   duration={item.duration}

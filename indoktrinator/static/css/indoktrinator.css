@@ -44,7 +44,7 @@ h1.editable {
 .program .col {
 	width: 14.2857%;
 	float: left;
-	padding: 5px;
+	padding: 0 5px;
     border-right: 1px solid #ddd;
     min-height: 500px;
 }
