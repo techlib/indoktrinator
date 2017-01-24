@@ -109,7 +109,7 @@ class Device(Table):
     PROTECTED_PKEY = False
 
     def fixup(self, data):
-        data['photo'] = urljoin('/api/preview-image/device', data['id'])
+        data['photo'] = urljoin('/api/preview-image/device/', data['id'])
         return data
 
 
@@ -122,7 +122,7 @@ class File(Table):
     NAME = 'file'
 
     def fixup(self, data):
-        data['preview'] = urljoin('/api/preview-image/file', data['uuid'])
+        data['preview'] = urljoin('/api/preview-image/file/', data['uuid'])
         return data
 
     def verify(self, data=None, prev=None):
