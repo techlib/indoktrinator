@@ -297,21 +297,22 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             # Apply the patch without the `items` key.
             # We need to process it separately.
             patch = request.get_json(force=True)
-            items = patch.pop('items', [])
+            items = patch.pop('items', None)
 
             model.playlist.update(uuid, patch)
 
-            # Delete all current items in that playlist.
-            model.item.table.filter_by(playlist=uuid).delete()
+            if items is not None:
+                # Delete all current items in that playlist.
+                model.item.table.filter_by(playlist=uuid).delete()
 
-            # Insert all the new items as usual.
-            for item in items:
-                # Make sure that we are not inserting items for a different
-                # playlist. Set correct playlist for those without it.
-                if item.setdefault('playlist', uuid) != uuid:
-                    raise ValueError(item)
+                # Insert all the new items as usual.
+                for item in items:
+                    # Make sure that we are not inserting items for a different
+                    # playlist. Set correct playlist for those without it.
+                    if item.setdefault('playlist', uuid) != uuid:
+                        raise ValueError(item)
 
-                model.item.insert(item)
+                    model.item.insert(item)
 
             return jsonify(model.playlist.get(uuid, depth=depth))
 
