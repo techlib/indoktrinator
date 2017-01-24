@@ -24,8 +24,6 @@ class Table:
         for (key, other_table) in self.RELS:
             self.table.relate(key, getattr(db, other_table))
 
-        self.safe_cols = {col.name for col in self.table._table.columns}
-
         # Fox the `dbdict` function.
         self.table._table.fixup = self.fixup
 
@@ -38,32 +36,20 @@ class Table:
         return dbdict(obj, depth)
 
     def insert(self, value, depth=0):
+        self.verify(value, None)
+
         obj = self.table.insert(**value)
-
-        for key in value:
-            if key not in self.safe_cols:
-                raise ValueError(value)
-
-        if self.PROTECTED_PKEY:
-            if self.PKEY in value:
-                raise ValueError(value)
-
         self.db.flush()
+
         return dbdict(obj, depth)
 
     def update(self, key, value, depth=0):
         obj = self.table.get(key)
 
         if obj is None:
-            raise KeyError(key)
+            raise KeyError('object {!r} not found'.format(key))
 
-        for name in value:
-            while name not in self.safe_cols:
-                raise ValueError(value)
-
-        if self.PROTECTED_PKEY:
-            if value.get(self.PKEY) != getattr(obj, self.PKEY):
-                raise ValueError(value)
+        self.verify(value, dbdict(obj))
 
         for (name, field) in value.items():
             setattr(obj, name, field)
@@ -76,6 +62,8 @@ class Table:
 
         if obj is None:
             raise KeyError(key)
+
+        self.verify(None, dbdict(obj))
 
         self.db.delete(obj)
         self.db.flush()
@@ -90,7 +78,25 @@ class Table:
 
         return results
 
+    def verify(self, data=None, prev=None):
+        """
+        Verify consistency of the inserted or updated object.
+        Also useful as a form of access restriction for some fields.
+        """
+
+        if data is not None:
+            if self.PROTECTED_PKEY:
+                pkey = prev.get(self.PKEY) if prev is not None else None
+
+                if data.get(self.PKEY, pkey) != pkey:
+                    raise ValueError('key {!r} is protected'.format(self.PKEY))
+
     def fixup(self, data):
+        """
+        Adjust value before it is returned from ``get()`` or ``list()``.
+        By default does nothing.
+        """
+
         return data
 
 
@@ -115,43 +121,64 @@ class Event(Table):
 class File(Table):
     NAME = 'file'
 
-    def __init__(self, db):
-        super().__init__(db)
-
-        # Do not allow changes to columns administered
-        # by the harvester or database triggers.
-        self.safe_cols.clear()
-
     def fixup(self, data):
         data['preview'] = urljoin('/api/preview-image/file', data['uuid'])
         return data
+
+    def verify(self, data=None, prev=None):
+        raise ValueError('files are immutable')
 
 
 class Item(Table):
     NAME = 'item'
     RELS = [('_file', 'file')]
 
-    def __init__(self, db):
-        super().__init__(db)
+    def verify(self, data=None, prev=None):
+        super().verify(data, prev)
 
-        # Do not allow changes to columns administered
-        # by the harvester or database triggers.
-        self.safe_cols.discard('file')
-        self.safe_cols.discard('playlist')
+        if prev is not None:
+            playlist = self.db.playlist.get(prev['playlist'])
+
+            if playlist is None:
+                return
+
+            if playlist.token is not None:
+                raise ValueError('system playlist items are immutable')
+
+            if data is not None:
+                if data.get('file', prev['file']) != prev['file']:
+                    raise ValueError('cannot modify item file')
+
+        elif data is not None:
+            if 'playlist' in data:
+                playlist = self.db.playlist.get(data['playlist'])
+
+                if playlist is None:
+                    return
+
+                if playlist.token is not None:
+                    raise ValueError('cannot insert item to system playlist')
 
 
 class Playlist(Table):
     NAME = 'playlist'
     RELS = [('items', 'item')]
 
-    def __init__(self, db):
-        super().__init__(db)
+    def fixup(self, data):
+        data['system'] = data.get('token') is not None
+        return data
 
-        # Do not allow changes to columns administered
-        # by the harvester or database triggers.
-        self.safe_cols.discard('path')
-        self.safe_cols.discard('token')
-        self.safe_cols.discard('duration')
+    def verify(self, data=None, prev=None):
+        super().verify(data, prev)
+
+        if prev is not None:
+            if prev['token'] is not None:
+                raise ValueError('system playlists are immutable')
+
+        if data is not None:
+            for field in ('path', 'token', 'duration'):
+                if field in data:
+                    raise ValueError('field {!r} is immutable'.format(field))
 
 
 class Program(Table):
