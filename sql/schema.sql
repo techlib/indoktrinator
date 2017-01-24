@@ -601,7 +601,7 @@ ALTER TABLE ONLY device
 --
 
 ALTER TABLE ONLY event
-    ADD CONSTRAINT event_no_overlap EXCLUDE USING gist (date WITH =, range WITH &&);
+    ADD CONSTRAINT event_no_overlap EXCLUDE USING gist (((program)::text) WITH =, date WITH =, range WITH &&);
 
 
 --
@@ -689,7 +689,7 @@ ALTER TABLE ONLY program
 --
 
 ALTER TABLE ONLY segment
-    ADD CONSTRAINT segment_no_overlap EXCLUDE USING gist (day WITH =, range WITH &&);
+    ADD CONSTRAINT segment_no_overlap EXCLUDE USING gist (((program)::text) WITH =, day WITH =, range WITH &&);
 
 
 --
@@ -698,6 +698,13 @@ ALTER TABLE ONLY segment
 
 ALTER TABLE ONLY segment
     ADD CONSTRAINT segment_pkey PRIMARY KEY (uuid);
+
+
+--
+-- Name: event_program_idx; Type: INDEX; Schema: public; Owner: indoktrinator
+--
+
+CREATE INDEX event_program_idx ON event USING gist (((program)::text));
 
 
 --
@@ -733,6 +740,13 @@ CREATE INDEX fki_segment_playlist_fkey ON segment USING btree (playlist);
 --
 
 CREATE INDEX fki_segment_program_fkey ON segment USING btree (program);
+
+
+--
+-- Name: segment_program_idx; Type: INDEX; Schema: public; Owner: indoktrinator
+--
+
+CREATE INDEX segment_program_idx ON segment USING gist (((program)::text));
 
 
 --
