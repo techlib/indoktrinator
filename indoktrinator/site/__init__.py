@@ -344,21 +344,22 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             # Apply the patch without the `segments` key.
             # We need to process it separately.
             patch = request.get_json(force=True)
-            segments = patch.pop('segments', [])
+            segments = patch.pop('segments', None)
 
             model.program.update(uuid, patch)
 
-            # Delete all current segments in that program.
-            model.segment.table.filter_by(program=uuid).delete()
+            if segments is not None:
+                # Delete all current segments in that program.
+                model.segment.table.filter_by(program=uuid).delete()
 
-            # Insert all the new segments as usual.
-            for segment in segments:
-                # Make sure that we are not inserting segments for a different
-                # program. Set correct program for those without it.
-                if segment.setdefault('program', uuid) != uuid:
-                    raise ValueError(segment)
+                # Insert all the new segments as usual.
+                for segment in segments:
+                    # Make sure that we are not inserting segments for a different
+                    # program. Set correct program for those without it.
+                    if segment.setdefault('program', uuid) != uuid:
+                        raise ValueError(segment)
 
-                model.segment.insert(segment)
+                    model.segment.insert(segment)
 
             return jsonify(model.program.get(uuid, depth=depth))
 
