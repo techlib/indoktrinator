@@ -11,6 +11,7 @@ import HTML5Backend from 'react-dnd-html5-backend'
 import {translate} from 'react-i18next'
 import {Column} from './ProgramCreator/Column'
 import {Playlist} from './ProgramCreator/Playlist'
+import {InlineNameEdit} from './InlineNameEdit'
 
 var Component = React.createClass({
 
@@ -48,11 +49,24 @@ var Component = React.createClass({
 
   save() {
     var data = this.getData()
-    ProgramActions.update.triggerAsync(data)
+    ProgramActions.update.triggerAsync(this.state.program.program.uuid, data)
     .then(() => {
       FeedbackActions.set('success', this.props.t('program:alerts.update'))
     })
   },
+
+  saveName(name) {
+    let r = ProgramActions.update.triggerAsync(this.state.program.program.uuid,
+      {name: name})
+
+    r.then(() => {
+      FeedbackActions.set('success', this.props.t('common:alerts.namechanged'))
+      ProgramActions.read(this.props.params.uuid)
+    })
+
+    return r
+  },
+
 
   handleDelete(uuid) {
     confirmModal(
@@ -80,8 +94,12 @@ var Component = React.createClass({
       <div className="col-xs-12 container-fluid program">
 
         <div className="row">
+          <InlineNameEdit
+            name={this.state.program.program.name}
+            uuid={this.state.program.program.uuid}
+            saveAction={this.saveName} />
+
           <div className="col-xs-12">
-            <h1>Program name</h1>
             <button onClick={this.save}>Save</button>
           </div>
         </div>

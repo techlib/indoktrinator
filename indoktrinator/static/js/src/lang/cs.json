@@ -46,7 +46,8 @@
     },
     "alerts": {
       "invalidform": "Formulář obsahuje chyby:",
-      "create": ""
+      "create": "",
+      "namechanged": "Název byl upraven"
     },
     "search": "Vyhledávání",
     "validation": {

@@ -46,7 +46,8 @@
     },
     "alerts": {
       "invalidform": "Form contains invalid data:",
-      "create": ""
+      "create": "",
+      "namechanged": "Name was changed"
     },
     "search": "Search",
     "validation": {

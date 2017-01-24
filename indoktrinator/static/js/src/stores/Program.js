@@ -41,8 +41,8 @@ export var ProgramStore = Reflux.createStore({
              {action: ProgramActions.delete})
   },
 
-  onUpdate(program) {
-    this.req('PATCH', `${API_URL}/api/program/${program.uuid}`,
+  onUpdate(uuid, program) {
+    this.req('PATCH', `${API_URL}/api/program/${uuid}`,
              {data: program, action: ProgramActions.update})
   },
 
