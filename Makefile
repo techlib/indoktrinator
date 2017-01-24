@@ -34,7 +34,7 @@ npm:
 clean:
 	rm -rf node_modules
 	rm -rf indoktrinator/static/dist/app.bundle.js
-	rm -rf doc/*.html doc/*.pdf doc/*.png doc/*.cache
+	rm -rf doc/*.html doc/*.pdf doc/*.png doc/*.cache doc/.asciidoctor
 
 
 %.html: %.adoc
