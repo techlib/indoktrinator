@@ -17,7 +17,7 @@ import {confirmModal} from './ModalConfirmMixin'
 import {getItems} from './PlaylistEdit'
 import {StoreTypes} from './../stores/StoreTypes'
 import {Playlist} from './PlaylistCreator/Playlist'
-import {NameEdit} from './PlaylistCreator/NameEdit'
+import {InlineNameEdit} from './InlineNameEdit'
 import {translate} from 'react-i18next'
 
 var Component = React.createClass({
@@ -40,9 +40,7 @@ var Component = React.createClass({
       newState['items'] = p.items
     }
 
-    if (this.state.name == '') {
-      newState['name'] = p.playlist.playlist.name
-    }
+    newState['name'] = p.playlist.playlist.name
 
     this.setState(newState)
   },
@@ -105,7 +103,6 @@ var Component = React.createClass({
 
       var uuid = this.props.playlist.playlist.uuid
       var data = {
-        name: this.state.name,
         items: this.state.items.map((item,index) => {
           return {
             duration: item._file.duration,
@@ -231,7 +228,15 @@ var Component = React.createClass({
   },
 
   nameChangeHandler(name) {
-    this.setState({'name': name})
+    let r = PlaylistActions.update.triggerAsync(this.props.playlist.playlist.uuid,
+      {name: name})
+
+    r.then(() => {
+      FeedbackActions.set('success', this.props.t('common:alerts.namechanged'))
+      PlaylistActions.read(this.props.playlist.playlist.uuid)
+    })
+
+    return r
   },
 
   render() {
@@ -240,8 +245,9 @@ var Component = React.createClass({
     return (
       <div className='col-xs-12 container-fluid'>
         <div className="row">
-          <NameEdit
-            changeHandler={this.nameChangeHandler}
+          <InlineNameEdit
+            saveAction={this.nameChangeHandler}
+            uuid={this.props.playlist.playlist.uuid}
             name={this.state.name}
           />
         </div>
