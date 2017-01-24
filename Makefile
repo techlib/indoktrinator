@@ -5,8 +5,8 @@ htmls = $(adocs:.adoc=.html)
 pdfs  = $(adocs:.adoc=.pdf)
 pys   = $(shell find indoktrinator -name '*.py')
 
-all: build doc
-doc: html
+all: build
+doc: html pdf
 
 html: ${htmls}
 pdf: ${pdfs}
@@ -33,8 +33,8 @@ npm:
 
 clean:
 	rm -rf node_modules
-	rm -f indoktrinator/static/dist/app.bundle.js
-	rm -f doc/*.html doc/*.png doc/*.cache
+	rm -rf indoktrinator/static/dist/app.bundle.js
+	rm -rf doc/*.html doc/*.pdf doc/*.png doc/*.cache
 
 
 %.html: %.adoc
