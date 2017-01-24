@@ -357,7 +357,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
                 if segment.setdefault('program', uuid) != uuid:
                     raise ValueError(segment)
 
-                mode.segment.insert(segment)
+                model.segment.insert(segment)
 
             return jsonify(model.program.get(uuid, depth=depth))
 
