@@ -14,7 +14,7 @@ export function getItems(playlist) {
     return {
       uuid: item.uuid,
       hide: false,
-      file: item.file,
+      _file: item._file,
       duration: item.duration,
       _type: Types.ITEM,
     }

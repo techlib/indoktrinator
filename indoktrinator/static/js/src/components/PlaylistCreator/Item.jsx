@@ -11,7 +11,7 @@ const itemSource = {
     return {
       uuid: props.uuid,
       index: props.index,
-      file: props.file,
+      _file: props.file,
       duration: props.duration,
       _type: Types.ITEM
     }

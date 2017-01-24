@@ -13,7 +13,7 @@ const playlistSource = {
       items: props.items,
       added: false,
       hide: true,
-      file: {},
+      _file: {},
       _type: Types.PLAYLIST
     }
   },
@@ -57,7 +57,7 @@ var Playlist = React.createClass({
                   finalizeDrop={this.props.finalizeDrop}
                   cancelDrop={this.props.cancelDrop}
                   addHandler={this.props.appendItem}
-                  file={item.file} />
+                  file={item._file} />
         })}
       </div>
     )
@@ -68,7 +68,7 @@ var Playlist = React.createClass({
       uuid: Date.now(),
       duration: 0,
       items: this.props.items,
-      file: {},
+      _file: {},
       _type: Types.PLAYLIST,
     })
     e.stopPropagation()

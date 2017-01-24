@@ -102,18 +102,20 @@ var Component = React.createClass({
       FeedbackActions.set('error', this.props.t('alerts.invalidform'), errors)
     } else {
 
+
+      var uuid = this.props.playlist.playlist.uuid
       var data = {
-        uuid: this.props.playlist.playlist.uuid,
         name: this.state.name,
-        items: this.state.items.map(item => {
+        items: this.state.items.map((item,index) => {
           return {
-            duration: item.file.duration,
-            file: item.file.uuid
+            duration: item._file.duration,
+            file: item._file.uuid,
+            position: index
           }
         })
       }
 
-      PlaylistActions.update.triggerAsync(data)
+      PlaylistActions.update.triggerAsync(uuid, data)
       .then(() => {
           FeedbackActions.set('success', this.props.t('playlist:alerts.update'))
       })
@@ -149,12 +151,12 @@ var Component = React.createClass({
         each(item.items, (file) => {
 					var res = {
             uuid: item.uuid + counter,
-            duration: file.file.duration,
-            file: {
-						  duration: file.file.duration,
-						  path: file.file.path,
-              uuid: file.file.uuid,
-              preview: file.file.preview
+            duration: file._file.duration,
+            _file: {
+						  duration: file._file.duration,
+						  path: file._file.path,
+              uuid: file._file.uuid,
+              preview: file._file.preview
             },
             hide: false,
             _type: Types.ITEM
@@ -183,7 +185,7 @@ var Component = React.createClass({
       key={item.uuid}
       hide={item.hide}
       uuid={item.uuid}
-      file={item.file}
+      file={item._file}
       duration={item.duration}
       deleteItemHandler={this.deleteItemHandler}
       moveItem={this.moveItem}
@@ -197,7 +199,7 @@ var Component = React.createClass({
     each(this.state.playlist.list, (item, index) => {
 
       var items = filter(item.items, (file) => {
-        return file.file.path.toLowerCase().indexOf(this.state.filter.toLowerCase()) >= 0
+        return file._file.path.toLowerCase().indexOf(this.state.filter.toLowerCase()) >= 0
       })
 
       if (items.length > 0) {

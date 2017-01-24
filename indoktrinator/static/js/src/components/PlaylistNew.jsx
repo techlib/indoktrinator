@@ -19,10 +19,6 @@ export var PlaylistNew = translate(['playlist', 'common'])(React.createClass({
     Reflux.connect(PlaylistStore, 'playlist')
   ],
 
-  getInitialState() {
-    return {uuid: guid(), state: 'New'}
-  },
-
   handleChange(evt) {
     this.setState({[evt.target.name]: evt.target.value})
   },
@@ -34,10 +30,6 @@ export var PlaylistNew = translate(['playlist', 'common'])(React.createClass({
       r.push(this.props.t('validation.required', {name: '$t(labels.name)'}))
     }
 
-    if (!this.state.uuid) {
-      r.push(this.props.t('validation.required', {name: 'uuid'}))
-    }
-
     return r
   },
 
@@ -47,13 +39,11 @@ export var PlaylistNew = translate(['playlist', 'common'])(React.createClass({
     if (errors.length > 0) {
       FeedbackActions.set('error', this.props.t('alerts.invalidform'), errors)
     } else {
-      var playlist = {}
-      playlist.name = this.state.name
-      playlist.uuid = this.state.uuid
+      var playlist = {name: this.state.name}
 
       PlaylistActions.create.triggerAsync(playlist)
-      .then(() => {
-        BrowserHistory.push('/playlist/' + playlist.uuid)
+      .then((data) => {
+        BrowserHistory.push('/playlist/' + data.uuid)
       })
     }
   },

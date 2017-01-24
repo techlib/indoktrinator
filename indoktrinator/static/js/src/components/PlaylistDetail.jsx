@@ -15,17 +15,17 @@ export var PlaylistDetail = React.createClass({
 								<div className="list-group-item">
 									<div className="list-view-pf-main-info">
 										<div className="list-view-pf-left">
-											<img src={item.file.preview} width="80" height="45"
+											<img src={item._file.preview} width="80" height="45"
 													 alt="placeholder image"/>
 										</div>
 										<div className="list-view-pf-body">
 											<div className="list-view-pf-description">
 												<div className="list-group-item-heading">
-													{item.file.path}
+													{item._file.path}
 												</div>
 											</div>
 											<div className="list-view-pf-additional-info">
-													<i className="fa fa-clock-o"> </i> {moment.duration(item.file.duration, 'seconds').format('mm:ss', {trim: false})}
+													<i className="fa fa-clock-o"> </i> {moment.duration(item._file.duration, 'seconds').format('mm:ss', {trim: false})}
 											</div>
 										</div>
 									</div>
