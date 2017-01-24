@@ -30,13 +30,13 @@ h1.editable {
     cursor: pointer;
 }
 
-.playlist-name-edit {
+.inline-name-edit {
     line-height: 30px;
     height: 30px;
 }
 
 
-.playlist-name-edit button {
+.inline-name-edit button {
     margin-left: 10px !important;
     margin-top: -4px !important;
 }
