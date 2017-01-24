@@ -26,7 +26,7 @@ const playlistSource = {
 var Playlist = React.createClass({
 
   render() {
-    let cls = classNames('list-group-item')
+    let cls = classNames('list-group-item', 'playlist')
     let res =  <li className={cls}>
       {this.props.name}
     </li>

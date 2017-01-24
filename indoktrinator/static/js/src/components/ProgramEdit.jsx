@@ -77,7 +77,7 @@ var Component = React.createClass({
 
   render() {
     return (
-      <div className="col-xs-12 container-fluid">
+      <div className="col-xs-12 container-fluid program">
 
         <div className="row">
           <div className="col-xs-12">

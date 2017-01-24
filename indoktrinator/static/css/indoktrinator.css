@@ -51,6 +51,7 @@ h1.editable {
 
 .program .col .list-group-item {
     position: relative;
+    cursor: move;
 }
 
 
@@ -67,6 +68,10 @@ h1.editable {
 .program .list-group-item .time {
 	display: block;
 	font-weight: bold;
+}
+
+.program .list-group-item.playlist {
+    cursor: move;
 }
 
 .list-group-item.empty {
