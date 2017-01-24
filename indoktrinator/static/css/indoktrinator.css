@@ -40,3 +40,42 @@ h1.editable {
     margin-left: 10px !important;
     margin-top: -4px !important;
 }
+
+.program .col {
+	width: 14.2857%;
+	float: left;
+	padding: 5px;
+    border-right: 1px solid #ddd;
+    min-height: 500px;
+}
+
+.program .col .list-group-item {
+    position: relative;
+}
+
+
+.program .col .list-group-item .edit {
+    position: absolute;
+    height: 300px;
+    width: 200px;
+    left: -0px;
+    z-index: 4;
+    top: 15px;
+    box-shadow: #bbb 1px 1px 30px;
+}
+
+.program .list-group-item .time {
+	display: block;
+	font-weight: bold;
+}
+
+.list-group-item.empty {
+    font-size: large;
+    padding: 0;
+    text-align: center;
+}
+
+.list-group-item.placeholder {
+    padding: 50px 0;
+    text-align: center;
+}

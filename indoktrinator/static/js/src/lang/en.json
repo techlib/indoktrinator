@@ -45,7 +45,8 @@
       "areyousure": "Are you sure?"
     },
     "alerts": {
-      "invalidform": "Form contains invalid data:"
+      "invalidform": "Form contains invalid data:",
+      "create": ""
     },
     "search": "Search",
     "validation": {
@@ -86,11 +87,15 @@
   },
   "program": {
     "alerts": {
-      "delete": "Program deleted"
+      "delete": "Program deleted",
+      "update": ""
     },
     "buttons": {
       "create": "Create program",
-      "delete": "Delete"
+      "delete": "Delete",
+      "new": {
+        "create": "Create"
+      }
     },
     "confirm": {
       "delete": "Do you really want to delete program {{name}}?"
@@ -100,6 +105,17 @@
     },
     "list": {
       "title": "Programs"
-    }
+    },
+    "days": {
+      "0": "Monday",
+      "1": "Tuesday",
+      "2": "Wednesday",
+      "3": "Thursday",
+      "4": "Friday",
+      "5": "Saturday",
+      "6": "Sunday"
+    },
+    "title": "",
+    "titlenew": ""
   }
 }

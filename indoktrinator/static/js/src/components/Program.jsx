@@ -5,23 +5,14 @@ import {ProgramStore} from '../stores/Program'
 import {SegmentStore} from '../stores/Segment'
 import {Feedback} from './Feedback'
 import {EventStore} from '../stores/Event'
-import {FormattedMessage} from 'react-intl'
 import {DeleteButton} from './form/button/DeleteButton'
-import BigCalendar from 'react-big-calendar'
 import {SaveButton} from './form/button/SaveButton'
 import moment from 'moment'
-import {SegmentEditModal} from './Program/SegmentEditModal'
-import {EventEditModal} from './Program/EventEditModal'
-import {CreateCalendarEventModal} from './Program/CreateCalendarEventModal'
 import {StoreTypes} from './../stores/StoreTypes'
 import {guid} from '../util/database'
 import {Tabs, Tab} from 'react-bootstrap-tabs'
 import {confirmModal} from './ModalConfirmMixin'
 import {Input} from 'react-bootstrap'
-
-BigCalendar.setLocalizer(
-  BigCalendar.momentLocalizer(moment)
-)
 
 moment.locale('cz', {
   week: {
@@ -416,20 +407,6 @@ export var Program = React.createClass({
                       />
                     </label>
                     <div className="col-xs-10">
-                      <BigCalendar
-                        selectable
-                        startAccessor='start'
-                        endAccessor='end'
-                        events={this.getPreparedEvents()}
-                        eventPropGetter={this.columnStyleGetter}
-                        onNavigate={this.onNavigate}
-                        timeslots={1}
-                        defaultView='week'
-                        defaultDate={this.state.bigCalendarDate}
-                        onSelectEvent={this.handleSelectEvent}
-                        onSelectSlot={this.handleSelectSlot}
-                        views={['day', 'week']}
-                      />
                     </div>
                     <CreateCalendarEventModal
                       title='Create event or segment'

@@ -5,19 +5,35 @@ import {ProgramActions, FeedbackActions} from '../actions'
 import {ErrorMixin, Api} from './Mixins'
 import {StoreTypes} from './StoreTypes'
 import {API_URL} from './config'
+import * as _ from 'lodash'
 
 export var ProgramStore = Reflux.createStore({
   mixins: [ErrorMixin, Api],
   listenables: [ProgramActions],
   data: {'program': [], 'list': [], 'errors': []},
 
+
+  processSegments(data) {
+    var segments = [[],[],[],[],[],[],[]]
+
+    _.each(data.segments, (item) => {
+      item.duration = item.range[1] - item.range[0]
+      item.empty = false
+      segments[item.day].push(item)
+    })
+
+    _.each(segments, (items, index) => {
+      segments[index] = _.sortBy(items, [(o) => {return o.range[0]}]);
+    })
+
+    data.segments = segments
+    return data
+  },
+
   onRead(uuid) {
-    this.req('GET', `${API_URL}/api/program/${uuid}`,
+    this.req('GET', `${API_URL}/api/program/${uuid}?depth=2`,
              {dest: 'program', action: ProgramActions.read,
-              modifyResponse: (data) => {
-                data.state = StoreTypes.LOADED
-                return data
-              }})
+              modifyResponse: this.processSegments})
   },
 
   onDelete(id) {

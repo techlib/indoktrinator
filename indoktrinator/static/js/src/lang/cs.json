@@ -45,7 +45,8 @@
       "areyousure": "Potvrzení"
     },
     "alerts": {
-      "invalidform": "Formulář obsahuje chyby:"
+      "invalidform": "Formulář obsahuje chyby:",
+      "create": ""
     },
     "search": "Vyhledávání",
     "validation": {
@@ -86,11 +87,15 @@
   },
   "program": {
     "alerts": {
-      "delete": "Program byl smazán"
+      "delete": "Program byl smazán",
+      "update": ""
     },
     "buttons": {
       "create": "Vytvořit program",
-      "delete": "Smazat"
+      "delete": "Smazat",
+      "new": {
+        "create": "Vytvořit"
+      }
     },
     "confirm": {
       "delete": "Opravdu chcete smazat program {{name}}?"
@@ -100,6 +105,17 @@
     },
     "list": {
       "title": "Programy"
-    }
+    },
+    "days": {
+      "0": "Pondělí",
+      "1": "Úterý",
+      "2": "Středa",
+      "3": "Čtvrtek",
+      "4": "Pátek",
+      "5": "Sobota",
+      "6": "Neděle"
+    },
+    "title": "",
+    "titlenew": ""
   }
 }

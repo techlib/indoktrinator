@@ -1,82 +1,122 @@
 import * as React from 'react'
 import * as Reflux from 'reflux'
 import {Program} from './Program'
-import {ProgramActions, PlaylistActions, SegmentActions, EventActions, FeedbackActions} from '../actions'
+import {ProgramActions, PlaylistActions, FeedbackActions} from '../actions'
 import {ProgramStore} from '../stores/Program'
 import {PlaylistStore} from '../stores/Playlist'
-import {EventStore} from '../stores/Event'
-import {SegmentStore} from '../stores/Segment'
 import {hashHistory as BrowserHistory} from 'react-router'
 import {confirmModal} from './ModalConfirmMixin'
+import {DragDropContext} from 'react-dnd'
+import HTML5Backend from 'react-dnd-html5-backend'
+import {translate} from 'react-i18next'
+import {Column} from './ProgramCreator/Column'
+import {Playlist} from './ProgramCreator/Playlist'
 
-export var ProgramEdit = React.createClass({
+var Component = React.createClass({
 
   mixins: [
     Reflux.connect(ProgramStore, 'program'),
-    Reflux.connect(PlaylistStore, 'playlist'),
-    Reflux.connect(SegmentStore, 'segment'),
-    Reflux.connect(EventStore, 'event')
+    Reflux.connect(PlaylistStore, 'playlist')
   ],
 
   componentDidMount() {
     ProgramActions.read(this.props.params.uuid)
-    SegmentActions.list()
-    EventActions.list()
     PlaylistActions.list()
   },
 
   getInitialState() {
     return {
-      program: {program: {}},
+      program: {program: {segments: []}},
       playlist: {list: []},
-      segment: {list: []},
-      event: {list: []}
     }
   },
 
-  handleSave(data) {
+  getData() {
+		var segments = []
+    _.each(this.state.program.program.segments, (item, index) => {
+      segments = segments.concat(this.refs['column-' + index]
+                                 .getWrappedInstance().getData())
+    })
+
+    var r =  {
+      uuid: this.state.program.program.uuid,
+			segments: segments
+    }
+    return r
+
+  },
+
+  save() {
+    var data = this.getData()
     ProgramActions.update.triggerAsync(data)
     .then(() => {
-      this.setState({program: {program: data}})
-      FeedbackActions.set('success', 'Program updated')
+      FeedbackActions.set('success', this.props.t('program:alerts.update'))
     })
   },
 
   handleDelete(uuid) {
     confirmModal(
-      'Are you sure?',
-      'Would you like to remove program?'
+      this.props.t('common:confirm.areyousure'),
+      this.props.t('program:confirm.delete', {name: this.state.program.program})
     ).then(() => {
       ProgramActions.delete.triggerAsync(uuid)
       .then(() => {
         BrowserHistory.push('/program/')
-        FeedbackActions.set('success', 'Program deleted')
+        FeedbackActions.set('success', this.props.t('program:alerts.delete'))
       })
     })
   },
 
-  getFilteredSegments() {
-    return this.state.segment.list.filter((item) => {
-      return item.program == this.state.program.program.uuid
-    })
-  },
-
-  getFilteredEvents() {
-    return this.state.event.list.filter((item) => {
-      return item.program == this.state.program.program.uuid
+  cleanupDrag(ignoreColumn) {
+    _.each(this.state.program.program.segments, (item, index) => {
+      if (index != ignoreColumn) {
+        this.refs['column-' + index].getWrappedInstance().cleanupDrag();
+      }
     })
   },
 
   render() {
     return (
-      <Program
-        title={this.state.program.program.name}
-        segment={this.getFilteredSegments()}
-        program={this.state.program.program}
-        playlist={this.state.playlist.list}
-        event={this.getFilteredEvents()}
-        saveHandler={this.handleSave}
-        deleteHandler={this.handleDelete}
-      />)
+      <div className="col-xs-12 container-fluid">
+
+        <div className="row">
+          <div className="col-xs-12">
+            <h1>Program name</h1>
+            <button onClick={this.save}>Save</button>
+          </div>
+        </div>
+
+        <div className="row">
+          <div className="col-md-10">
+            <div className="container-scroll">
+              <div className="row program">
+                {this.state.program.program.segments.map((item, index) => {
+                  return <Column segments={item}
+                                 key={index}
+                                 ref={'column-' + index}
+                                 cleanup={this.cleanupDrag}
+                                 day={index} />
+                })}
+              </div>
+            </div>
+
+          </div>
+
+          <div className="col-md-2">
+            <ul className="list-group">
+              {this.state.playlist.list.map((item, index) => {
+                return <Playlist name={item.name}
+                  duration={item.duration}
+                  uuid={item.uuid} />
+              })}
+            </ul>
+          </div>
+        </div>
+      </div>)
   }
 })
+
+export var ProgramEdit = translate(['program', 'common'])(
+    DragDropContext(HTML5Backend)(Component)
+)
+
