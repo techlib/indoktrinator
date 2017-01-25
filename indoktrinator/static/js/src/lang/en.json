@@ -100,7 +100,8 @@
       },
       "save": "Save program",
       "edit": {
-        "save": "Confirm"
+        "save": "Confirm",
+        "delete": "Remove"
       }
     },
     "confirm": {

@@ -126,6 +126,13 @@ React.createClass({
 
   },
 
+  deleteSegment(pos) {
+    var items = cloneDeep(this.state.items)
+    items.splice(pos, 1)
+    items = this.flowFrom(items, Math.max(pos - 1, 0))
+    this.setState({items: items})
+  },
+
   flowFrom(srcItems, from) {
     var items = cloneDeep(srcItems)
 
@@ -191,6 +198,7 @@ React.createClass({
                        prevEnd={prevEnd}
                        save={this.saveSegment.bind(null, index)}
                        moveItem={this.moveItem}
+                       delete={this.deleteSegment}
                        empty={item.empty} />
         })}
     </div>

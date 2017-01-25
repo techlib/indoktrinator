@@ -153,6 +153,11 @@ var Item = React.createClass({
     this.open() //TODO too early, won't render data properly
   },
 
+  delete() {
+    this.props.delete(this.props.index)
+  },
+
+
   getDisabledHours() {
     let minHour = sToMoment(this.props.prevEnd).hour()
     return range(0, minHour)
@@ -177,7 +182,9 @@ var Item = React.createClass({
     return []
   },
 
-	getEdit() {
+  getEdit() {
+    const {t} = this.props
+
     return <div className="edit">
       <div className="panel panel-default">
         <div className="panel-heading">
@@ -219,10 +226,21 @@ var Item = React.createClass({
       }
       <br />
     </div>
-    <div className="panel-footer text-right">
-      <a className="btn btn-primary" onClick={this.save}>
-        {this.props.t('program:buttons.edit.save')}
-      </a>
+
+    <div className="panel-footer">
+      <div className="row">
+        <div className="col-xs-6 text-left">
+            <a className="text-danger" onClick={this.delete}>
+              <span className="fa fa-trash"></span> {t('program:buttons.edit.delete')}
+            </a>
+        </div>
+
+        <div className="col-xs-6 text-right">
+            <a className="btn btn-primary" onClick={this.save}>
+              {t('program:buttons.edit.save')}
+            </a>
+        </div>
+      </div>
     </div>
     </div>
 		</div>

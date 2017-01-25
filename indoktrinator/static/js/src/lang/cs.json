@@ -100,7 +100,8 @@
       },
       "save": "Uložit program",
       "edit": {
-        "save": "Potvrdit"
+        "save": "Potvrdit",
+        "delete": "Odstranit"
       }
     },
     "confirm": {
