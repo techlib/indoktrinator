@@ -72,6 +72,7 @@ export var ProgramNew = translate(['program'])(React.createClass({
                     value={this.state.name}
                     labelClassName="col-xs-3"
                     wrapperClassName="col-xs-9"
+                    autoFocus
                   />
                 </div>
               </div>
