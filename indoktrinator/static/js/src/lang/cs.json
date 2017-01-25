@@ -98,7 +98,10 @@
         "create": "Vytvořit program",
         "cancel": "Storno"
       },
-      "save": "Uložit program"
+      "save": "Uložit program",
+      "edit": {
+        "save": "Potvrdit"
+      }
     },
     "confirm": {
       "delete": "Opravdu chcete smazat program {{name}}?"

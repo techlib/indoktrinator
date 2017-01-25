@@ -98,7 +98,10 @@
         "create": "Create program",
         "cancel": "Cancel"
       },
-      "save": "Save program"
+      "save": "Save program",
+      "edit": {
+        "save": "Confirm"
+      }
     },
     "confirm": {
       "delete": "Do you really want to delete program {{name}}?"

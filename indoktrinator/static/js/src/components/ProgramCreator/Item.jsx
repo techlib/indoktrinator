@@ -9,6 +9,7 @@ import TimePicker from 'rc-time-picker';
 import classNames from 'classnames'
 import moment from 'moment'
 import 'rc-time-picker/assets/index.css';
+import {translate} from 'react-i18next'
 
 function momentToS(m) {
   return m.second() + m.minute() * 60 + m.hour() * 3600
@@ -216,11 +217,13 @@ var Item = React.createClass({
       <button onClick={this.repeatPlus}>+</button>
       <br /></div>)
       }
-      <a onClick={this.open}>Cancel</a>
       <br />
-      <a onClick={this.save}>Save</a>
     </div>
-    <div className="panel-footer">moo</div>
+    <div className="panel-footer text-right">
+      <a className="btn btn-primary" onClick={this.save}>
+        {this.props.t('program:buttons.edit.save')}
+      </a>
+    </div>
     </div>
 		</div>
 	},
@@ -264,6 +267,6 @@ export var Item = flow(
     isDragging: monitor.isDragging()
   }))
 
-)(Item)
+)(translate(['common', 'program'])(Item))
 
 
