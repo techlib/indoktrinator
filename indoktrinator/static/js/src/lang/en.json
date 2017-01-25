@@ -64,7 +64,10 @@
       "save": "Save playlist",
       "copy": "Copy",
       "delete": "Delete",
-      "new": "Create playlist",
+      "new": {
+        "cancel": "Cancel",
+        "create": "Create playlist"
+      },
       "create": "Create playlist"
     },
     "items": "Playlist items",
@@ -84,6 +87,9 @@
     "alerts": {
       "update": "Playlist updated",
       "delete": "Playlist deleted"
+    },
+    "new": {
+      "title": "New playlist"
     }
   },
   "program": {

@@ -64,7 +64,10 @@
       "save": "Uložit playlist",
       "copy": "Kopírovat",
       "delete": "Smazat",
-      "new": "Nový playlist",
+      "new": {
+        "cancel": "Storno",
+        "create": "Vytvořit playlist"
+      },
       "create": "Vytvořit playlist"
     },
     "items": "Klipy",
@@ -84,6 +87,9 @@
     "alerts": {
       "update": "Playlist byl aktualizován",
       "delete": "Playlist byl smazán"
+    },
+    "new": {
+      "title": "Nový playlist"
     }
   },
   "program": {
