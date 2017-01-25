@@ -58,7 +58,7 @@ export var InlineNameEdit = React.createClass({
       </div>
 
     } else {
-      return <h1 onClick={this.edit} className="editable col-xs-12">
+      return <h1 onClick={this.edit} className="editable">
                     {this.props.name} <span className="pf pficon-edit small"> </span>
       </h1>
     }
