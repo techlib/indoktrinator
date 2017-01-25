@@ -22,7 +22,11 @@ class Table:
         self.table = getattr(db, self.NAME)
 
         for (key, other_table) in self.RELS:
-            self.table.relate(key, getattr(db, other_table))
+            # NOTE: The passive_deletes and passive_updates options make
+            #       SQLAlchemy leave the cascading to the database.
+            self.table.relate(key, getattr(db, other_table),
+                              passive_deletes='all',
+                              passive_updates=True)
 
         # Fox the `dbdict` function.
         self.table._table.fixup = self.fixup
