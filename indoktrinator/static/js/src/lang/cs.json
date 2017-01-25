@@ -95,7 +95,8 @@
       "create": "Vytvořit program",
       "delete": "Smazat",
       "new": {
-        "create": "Vytvořit"
+        "create": "Vytvořit program",
+        "cancel": "Storno"
       },
       "save": "Uložit program"
     },
@@ -119,6 +120,9 @@
     },
     "title": "",
     "titlenew": "",
-    "availableplaylists": "Dostupné playlisty"
+    "availableplaylists": "Dostupné playlisty",
+    "new": {
+      "title": "Nový program"
+    }
   }
 }

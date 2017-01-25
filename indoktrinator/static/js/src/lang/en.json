@@ -95,7 +95,8 @@
       "create": "Create program",
       "delete": "Delete",
       "new": {
-        "create": "Create"
+        "create": "Create program",
+        "cancel": "Cancel"
       },
       "save": "Save program"
     },
@@ -119,6 +120,9 @@
     },
     "title": "",
     "titlenew": "",
-    "availableplaylists": "Available playlists"
+    "availableplaylists": "Available playlists",
+    "new": {
+      "title": "New program"
+    }
   }
 }

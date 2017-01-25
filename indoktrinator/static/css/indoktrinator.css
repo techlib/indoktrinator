@@ -84,3 +84,8 @@ h1.editable {
     padding: 50px 0;
     text-align: center;
 }
+
+.panel-footer button,
+.panel-footer a.btn {
+    margin-left: 10px;
+}
