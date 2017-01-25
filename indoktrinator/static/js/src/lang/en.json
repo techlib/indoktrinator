@@ -96,7 +96,8 @@
       "delete": "Delete",
       "new": {
         "create": "Create"
-      }
+      },
+      "save": "Save program"
     },
     "confirm": {
       "delete": "Do you really want to delete program {{name}}?"

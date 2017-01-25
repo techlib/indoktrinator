@@ -92,18 +92,20 @@ var Component = React.createClass({
   render() {
     return (
       <div className="col-xs-12 container-fluid program">
-
         <div className="row">
+          <div className="col-xs-12 col-sm-6">
           <InlineNameEdit
             name={this.state.program.program.name}
             uuid={this.state.program.program.uuid}
             saveAction={this.saveName} />
+          </div>
 
-          <div className="col-xs-12">
-            <button onClick={this.save}>Save</button>
+          <div className="col-xs-12 col-sm-6 h1 text-right">
+            <a className="btn btn-primary" onClick={this.save}>
+              <span className="fa fa-check"></span> {this.props.t('program:buttons.save')}
+            </a>
           </div>
         </div>
-
         <div className="row">
           <div className="col-md-10">
             <div className="container-scroll">

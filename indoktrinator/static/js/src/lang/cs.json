@@ -96,7 +96,8 @@
       "delete": "Smazat",
       "new": {
         "create": "Vytvořit"
-      }
+      },
+      "save": "Uložit program"
     },
     "confirm": {
       "delete": "Opravdu chcete smazat program {{name}}?"
