@@ -65,6 +65,14 @@ h1.editable {
     box-shadow: #bbb 1px 1px 30px;
 }
 
+.program .edit .panel-heading > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 155px;
+    display: inline-block;
+}
+
 .program .list-group-item .time {
 	display: block;
 	font-weight: bold;

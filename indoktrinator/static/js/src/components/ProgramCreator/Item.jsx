@@ -179,7 +179,12 @@ var Item = React.createClass({
 	getEdit() {
     return <div className="edit">
       <div className="panel panel-default">
-        <div className="panel-heading">Moo</div>
+        <div className="panel-heading">
+          <span>{this.props.playlist.name}</span>
+          <button type="button" onClick={this.open} className="close">
+            <span >&times;</span>
+          </button>
+        </div>
         <div className="panel-body">
       Start:<br/>
       <TimePicker
