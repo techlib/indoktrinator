@@ -10,7 +10,7 @@ const itemSource = {
     return {
       uuid: Date.now(),
       duration: props.file.duration,
-      file: props.file,
+      _file: props.file,
       added: false,
       hide: true,
       _type: Types.PLAYLIST_ITEM
