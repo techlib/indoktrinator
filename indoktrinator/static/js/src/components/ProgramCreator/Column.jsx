@@ -6,6 +6,7 @@ import update from 'react/lib/update'
 import {Types} from './Types'
 import {cloneDeep, filter, map} from 'lodash'
 import {translate} from 'react-i18next'
+import {isEqual} from 'lodash'
 
 export var Column = translate(['program', 'common'], {withRef: true})(
 React.createClass({
@@ -27,15 +28,16 @@ React.createClass({
   componentWillReceiveProps(p) {
     var newState = {}
 
-    if (this.state.items.length == 0) {
+    if (!isEqual(p.segments, this.props.segments) || !this.state.itemsLoaded) {
       newState['items'] = this.flowFrom(this.createEmptyItems(p.segments),0)
+      newState['itemsLoaded'] = true
     }
 
     this.setState(newState)
   },
 
   getInitialState() {
-    return {items: []}
+    return {items: [], itemsLoaded: false}
   },
 
   addToItems(obj, pos) {
@@ -126,6 +128,14 @@ React.createClass({
 
   },
 
+  makeDirty(pos) {
+    var items = cloneDeep(this.state.items)
+    items[pos]._dirty = true
+    this.setState({
+      items: items
+    })
+  },
+
   deleteSegment(pos) {
     var items = cloneDeep(this.state.items)
     items.splice(pos, 1)
@@ -199,6 +209,7 @@ React.createClass({
                        save={this.saveSegment.bind(null, index)}
                        moveItem={this.moveItem}
                        delete={this.deleteSegment}
+                       makeDirty={this.makeDirty}
                        empty={item.empty} />
         })}
     </div>

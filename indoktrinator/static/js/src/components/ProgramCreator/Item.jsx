@@ -21,12 +21,17 @@ function sToMoment(s) {
 
 const itemSource = {
   beginDrag(props, monitor, component) {
+
+    props.makeDirty(props.index)
+
     return {
-      uuid: props.uuid,
+      uuid: Date.now(),
       index: props.index,
-      range: [0,0],
+      range: [props.range[0], props.range[1]],
+      added: props.day,
+      empty: false,
       duration: props.playlist.duration,
-      _playlist: this.props,
+      _playlist: props.playlist,
       _type: Types.ITEM
     }
   }
@@ -34,22 +39,14 @@ const itemSource = {
 
 export const itemTarget = {
   hover(props, monitor, component) {
-    if ((monitor.getItem()._type === Types.PLAYLIST) // ITEM from different day
-      && monitor.getItem().added === false) {
-        props.addToItems(monitor.getItem(), component.props.index + 1)
-        monitor.getItem().index = component.props.index + 1
-        monitor.getItem().added = props.day
-        return
-      }
 
-    if ((monitor.getItem()._type === Types.PLAYLIST) // ITEM from different day
-      && monitor.getItem().added != props.day) {
-        props.addToItems(monitor.getItem(), component.props.index + 1)
-        monitor.getItem().index = component.props.index + 1
-        monitor.getItem().added = props.day
-        props.cleanup(monitor.getItem().added)
-        return
-      }
+    if (monitor.getItem().added === false || monitor.getItem().added != props.day) {
+      props.addToItems(monitor.getItem(), component.props.index + 1)
+      monitor.getItem().index = component.props.index + 1
+      monitor.getItem().added = props.day
+      props.cleanup(monitor.getItem().added)
+      return
+    }
 
     const dragIndex = monitor.getItem().index
     const hoverIndex = props.index
