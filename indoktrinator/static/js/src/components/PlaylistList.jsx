@@ -116,7 +116,7 @@ export var PlaylistList = translate(['playlist','common'])(React.createClass({
           </div>
           <div className="col-xs-12 col-sm-2 h1 text-right">
             <a className='btn btn-success' href='#/playlist/new'>
-              <i className='fa fa-plus'></i> {t('playlist:buttons.new')}
+              <i className='fa fa-plus'></i> {t('playlist:buttons.new.new')}
             </a>
           </div>
         </div>

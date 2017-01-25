@@ -66,7 +66,8 @@
       "delete": "Delete",
       "new": {
         "cancel": "Cancel",
-        "create": "Create playlist"
+        "create": "Create playlist",
+        "new": "New playlist"
       },
       "create": "Create playlist"
     },
