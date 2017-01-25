@@ -31,22 +31,6 @@ let PlaylistLink = React.createClass({
 
 let PlaylistActions = translate(['playlist', 'common'])(React.createClass({
 
-  mixins: [
-    Reflux.connect(PlaylistStore, 'playlist')
-  ],
-
-  getInitialState() {
-    return {
-      playlist: {copy: {}}
-    }
-  },
-
-  handleCopyPlayList() {
-    pa.copy(this.props.rowData.uuid, () => {
-      pa.list()
-    })
-  },
-
   handleDeletePlayList() {
     confirmModal(
       this.props.t('confirm.areyousure'),
@@ -65,12 +49,6 @@ let PlaylistActions = translate(['playlist', 'common'])(React.createClass({
 
     return (
       <span>
-        <Button
-          label=''
-          bsStyle=''
-          onClick={this.handleCopyPlayList}>
-      <i className="fa fa-files-o"></i> {t('playlist:buttons.copy')}
-    </Button>
         {!this.props.rowData.system ? <Button
           label=''
           bsStyle=''

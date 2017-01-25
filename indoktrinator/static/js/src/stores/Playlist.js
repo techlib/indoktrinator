@@ -31,15 +31,6 @@ export var PlaylistStore = Reflux.createStore({
              {data: playlist, action: PlaylistActions.update})
   },
 
-  onCopy(uuid, callbackDone) {
-    this.req('GET', `${API_URL}/api/playlist/${uuid}/copy`,
-             {action: PlaylistActions.copy, dest: 'playlist',
-              modifyResponse: (data) => {
-                data.state = StoreTypes.LOADED
-                return data
-              }})
-  },
-
   onCreate(playlist) {
 		this.req('POST', `${API_URL}/api/playlist/`,
 							{data: playlist, action: PlaylistActions.create})

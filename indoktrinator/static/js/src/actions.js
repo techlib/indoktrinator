@@ -29,7 +29,7 @@ export var ItemActions = createAsyncActions([
 ])
 
 export var PlaylistActions = createAsyncActions([
-  'create', 'read', 'update', 'delete', 'list', 'copy'
+  'create', 'read', 'update', 'delete', 'list'
 ])
 
 export var ProgramActions = createAsyncActions([
