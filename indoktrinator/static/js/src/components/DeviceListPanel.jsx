@@ -25,7 +25,7 @@ export var DeviceListPanel = translate('device')(React.createClass({
 
     return (
       <div className="col-xs-12 col-sm-6 col-md-4 col-lg-3">
-        <div className="panel panel-default">
+        <div className="panel panel-default device">
           <div className="panel-heading">
             <h3 className="panel-title">
               <Link to={`/device/${this.props.id}`}>
@@ -33,11 +33,11 @@ export var DeviceListPanel = translate('device')(React.createClass({
               </Link>
             </h3>
           </div>
-          <div className="panel-body">
+          <div className="panel-body text-center">
             <Link to={`/device/${this.props.id}`}>
               <img className="img-responsive"
                    src={this.props.photo}
-                   style={{width: '100%', height: 250}}></img>
+                   style={{width: 250, height: 250}}></img>
             </Link>
           </div>
           <div className="panel-footer">

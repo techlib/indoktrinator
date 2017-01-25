@@ -97,3 +97,7 @@ h1.editable {
 .panel-footer a.btn {
     margin-left: 10px;
 }
+
+.panel.device .panel-body a {
+    display: inline-block;
+}
