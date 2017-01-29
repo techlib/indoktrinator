@@ -2,6 +2,7 @@ import * as React from 'react'
 import {DragSource} from 'react-dnd'
 import {Types} from './Types'
 import classNames from 'classnames'
+import {UuidToRgba} from '../../util/color'
 
 const playlistSource = {
   beginDrag(props, monitor, component) {
@@ -26,8 +27,9 @@ const playlistSource = {
 var Playlist = React.createClass({
 
   render() {
+    let style = {backgroundColor: UuidToRgba(this.props.uuid)}
     let cls = classNames('list-group-item', 'playlist')
-    let res =  <li className={cls}>
+    let res =  <li className={cls} style={style}>
       {this.props.name}
     </li>
 
