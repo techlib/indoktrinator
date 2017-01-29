@@ -10,6 +10,7 @@ import classNames from 'classnames'
 import moment from 'moment'
 import 'rc-time-picker/assets/index.css';
 import {translate} from 'react-i18next'
+import {UuidToRgba} from '../../util/color'
 
 function momentToS(m) {
   return m.second() + m.minute() * 60 + m.hour() * 3600
@@ -251,11 +252,13 @@ var Item = React.createClass({
 
 		var style = {}
 		if (this.state.edit) {
-			style['backgroundColor'] = '#efe'
+			style.backgroundColor = '#efe'
 		}
 
     var classes = classNames('list-group-item',
                             {'list-group-item-warning': this.props.empty})
+
+		style.backgroundColor = UuidToRgba(this.props.playlist.uuid)
 
     let res = (
       <div className={classes} onClick={!this.state.edit && this.open} style={style}>
