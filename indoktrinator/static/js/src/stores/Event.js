@@ -2,95 +2,28 @@
 
 import * as Reflux from 'reflux'
 import {EventActions, FeedbackActions} from '../actions'
-import {ErrorMixin} from './Mixins'
-import {StoreTypes} from './StoreTypes'
+import {ErrorMixin, Api} from './Mixins'
 import {API_URL} from './config'
+import * as _ from 'lodash'
 
 export var EventStore = Reflux.createStore({
-  mixins: [ErrorMixin],
+  mixins: [ErrorMixin, Api],
   listenables: [EventActions],
-  data: {'event': [], 'list': [], 'errors': []},
+  data: {'list': []},
 
-  onRead(uuid, callbackDone) {
-    $.ajax({
-      url: `${API_URL}/api/event/${uuid}`,
-      success: result => {
-        this.data.errors = []
-        this.data.event = result
-        this.data.event.state = StoreTypes.LOADED
-        this.trigger(this.data)
-      },
-      error: result => {
-        FeedbackActions.set('error', result.responseJSON.message)
-      }
-    }).done(() => {
-      if (typeof callbackDone === 'function') { callbackDone() }
-    })
+  onDelete(id) {
+    this.req('DELETE', `${API_URL}/api/event/${id}`,
+             {action: EventActions.delete})
   },
 
-  onDelete(uuid, callbackDone) {
-    $.ajax({
-      url: `${API_URL}/api/event/${uuid}`,
-      method: 'DELETE',
-      dataType: 'json',
-      contentType: 'application/json',
-      success: () => {
-        FeedbackActions.set('success', 'Event deleted')
-      },
-      error: result => {
-        FeedbackActions.set('error', result.responseJSON.message)
-      }
-    }).done(() => {
-      if (typeof callbackDone === 'function') { callbackDone() }
-    })
+  onUpdate(uuid, event) {
+    this.req('PATCH', `${API_URL}/api/event/${uuid}`,
+             {data: event, action: EventActions.update})
   },
 
-
-  onUpdate(event, callbackDone) {
-    $.ajax({
-      url: `${API_URL}/api/event/${event.uuid}`,
-      method: 'PATCH',
-      dataType: 'json',
-      contentType: 'application/json',
-      data: JSON.stringify(event),
-      success: function success(result) {
-        FeedbackActions.set('success', 'Event updated')
-      },
-      error: result => {
-        FeedbackActions.set('error', result.responseJSON.message)
-      }
-    }).done(() => {
-      if (typeof callbackDone === 'function') { callbackDone() }
-    })
+  onCreate(event) {
+    this.req('POST', `${API_URL}/api/event/`,
+             {data: event, action: EventActions.create})
   },
 
-  onCreate(event, callbackDone) {
-    $.ajax({
-      url: `${API_URL}/api/event/`,
-      method: 'POST',
-      dataType: 'json',
-      contentType: 'application/json',
-      data: JSON.stringify(event),
-      success: function success(result) {
-        FeedbackActions.set('success', 'Event created')
-      },
-      error: result => {
-        FeedbackActions.set('error', result.responseJSON.message)
-      }
-    }).done(() => {
-      if (typeof callbackDone === 'function') { callbackDone() }
-    })
-  },
-
-  onList(callbackDone) {
-    $.ajax({
-      url: `${API_URL}/api/event/`, success: result => {
-        this.data.errors = []
-        this.data.list = result.result
-        this.trigger(this.data)
-      }
-    }).done(() => {
-      if (typeof callbackDone === 'function') { callbackDone() }
-    })
-  }
 })
