@@ -187,7 +187,7 @@ class Playlist(Table):
 
 class Program(Table):
     NAME = 'program'
-    RELS = [('segments', 'segment')]
+    RELS = [('segments', 'segment'), ('events', 'event')]
 
 
 class Segment(Table):
