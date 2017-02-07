@@ -15,16 +15,6 @@ export var DeviceEdit = translate(['device','common'])(React.createClass({
     Reflux.connect(ProgramStore, 'program')
   ],
 
-  componentWillReceiveProps(p) {
-    this.setState({
-      uuid: p.playlist.playlist.uuid,
-      name: p.playlist.playlist.name,
-      title: p.playlist.playlist.name,
-      playlist: {list: p.playlist.list, playlist: {}},
-      file: {list: p.file, file: {}}
-    })
-  },
-
   componentDidMount() {
     DeviceActions.read(this.props.params.id)
     ProgramActions.list()

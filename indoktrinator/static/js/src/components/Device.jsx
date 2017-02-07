@@ -4,8 +4,7 @@ import {Feedback} from './Feedback'
 import {Input} from 'react-bootstrap'
 import {BootstrapSelect} from './Select'
 import FileBase64 from '../util/react-file-base64.js'
-import {SaveButton} from './form/button/SaveButton'
-import {DeleteButton} from './form/button/DeleteButton'
+import {Button} from 'react-bootstrap'
 import {StoreTypes} from './../stores/StoreTypes'
 import {translate} from 'react-i18next'
 
@@ -29,7 +28,7 @@ export var Device = translate('device')(React.createClass({
         'name': p.device.name,
         'title': p.device.name,
         'state': p.device.state,
-        'program': p.device.program ? p.device.program : p.program[0] ? p.program[0].uuid : null
+        'program': p.device.program ? p.device.program : 'none'
       }
     )
   },
@@ -65,7 +64,11 @@ export var Device = translate('device')(React.createClass({
     if (errors.length > 0) {
       FeedbackActions.set('error', this.props.t('common:alerts.invalidform'), errors)
     } else {
-      this.props.saveHandler({id: this.state.id, name: this.state.name, program: this.state.program})
+      if(this.state.program=='none'){
+        this.props.saveHandler({id: this.state.id, name: this.state.name, program: null})
+      } else {
+        this.props.saveHandler({id: this.state.id, name: this.state.name, program: this.state.program})
+      }
     }
   },
 
@@ -78,10 +81,10 @@ export var Device = translate('device')(React.createClass({
 
     return (
       <div className='col-xs-12 container-fluid'>
-        <h1>{this.state.title}</h1>
         <Feedback />
         <div className='row'>
-          <div className='col-xs-12 col-md-6'>
+          <div className='col-xs-12 col-md-6 col-md-offset-3'>
+            <h1>{this.state.title}</h1>
             <div className='panel panel-default'>
               <div className='panel-heading'>
                 {t('device:labels.title')}
@@ -113,10 +116,11 @@ export var Device = translate('device')(React.createClass({
                     data-live-search={true}
                     value={this.state.program}
                     {...this.commonProps}>
-                    {this.props.program.map((item) => {
-                      return <option value={item.uuid} key={item.uuid}>
-                        {item.name}</option>
-                    })}
+                        <option value='none'>{t('device:programselect.noprogram')}</option>
+                        {this.props.program.map((item) => {
+                          return <option value={item.uuid} key={item.uuid}>
+                            {item.name}</option>
+                        })}
                   </BootstrapSelect>
                   <div className="form-group">
                     <label className="control-label col-xs-2">
@@ -142,15 +146,10 @@ export var Device = translate('device')(React.createClass({
               <div className='panel-footer'>
                 <div className="row">
                   <div className="col-xs-6">
-                    <SaveButton
-                      handler={this.save}
-                    />
+                    { this.state.state == StoreTypes.LOADED ? <Button bsStyle="danger" onClick={this.delete}>{t('device:delete')}</Button> : null }
                   </div>
                   <div className="col-xs-6">
-                    { this.state.state == StoreTypes.LOADED ? <DeleteButton
-                      id={this.state.id}
-                      handler={this.delete}
-                    /> : null }
+                    <Button bsStyle="primary" className="pull-right" onClick={this.save}>{t('device:save')}</Button>
                   </div>
                 </div>
               </div>

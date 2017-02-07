@@ -38,7 +38,14 @@
     },
     "confirm": {
       "delete": "Opravdu chcete smazat {{name}}?"
-    }
+    },
+    "abort": "Zrušit",
+    "programselect": {
+      "noprogram": "Žádný program",
+      "title": "Vyberte program"
+    },
+    "delete": "Smazat",
+    "save": "Uložit"
   },
   "common": {
     "confirm": {

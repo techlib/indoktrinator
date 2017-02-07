@@ -16,9 +16,8 @@ export var Select = React.createClass({
 
   getDefaultProps() {
     return {
-      'abortLabel': 'Cancel',
-      'abortClass': 'default',
       'show': true,
+      't': null,
     }
   },
 
@@ -32,13 +31,12 @@ export var Select = React.createClass({
 
   componentDidMount() {
     this.promise = $.Deferred()
-    ReactDOM.findDOMNode(this.refs.abort).focus()
   },
 
   getHeader() {
-    return <Header>
+    return <Header closeButton={true}>
       <h4 className="modal-title">
-        Select program
+          {this.props.t('device:programselect.title')}
       </h4>
     </Header>
   },
@@ -46,6 +44,11 @@ export var Select = React.createClass({
   getBody() {
     return <Body>
       <ul className="list-group">
+        <a onClick={this.select.bind(null, null)}
+          className={classNames('list-group-item', 'list-group-item-danger')}>
+          {this.props.t('device:programselect.noprogram')}
+        </a>
+
         {this.state.data.list.map((item) => {
           return (
             <a onClick={this.select.bind(null, item.uuid)}
@@ -58,26 +61,9 @@ export var Select = React.createClass({
   },
 
   getFooter() {
-    var clsAbort = classNames('btn', 'btn-' + this.props.abortClass)
 
     return (
-      <Footer>
-          <button 
-            role='abort'
-            ref='abort'
-            className={clsAbort}
-            className='pull-right'
-            onClick={this.abort}>
-            {this.props.abortLabel}
-          </button>
-          <button
-            role='abort'
-            className='btn btn-danger pull-left'
-            onClick={this.select.bind(null, null)}>
-            no program
-          </button>
-
-      </Footer>
+      <Footer></Footer>
     )
   },
 
@@ -102,14 +88,15 @@ export var Select = React.createClass({
   }
 })
 
-export function getModal(selected, others, show) {
+export function getModal(selected, others, show, translate) {
   return <Select selected={selected}
                  show={show}
+                 t={translate}
                  {...others}  />
 }
 
-export function programSelectionModal(selected, others) {
-  var modal = getModal(selected, others, true)
+export function programSelectionModal(selected, others, translate) {
+  var modal = getModal(selected, others, true, translate)
   var wrapper = document.body.appendChild(document.createElement('div'))
   var component = ReactDOM.render(modal, wrapper)
   component.promise.always(() => {
