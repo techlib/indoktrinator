@@ -18,8 +18,10 @@ export var DeviceNew = React.createClass({
   handleSave(data) {
     delete data['preview']
     DeviceActions.create.triggerAsync(data).then(() => {
-      BrowserHistory.push('/device/')
-      FeedbackActions.set('success', 'Device created')
+      DeviceActions.setImage.triggerAsync(data['photo'], data['id']).then(() => {
+          BrowserHistory.push('/device/')
+          FeedbackActions.set('success', 'Device created')
+      })
     })
   },
 
