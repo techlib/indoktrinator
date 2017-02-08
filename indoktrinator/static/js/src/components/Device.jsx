@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {FeedbackActions} from '../actions'
+import {FeedbackActions, DeviceActions} from '../actions'
 import {Feedback} from './Feedback'
 import {Input} from 'react-bootstrap'
 import {BootstrapSelect} from './Select'
@@ -7,12 +7,20 @@ import FileBase64 from '../util/react-file-base64.js'
 import {Button} from 'react-bootstrap'
 import {StoreTypes} from './../stores/StoreTypes'
 import {translate} from 'react-i18next'
+import Dropzone from 'react-dropzone'
 
 export var Device = translate('device')(React.createClass({
 
   commonProps: {
     labelClassName: 'col-xs-2',
     wrapperClassName: 'col-xs-10',
+  },
+
+  onDrop: function (acceptedFiles, rejectedFiles) {
+
+    //DeviceActions.setImage.triggerAsync(acceptedFiles[0], this.state.id)
+
+    this.setState({'preview': acceptedFiles[0].preview, 'photo': acceptedFiles[0]})
   },
 
   getInitialState() {
@@ -51,13 +59,6 @@ export var Device = translate('device')(React.createClass({
     this.setState({[evt.target.name]: evt.target.value})
   },
 
-  handleChangePhoto(files) {
-    this.setState({
-      'preview': files[0]['base64'],
-      'photo': files[0]['base64raw']
-    })
-  },
-
   save() {
     var errors = this.validate()
 
@@ -65,9 +66,9 @@ export var Device = translate('device')(React.createClass({
       FeedbackActions.set('error', this.props.t('common:alerts.invalidform'), errors)
     } else {
       if(this.state.program=='none'){
-        this.props.saveHandler({id: this.state.id, name: this.state.name, program: null})
+        this.props.saveHandler({id: this.state.id, name: this.state.name, program: null, photo: this.state.photo})
       } else {
-        this.props.saveHandler({id: this.state.id, name: this.state.name, program: this.state.program})
+        this.props.saveHandler({id: this.state.id, name: this.state.name, program: this.state.program, photo: this.state.photo})
       }
     }
   },
@@ -127,10 +128,9 @@ export var Device = translate('device')(React.createClass({
                       {t('device:labels.photo')}
                     </label>
                     <div className='col-xs-10'>
-                      <FileBase64
-                        multiple={ false }
-                        onDone={ this.handleChangePhoto.bind(this) }
-                      />
+                        <Dropzone multiple={false} accept={['image/png', 'image/jpeg', 'image/gif']} onDrop={this.onDrop}>
+                            <div className="col-xs-10 col-xs-offset-1">{t('device:labels.dropzone')}</div>
+                        </Dropzone>
                     </div>
                   </div>
                   <div className="form-group">

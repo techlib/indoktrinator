@@ -15,7 +15,8 @@
       "photo": "Foto",
       "preview": "Náhled",
       "program": "Program",
-      "title": "Zařízení"
+      "title": "Zařízení",
+      "dropzone": "Sem přetáhněte obrázek nebo klikněte a vyberte ho."
     },
     "list": {
       "new": "Přidat zařízení",

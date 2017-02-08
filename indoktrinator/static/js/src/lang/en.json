@@ -15,7 +15,8 @@
       "photo": "Photo",
       "preview": "Preview",
       "program": "Program",
-      "title": "Device"
+      "title": "Device",
+      "dropzone": "Drag&drop an image or click and choose one."
     },
     "list": {
       "new": "Create device",
