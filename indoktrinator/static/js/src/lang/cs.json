@@ -15,7 +15,8 @@
       "photo": "Foto",
       "preview": "Náhled",
       "program": "Program",
-      "title": "Zařízení"
+      "title": "Zařízení",
+      "dropzone": "Sem přetáhněte obrázek nebo klikněte a vyberte ho."
     },
     "list": {
       "new": "Přidat zařízení",
@@ -38,7 +39,14 @@
     },
     "confirm": {
       "delete": "Opravdu chcete smazat {{name}}?"
-    }
+    },
+    "abort": "Zrušit",
+    "programselect": {
+      "noprogram": "Žádný program",
+      "title": "Vyberte program"
+    },
+    "delete": "Smazat",
+    "save": "Uložit"
   },
   "common": {
     "confirm": {

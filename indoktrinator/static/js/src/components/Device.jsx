@@ -1,19 +1,26 @@
 import * as React from 'react'
-import {FeedbackActions} from '../actions'
+import {FeedbackActions, DeviceActions} from '../actions'
 import {Feedback} from './Feedback'
 import {Input} from 'react-bootstrap'
 import {BootstrapSelect} from './Select'
 import FileBase64 from '../util/react-file-base64.js'
-import {SaveButton} from './form/button/SaveButton'
-import {DeleteButton} from './form/button/DeleteButton'
+import {Button} from 'react-bootstrap'
 import {StoreTypes} from './../stores/StoreTypes'
 import {translate} from 'react-i18next'
+import Dropzone from 'react-dropzone'
 
 export var Device = translate('device')(React.createClass({
 
   commonProps: {
     labelClassName: 'col-xs-2',
     wrapperClassName: 'col-xs-10',
+  },
+
+  onDrop: function (acceptedFiles, rejectedFiles) {
+
+    //DeviceActions.setImage.triggerAsync(acceptedFiles[0], this.state.id)
+
+    this.setState({'preview': acceptedFiles[0].preview, 'photo': acceptedFiles[0]})
   },
 
   getInitialState() {
@@ -29,7 +36,7 @@ export var Device = translate('device')(React.createClass({
         'name': p.device.name,
         'title': p.device.name,
         'state': p.device.state,
-        'program': p.device.program ? p.device.program : p.program[0] ? p.program[0].uuid : null
+        'program': p.device.program ? p.device.program : 'none'
       }
     )
   },
@@ -52,20 +59,17 @@ export var Device = translate('device')(React.createClass({
     this.setState({[evt.target.name]: evt.target.value})
   },
 
-  handleChangePhoto(files) {
-    this.setState({
-      'preview': files[0]['base64'],
-      'photo': files[0]['base64raw']
-    })
-  },
-
   save() {
     var errors = this.validate()
 
     if (errors.length > 0) {
       FeedbackActions.set('error', this.props.t('common:alerts.invalidform'), errors)
     } else {
-      this.props.saveHandler({id: this.state.id, name: this.state.name, program: this.state.program})
+      if(this.state.program=='none'){
+        this.props.saveHandler({id: this.state.id, name: this.state.name, program: null, photo: this.state.photo})
+      } else {
+        this.props.saveHandler({id: this.state.id, name: this.state.name, program: this.state.program, photo: this.state.photo})
+      }
     }
   },
 
@@ -78,10 +82,10 @@ export var Device = translate('device')(React.createClass({
 
     return (
       <div className='col-xs-12 container-fluid'>
-        <h1>{this.state.title}</h1>
         <Feedback />
         <div className='row'>
-          <div className='col-xs-12 col-md-6'>
+          <div className='col-xs-12 col-md-6 col-md-offset-3'>
+            <h1>{this.state.title}</h1>
             <div className='panel panel-default'>
               <div className='panel-heading'>
                 {t('device:labels.title')}
@@ -113,20 +117,20 @@ export var Device = translate('device')(React.createClass({
                     data-live-search={true}
                     value={this.state.program}
                     {...this.commonProps}>
-                    {this.props.program.map((item) => {
-                      return <option value={item.uuid} key={item.uuid}>
-                        {item.name}</option>
-                    })}
+                        <option value='none'>{t('device:programselect.noprogram')}</option>
+                        {this.props.program.map((item) => {
+                          return <option value={item.uuid} key={item.uuid}>
+                            {item.name}</option>
+                        })}
                   </BootstrapSelect>
                   <div className="form-group">
                     <label className="control-label col-xs-2">
                       {t('device:labels.photo')}
                     </label>
                     <div className='col-xs-10'>
-                      <FileBase64
-                        multiple={ false }
-                        onDone={ this.handleChangePhoto.bind(this) }
-                      />
+                        <Dropzone multiple={false} accept={['image/png', 'image/jpeg', 'image/gif']} onDrop={this.onDrop}>
+                            <div className="col-xs-10 col-xs-offset-1">{t('device:labels.dropzone')}</div>
+                        </Dropzone>
                     </div>
                   </div>
                   <div className="form-group">
@@ -142,15 +146,10 @@ export var Device = translate('device')(React.createClass({
               <div className='panel-footer'>
                 <div className="row">
                   <div className="col-xs-6">
-                    <SaveButton
-                      handler={this.save}
-                    />
+                    { this.state.state == StoreTypes.LOADED ? <Button bsStyle="danger" onClick={this.delete}>{t('device:delete')}</Button> : null }
                   </div>
                   <div className="col-xs-6">
-                    { this.state.state == StoreTypes.LOADED ? <DeleteButton
-                      id={this.state.id}
-                      handler={this.delete}
-                    /> : null }
+                    <Button bsStyle="primary" className="pull-right" onClick={this.save}>{t('device:save')}</Button>
                   </div>
                 </div>
               </div>

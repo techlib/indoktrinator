@@ -15,16 +15,6 @@ export var DeviceEdit = translate(['device','common'])(React.createClass({
     Reflux.connect(ProgramStore, 'program')
   ],
 
-  componentWillReceiveProps(p) {
-    this.setState({
-      uuid: p.playlist.playlist.uuid,
-      name: p.playlist.playlist.name,
-      title: p.playlist.playlist.name,
-      playlist: {list: p.playlist.list, playlist: {}},
-      file: {list: p.file, file: {}}
-    })
-  },
-
   componentDidMount() {
     DeviceActions.read(this.props.params.id)
     ProgramActions.list()
@@ -43,8 +33,9 @@ export var DeviceEdit = translate(['device','common'])(React.createClass({
 
     const {t} = this.props
 
-    DeviceActions.update.triggerAsync(data)
-    .then(() => {
+    var updatePromise = DeviceActions.update.triggerAsync(data)
+    var imagePromise = DeviceActions.setImage.triggerAsync(data['photo'], data['id'])
+    Promise.all([updatePromise, imagePromise]).then(() => {
       DeviceActions.read(this.props.params.id)
       FeedbackActions.set('success', t('device:alerts.update'))
     })

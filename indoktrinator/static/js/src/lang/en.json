@@ -15,7 +15,8 @@
       "photo": "Photo",
       "preview": "Preview",
       "program": "Program",
-      "title": "Device"
+      "title": "Device",
+      "dropzone": "Drag&drop an image or click and choose one."
     },
     "list": {
       "new": "Create device",
@@ -38,7 +39,14 @@
     },
     "confirm": {
       "delete": "Do you really want to delete {{name}}?"
-    }
+    },
+    "abort": "Cancel",
+    "programselect": {
+      "noprogram": "No program",
+      "title": "Choose a program"
+    },
+    "delete": "Delete",
+    "save": "Save"
   },
   "common": {
     "confirm": {

@@ -8,7 +8,9 @@ export var DeviceListPanel = translate('device')(React.createClass({
 
   selectProgram() {
     programSelectionModal(
-      this.props.program ? this.props._program.uuid : null
+      this.props.program ? this.props._program.uuid : null,
+      null,
+      this.props.t
     ).then((newProgram) => {
       DeviceActions.update.triggerAsync({id: this.props.id, program: newProgram})
       .then(() => {
