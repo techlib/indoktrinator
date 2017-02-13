@@ -117,7 +117,11 @@ class Device(Table):
     PROTECTED_PKEY = False
 
     def fixup(self, data):
+        pc = self.db.device_photo.filter_by(id=data['id']).count()
+
+        data['custom_photo'] = (pc > 0)
         data['photo'] = urljoin('/api/preview-image/device/', data['id'])
+
         return data
 
 
