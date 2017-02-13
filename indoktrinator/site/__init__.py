@@ -212,8 +212,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     @with_db_session(db)
     def api_events(depth, **kwargs):
         if 'GET' == request.method:
-            events = model.event.list(order_by=['date', 'range'], depth=depth)
-            return jsonify(result=events)
+            return jsonify(result=model.event.list(depth=depth))
 
         if 'POST' == request.method:
             data = request.get_json(force=True)
@@ -240,8 +239,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     @with_db_session(db)
     def api_items(depth, **kwargs):
         if 'GET' == request.method:
-            order = ['playlist', 'position']
-            return jsonify(result=model.item.list(order_by=order, depth=depth))
+            return jsonify(result=model.item.list(depth=depth))
 
         if 'POST' == request.method:
             item = request.get_json(force=True)
@@ -268,7 +266,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     @with_db_session(db)
     def api_playlists(depth, **kwargs):
         if 'GET' == request.method:
-            playlists = model.playlist.list(order_by=['name'], depth=depth)
+            playlists = model.playlist.list(depth=depth)
             return jsonify(result=playlists)
 
         if 'POST' == request.method:
@@ -322,8 +320,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     @with_db_session(db)
     def api_programs(depth, **kwargs):
         if 'GET' == request.method:
-            programs = model.program.list(order_by=['name'], depth=depth)
-            return jsonify(result=programs)
+            return jsonify(result=model.program.list(depth=depth))
 
         if 'POST' == request.method:
             program = request.get_json(force=True)
