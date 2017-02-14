@@ -46,7 +46,8 @@
       "title": "Vyberte program"
     },
     "delete": "Smazat",
-    "save": "Uložit"
+    "save": "Uložit",
+    "resetImage": "Obnovit výchozí obrázek"
   },
   "common": {
     "confirm": {

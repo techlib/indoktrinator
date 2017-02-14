@@ -42,10 +42,19 @@ export var DeviceStore = Reflux.createStore({
   },
 
   onSetImage(image, device_id) {
+    if(image != 'deleted') {
       var req = request.put(`${API_URL}/api/preview-image/device/${device_id}`)
       req.send(image)
       req.end((data) => {
         DeviceActions.setImage.completed(data)
       })
+    } else {
+        DeviceActions.setImage.completed()
+    }
+  },
+
+  onResetImage(id) {
+    this.req('RESET', `${API_URL}/api/preview-image/device/${id}`,
+             {action: DeviceActions.resetImage})
   }
 })

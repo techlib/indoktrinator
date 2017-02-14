@@ -46,7 +46,8 @@
       "title": "Choose a program"
     },
     "delete": "Delete",
-    "save": "Save"
+    "save": "Save",
+    "resetImage": "Reset preview image"
   },
   "common": {
     "confirm": {

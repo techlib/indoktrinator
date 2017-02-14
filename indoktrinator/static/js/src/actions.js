@@ -17,7 +17,7 @@ function createAsyncActions(list) {
 }
 
 export var DeviceActions = createAsyncActions([
-  'create', 'read', 'update', 'delete', 'list', 'setImage'
+  'create', 'read', 'update', 'delete', 'list', 'setImage', 'resetImage'
 ])
 
 export var EventActions = createAsyncActions([
