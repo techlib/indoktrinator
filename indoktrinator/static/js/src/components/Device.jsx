@@ -27,10 +27,7 @@ export var Device = translate('device')(React.createClass({
 
   componentWillReceiveProps(p) {
     // Invalidate cache
-    if (p.device.photo === undefined) {
-        p.device.photo = `${API_URL}/api/preview-image/device/0?${Date.now()}`
-    }
-    var preview = p.device.photo + "?" + Date.now()
+    var preview = p.device.photo + "?c=" + Date.now()
 
     this.setState(
       {
