@@ -134,16 +134,16 @@ export var Device = translate('device')(React.createClass({
                           })}
                     </BootstrapSelect>
                     <div className="form-group">
-                      <label className="control-label col-xs-2">
+                      <label className="control-label col-sm-2 col-xs-2">
                         {t('device:labels.photo')}
                       </label>
-                      <div className='col-xs-4'>
+                      <div className='col-sm-4 col-xs-10'>
                           <Dropzone multiple={false} accept={['image/png', 'image/jpeg', 'image/gif']} onDrop={this.onDrop}>
                               <div className="col-xs-10 col-xs-offset-1">{t('device:labels.dropzone')}</div>
                           </Dropzone>
                       </div>
 
-                      <div className="col-xs-6">
+                      <div className="col-sm-6 col-xs-12">
                         <img className="img-responsive" src={this.state.preview} style={{height: 250}}></img>
                       </div>
 
