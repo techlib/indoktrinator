@@ -105,7 +105,7 @@
   "program": {
     "alerts": {
       "delete": "Program byl smazán",
-      "update": ""
+      "update": "Program byl upraven"
     },
     "buttons": {
       "create": "Vytvořit program",
@@ -143,6 +143,12 @@
     "availableplaylists": "Dostupné playlisty",
     "new": {
       "title": "Nový program"
+    }
+  },
+  "messages": {
+    "labels": {
+      "error": "Chyba",
+      "success": "Potvrzení"
     }
   }
 }

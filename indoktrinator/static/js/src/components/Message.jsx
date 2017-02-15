@@ -1,8 +1,8 @@
 import * as React from 'react'
 import classNames from 'classnames'
+import {translate} from 'react-i18next'
 
-export var Message = React.createClass({
-
+export var Message = translate('message')(React.createClass({
   renderExtra() {
     if (!this.props.extra) {
       return null
@@ -21,15 +21,17 @@ export var Message = React.createClass({
   },
 
   render() {
+    const {t} = this.props
+
     var cls, title, icon
 
     if (this.props.type == 'success') {
       cls = 'alert-success'
-      title = 'Success'
+      title = t('messages:labels.success')
       icon = 'pficon-ok'
     } else if (this.props.type == 'error') {
       cls = 'alert-danger'
-      title = 'Error'
+      title = t('messages:labels.error')
       icon = 'pficon-error-circle-o'
     }
 
@@ -45,6 +47,4 @@ export var Message = React.createClass({
       </div>
     )
   }
-
-
-})
+}))
