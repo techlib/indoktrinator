@@ -27,8 +27,10 @@ export var Device = translate('device')(React.createClass({
 
   componentWillReceiveProps(p) {
     // Invalidate cache
+    if (p.device.photo === undefined) {
+        p.device.photo = `${API_URL}/api/preview-image/device/0?${Date.now()}`
+    }
     var preview = p.device.photo + "?c=" + Date.now()
-
     this.setState(
       {
         'id': p.device.id,
@@ -85,7 +87,7 @@ export var Device = translate('device')(React.createClass({
 
   render() {
     const {t} = this.props
-
+console.log(this.state)
     return (
       <div className='col-xs-12 container-fluid'>
         <div className='row'>
