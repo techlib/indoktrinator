@@ -12,6 +12,8 @@ import {translate} from 'react-i18next'
 import {Column} from './ProgramCreator/Column'
 import {Playlist} from './ProgramCreator/Playlist'
 import {InlineNameEdit} from './InlineNameEdit'
+import {Feedback} from './Feedback'
+
 
 var Component = React.createClass({
 
@@ -106,6 +108,7 @@ var Component = React.createClass({
             </a>
           </div>
         </div>
+        <Feedback />
         <div className="row">
           <div className="col-md-10">
             <div className="container-scroll">

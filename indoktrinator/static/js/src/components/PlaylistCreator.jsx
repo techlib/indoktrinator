@@ -245,15 +245,18 @@ var Component = React.createClass({
     return (
       <div className='col-xs-12 container-fluid'>
         <div className="row">
-          <InlineNameEdit
-            saveAction={this.nameChangeHandler}
-            uuid={this.props.playlist.playlist.uuid}
-            name={this.state.name}
-          />
+          <div className="col-xs-12 col-sm-6">
+
+            <InlineNameEdit
+              saveAction={this.nameChangeHandler}
+              uuid={this.props.playlist.playlist.uuid}
+              name={this.state.name}
+            />
+          </div>
         </div>
+        <Feedback />
         <div className='row'>
           <div className='col-xs-12 col-md-6'>
-            <Feedback />
             <div className='panel panel-default'>
               <div className='panel-heading'>
                 {t('playlist:items')}
