@@ -55,7 +55,7 @@
     },
     "alerts": {
       "invalidform": "Formulář obsahuje chyby:",
-      "create": "",
+      "create": "Položka vytvořena",
       "namechanged": "Název byl upraven"
     },
     "search": "Vyhledávání",

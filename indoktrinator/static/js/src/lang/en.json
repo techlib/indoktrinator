@@ -55,7 +55,7 @@
     },
     "alerts": {
       "invalidform": "Form contains invalid data:",
-      "create": "",
+      "create": "Item created",
       "namechanged": "Name was changed"
     },
     "search": "Search",

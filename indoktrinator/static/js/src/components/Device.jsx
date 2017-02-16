@@ -1,10 +1,10 @@
 import * as React from 'react'
 import {FeedbackActions, DeviceActions} from '../actions'
 import {Feedback} from './Feedback'
-import {Input} from 'react-bootstrap'
+import {hashHistory as BrowserHistory} from 'react-router'
+import {Input, Button} from 'react-bootstrap'
 import {BootstrapSelect} from './Select'
 import FileBase64 from '../util/react-file-base64.js'
-import {Button} from 'react-bootstrap'
 import {StoreTypes} from './../stores/StoreTypes'
 import {translate} from 'react-i18next'
 import Dropzone from 'react-dropzone'
@@ -85,9 +85,13 @@ export var Device = translate('device')(React.createClass({
     this.props.deleteHandler(this.state.id)
   },
 
+  cancel() {
+    BrowserHistory.push('/device/')
+  },
+
+
   render() {
     const {t} = this.props
-console.log(this.state)
     return (
       <div className='col-xs-12 container-fluid'>
         <div className='row'>
@@ -156,6 +160,7 @@ console.log(this.state)
                     <div className="col-xs-6">
                       { this.state.state == StoreTypes.LOADED ? <Button bsStyle="danger" onClick={this.delete}>{t('device:delete')}</Button> : null }
                       { this.state.custom_photo ? <Button bsStyle="warning" onClick={this.resetImage}>{t('device:resetImage')}</Button> : null }
+                      { this.state.state == StoreTypes.NEW ? <Button bsStyle='default' onClick={this.cancel}>{t('program:buttons.new.cancel')}</Button>: null }
                     </div>
                     <div className="col-xs-6">
                       <Button bsStyle="primary" className="pull-right" onClick={this.save}>{t('device:save')}</Button>

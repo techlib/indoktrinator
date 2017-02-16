@@ -4,6 +4,7 @@ import {Device} from './Device'
 import {DeviceActions, ProgramActions, FeedbackActions} from '../actions'
 import {ProgramStore} from '../stores/Program'
 import {hashHistory as BrowserHistory} from 'react-router'
+import {StoreTypes} from './../stores/StoreTypes'
 
 export var DeviceNew = React.createClass({
 
@@ -27,7 +28,7 @@ export var DeviceNew = React.createClass({
 
   getInitialState() {
     return {
-      device: {id: '', state: 'New'},
+      device: {id: '', state: StoreTypes.NEW},
       program: {list: []}
     }
   },
