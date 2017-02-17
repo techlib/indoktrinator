@@ -2,7 +2,7 @@ import * as React from 'react'
 import {FeedbackActions, DeviceActions} from '../actions'
 import {Feedback} from './Feedback'
 import {hashHistory as BrowserHistory} from 'react-router'
-import {Input, Button} from 'react-bootstrap'
+import {Input, Form, Button} from 'react-bootstrap'
 import {BootstrapSelect} from './Select'
 import FileBase64 from '../util/react-file-base64.js'
 import {StoreTypes} from './../stores/StoreTypes'
@@ -67,7 +67,8 @@ export var Device = translate('device')(React.createClass({
     this.setState({[evt.target.name]: evt.target.value})
   },
 
-  save() {
+  save(e) {
+    e.preventDefault()
     var errors = this.validate()
 
     if (errors.length > 0) {
@@ -95,7 +96,7 @@ export var Device = translate('device')(React.createClass({
     return (
       <div className='col-xs-12 container-fluid'>
         <div className='row'>
-          <form onSubmit={this.save}>
+          <Form horizontal onSubmit={this.save}>
             <div className='col-xs-12 col-md-6 col-md-offset-3'>
               <h1>{this.state.title}</h1>
               <Feedback />
@@ -104,16 +105,15 @@ export var Device = translate('device')(React.createClass({
                   {t('device:labels.title')}
                 </div>
                 <div className='panel-body'>
-                  <div className="form-horizontal">
-                    { this.state.state != StoreTypes.LOADED ? <Input
+                    <Input
                       type="text"
                       label={t('device:labels.id')}
                       ref="id"
                       name="id"
+                      disabled={this.state.state != StoreTypes.NEW}
                       onChange={this.handleChange}
                       value={this.state.id}
                       {...this.commonProps} />
-                      : null }
                     <Input
                       type="text"
                       label={t('device:labels.name')}
@@ -151,9 +151,6 @@ export var Device = translate('device')(React.createClass({
                       </div>
 
                     </div>
-                    <div className="form-group">
-                    </div>
-                  </div>
                 </div>
                 <div className='panel-footer'>
                   <div className="row">
@@ -163,13 +160,13 @@ export var Device = translate('device')(React.createClass({
                       { this.state.state == StoreTypes.NEW ? <Button bsStyle='default' onClick={this.cancel}>{t('program:buttons.new.cancel')}</Button>: null }
                     </div>
                     <div className="col-xs-6">
-                      <Button bsStyle="primary" className="pull-right" onClick={this.save}>{t('device:save')}</Button>
+                      <Button bsStyle="primary" className="pull-right" type='submit' onClick={this.save}>{t('device:save')}</Button>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </form>
+          </Form>
         </div>
       </div>
     )
