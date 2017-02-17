@@ -36,7 +36,6 @@ export var PlaylistNew = translate(['playlist', 'common'])(React.createClass({
     } else {
       PlaylistActions.create.triggerAsync({name: this.state.name})
       .then((data) => {
-        console.log(data)
         BrowserHistory.push('/playlist/' + data.uuid)
         FeedbackActions.set('success', this.props.t('common:alerts.create'))
       })
