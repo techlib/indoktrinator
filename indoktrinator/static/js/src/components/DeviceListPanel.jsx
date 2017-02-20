@@ -38,8 +38,8 @@ export var DeviceListPanel = translate('device')(React.createClass({
           <div className="panel-body text-center">
             <Link to={`/device/${this.props.id}`}>
               <img className="img-responsive"
-                   src={this.props.photo}
-                   style={{width: 250, height: 250}}></img>
+                   src={`${this.props.photo}?${Date.now()}`}
+                   style={{height: 250}}></img>
             </Link>
           </div>
           <div className="panel-footer">

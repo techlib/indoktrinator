@@ -46,7 +46,8 @@
       "title": "Choose a program"
     },
     "delete": "Delete",
-    "save": "Save"
+    "save": "Save",
+    "resetImage": "Reset preview image"
   },
   "common": {
     "confirm": {
@@ -54,7 +55,7 @@
     },
     "alerts": {
       "invalidform": "Form contains invalid data:",
-      "create": "",
+      "create": "Item created",
       "namechanged": "Name was changed"
     },
     "search": "Search",
@@ -104,7 +105,7 @@
   "program": {
     "alerts": {
       "delete": "Program deleted",
-      "update": ""
+      "update": "Program updated"
     },
     "buttons": {
       "create": "Create program",
@@ -142,6 +143,12 @@
     "availableplaylists": "Available playlists",
     "new": {
       "title": "New program"
+    }
+  },
+  "messages": {
+    "labels": {
+      "error": "Error",
+      "success": "Success"
     }
   }
 }

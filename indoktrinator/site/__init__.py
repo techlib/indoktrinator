@@ -212,8 +212,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     @with_db_session(db)
     def api_events(depth, **kwargs):
         if 'GET' == request.method:
-            events = model.event.list(order_by=['date', 'range'], depth=depth)
-            return jsonify(result=events)
+            return jsonify(result=model.event.list(depth=depth))
 
         if 'POST' == request.method:
             data = request.get_json(force=True)
@@ -240,8 +239,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     @with_db_session(db)
     def api_items(depth, **kwargs):
         if 'GET' == request.method:
-            order = ['playlist', 'position']
-            return jsonify(result=model.item.list(order_by=order, depth=depth))
+            return jsonify(result=model.item.list(depth=depth))
 
         if 'POST' == request.method:
             item = request.get_json(force=True)
@@ -268,7 +266,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     @with_db_session(db)
     def api_playlists(depth, **kwargs):
         if 'GET' == request.method:
-            playlists = model.playlist.list(order_by=['name'], depth=depth)
+            playlists = model.playlist.list(depth=depth)
             return jsonify(result=playlists)
 
         if 'POST' == request.method:
@@ -322,8 +320,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     @with_db_session(db)
     def api_programs(depth, **kwargs):
         if 'GET' == request.method:
-            programs = model.program.list(order_by=['name'], depth=depth)
-            return jsonify(result=programs)
+            return jsonify(result=model.program.list(depth=depth))
 
         if 'POST' == request.method:
             program = request.get_json(force=True)
@@ -417,7 +414,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
         return send_from_directory(manager.media_path, path,
                                    mimetype='application/octet-stream')
 
-    @app.route('/api/preview-image/device/<id>', methods=['GET', 'PUT', 'DELETE'])
+    @app.route('/api/preview-image/device/<id>', methods=['GET', 'PUT', 'RESET'])
     @authorized_only('user')
     @with_db_session(db)
     def api_device_photo(id):
@@ -452,15 +449,13 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
 
             return jsonify({'photo': id})
 
-        elif 'DELETE' == request.method:
+        elif 'RESET' == request.method:
             photo = db.device_photo.filter_by(id=id).one_or_none()
 
-            if photo is None:
-                raise KeyError(id)
+            if photo is not None:
+                db.delete(photo)
 
-            db.delete(photo)
-
-            return jsonify(deleted=id)
+            return jsonify(reset=id)
 
     @app.route('/api/preview-image/file/<uuid>')
     @authorized_only('user')

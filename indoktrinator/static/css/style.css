@@ -520,7 +520,7 @@ fieldset[disabled] .btn-cname.active {
 }
 
 
-th:last-child, td:last-child {
+td:last-child {
     width: 1px !important;
     padding: 0 !important;
     margin: 0;

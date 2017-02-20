@@ -46,7 +46,8 @@
       "title": "Vyberte program"
     },
     "delete": "Smazat",
-    "save": "Uložit"
+    "save": "Uložit",
+    "resetImage": "Obnovit výchozí obrázek"
   },
   "common": {
     "confirm": {
@@ -54,7 +55,7 @@
     },
     "alerts": {
       "invalidform": "Formulář obsahuje chyby:",
-      "create": "",
+      "create": "Položka vytvořena",
       "namechanged": "Název byl upraven"
     },
     "search": "Vyhledávání",
@@ -104,7 +105,7 @@
   "program": {
     "alerts": {
       "delete": "Program byl smazán",
-      "update": ""
+      "update": "Program byl upraven"
     },
     "buttons": {
       "create": "Vytvořit program",
@@ -142,6 +143,12 @@
     "availableplaylists": "Dostupné playlisty",
     "new": {
       "title": "Nový program"
+    }
+  },
+  "messages": {
+    "labels": {
+      "error": "Chyba",
+      "success": "Potvrzení"
     }
   }
 }

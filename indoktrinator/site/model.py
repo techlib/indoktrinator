@@ -12,6 +12,7 @@ class Table:
     NAME = None
     PKEY = 'uuid'
     RELS = []
+    ORDER_BY = []
 
     # Do not allow primary key modifications or custom value on insert.
     # This is the default since we have mostly `uuid` primary keys.
@@ -74,7 +75,9 @@ class Table:
         return key
 
     def list(self, filter_by={}, order_by=[], depth=0):
-        objs = self.table.filter_by(**filter_by).order_by(*order_by).all()
+        objs = self.table.filter_by(**filter_by) \
+                         .order_by(*order_by, *self.ORDER_BY, self.PKEY) \
+                         .all()
         results = []
 
         for obj in objs:
@@ -108,22 +111,29 @@ class Device(Table):
     NAME = 'device'
     PKEY = 'id'
     RELS = [('_program', 'program')]
+    ORDER_BY = ['name']
 
     # Devices have mutable primary keys.
     PROTECTED_PKEY = False
 
     def fixup(self, data):
+        pc = self.db.device_photo.filter_by(id=data['id']).count()
+
+        data['custom_photo'] = (pc > 0)
         data['photo'] = urljoin('/api/preview-image/device/', data['id'])
+
         return data
 
 
 class Event(Table):
     NAME = 'event'
     RELS = [('_playlist', 'playlist')]
+    ORDER_BY = ['program', 'date', 'range']
 
 
 class File(Table):
     NAME = 'file'
+    ORDER_BY = ['path']
 
     def fixup(self, data):
         data['preview'] = urljoin('/api/preview-image/file/', data['uuid'])
@@ -136,6 +146,7 @@ class File(Table):
 class Item(Table):
     NAME = 'item'
     RELS = [('_file', 'file')]
+    ORDER_BY = ['playlist', 'position']
 
     def verify(self, data=None, prev=None):
         super().verify(data, prev)
@@ -167,6 +178,7 @@ class Item(Table):
 class Playlist(Table):
     NAME = 'playlist'
     RELS = [('items', 'item')]
+    ORDER_BY = ['path', 'name']
 
     def fixup(self, data):
         data['system'] = data.get('token') is not None
@@ -193,6 +205,7 @@ class Program(Table):
 class Segment(Table):
     NAME = 'segment'
     RELS = [('_playlist', 'playlist')]
+    ORDER_BY = ['program', 'day', 'range']
 
 
 class Model:

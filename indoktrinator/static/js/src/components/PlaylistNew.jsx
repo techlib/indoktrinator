@@ -4,7 +4,7 @@ import {PlaylistActions, FeedbackActions} from '../actions'
 import {PlaylistStore} from '../stores/Playlist'
 import {hashHistory as BrowserHistory} from 'react-router'
 import {Feedback} from './Feedback'
-import {Input} from 'react-bootstrap'
+import {Input, Form, Button} from 'react-bootstrap'
 import {translate} from 'react-i18next'
 
 export var PlaylistNew = translate(['playlist', 'common'])(React.createClass({
@@ -27,17 +27,17 @@ export var PlaylistNew = translate(['playlist', 'common'])(React.createClass({
     return r
   },
 
-  save() {
+  save(e) {
+    e.preventDefault()
     var errors = this.validate()
 
     if (errors.length > 0) {
       FeedbackActions.set('error', this.props.t('alerts.invalidform'), errors)
     } else {
-      var playlist = {name: this.state.name}
-
-      PlaylistActions.create.triggerAsync(playlist)
+      PlaylistActions.create.triggerAsync({name: this.state.name})
       .then((data) => {
         BrowserHistory.push('/playlist/' + data.uuid)
+        FeedbackActions.set('success', this.props.t('common:alerts.create'))
       })
     }
   },
@@ -54,6 +54,7 @@ export var PlaylistNew = translate(['playlist', 'common'])(React.createClass({
         <h1></h1>
         <div className='row'>
           <div className='col-xs-12'>
+            <Form horizontal onSubmit={this.save}>
             <div className='panel panel-default'>
 
               <div className='panel-heading'>
@@ -61,7 +62,6 @@ export var PlaylistNew = translate(['playlist', 'common'])(React.createClass({
               </div>
 
               <div className='panel-body'>
-                <div className="form-horizontal">
                   <Input
                     type="text"
                     label={t('playlist:labels.name')}
@@ -73,25 +73,25 @@ export var PlaylistNew = translate(['playlist', 'common'])(React.createClass({
                     wrapperClassName="col-xs-9"
                     autoFocus
                   />
-                </div>
               </div>
 
               <div className='panel-footer'>
                 <div className="row">
                   <div className="col-xs-12 text-right">
-                    <button className='btn btn-default'
+                    <Button bsStyle='default'
                       onClick={this.cancel}>
                       {t('playlist:buttons.new.cancel')}
-                    </button>
-                    <button className='btn btn-primary'
-                      onClick={this.save}>
+                    </Button>
+                    <Button bsStyle='primary'
+                      type='submit'>
                       {t('playlist:buttons.new.create')}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
 
             </div>
+          </Form>
           </div>
         </div>
       </div>)
