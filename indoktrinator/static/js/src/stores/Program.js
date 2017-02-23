@@ -31,7 +31,7 @@ export var ProgramStore = Reflux.createStore({
   },
 
   onRead(uuid) {
-    this.req('GET', `${API_URL}/api/program/${uuid}?depth=2`,
+    this.req('GET', `${API_URL}/api/program/${uuid}?depth=3`,
              {dest: 'program', action: ProgramActions.read,
               modifyResponse: this.processSegments})
   },
