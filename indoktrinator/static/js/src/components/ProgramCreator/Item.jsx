@@ -11,14 +11,7 @@ import moment from 'moment'
 import 'rc-time-picker/assets/index.css';
 import {translate} from 'react-i18next'
 import {UuidToRgba} from '../../util/color'
-
-function momentToS(m) {
-  return m.second() + m.minute() * 60 + m.hour() * 3600
-}
-
-function sToMoment(s) {
-  return moment().startOf('day').second(s)
-}
+import {momentToS, sToMoment} from '../../util/time'
 
 const itemSource = {
   beginDrag(props, monitor, component) {
