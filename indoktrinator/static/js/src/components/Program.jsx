@@ -1,450 +1,156 @@
 import * as React from 'react'
 import * as Reflux from 'reflux'
-import {FeedbackActions, EventActions, SegmentActions} from '../actions'
+import {FeedbackActions, ProgramActions, PlaylistActions} from '../actions'
 import {ProgramStore} from '../stores/Program'
-import {SegmentStore} from '../stores/Segment'
-import {Feedback} from './Feedback'
+import {PlaylistStore} from '../stores/Playlist'
 import {EventStore} from '../stores/Event'
-import {DeleteButton} from './form/button/DeleteButton'
-import {SaveButton} from './form/button/SaveButton'
-import moment from 'moment'
-import {StoreTypes} from './../stores/StoreTypes'
-import {guid} from '../util/database'
-import {Tabs, Tab} from 'react-bootstrap-tabs'
-import {confirmModal} from './ModalConfirmMixin'
-import {Input} from 'react-bootstrap'
+import {Feedback} from './Feedback'
+import {Row, Col, Grid} from 'react-bootstrap'
+import {InlineNameEdit} from './InlineNameEdit'
+import {translate} from 'react-i18next'
+import {Link} from 'react-router'
+import {Icon} from './Icon'
+import {find} from 'lodash'
 
-moment.locale('cz', {
-  week: {
-    dow: 1, // Monday is the first day of the week.
-    doy: 4  // The week that contains Jan 4th is the first week of the year.
-  }
-})
-
-moment.locale('en', {
-  week: {
-    dow: 1, // Monday is the first day of the week.
-    doy: 4  // The week that contains Jan 4th is the first week of the year.
-  }
-})
-
-export var Program = React.createClass({
+export var Program = translate(['program', 'common'])(React.createClass({
 
   mixins: [
     Reflux.connect(ProgramStore, 'program'),
-    Reflux.connect(EventStore, 'event'),
-    Reflux.connect(SegmentStore, 'segment')
+    Reflux.connect(PlaylistStore, 'playlist'),
   ],
 
-  commonProps: {
-    labelClassName: 'col-xs-2',
-    wrapperClassName: 'col-xs-10',
-  },
-
   getInitialState() {
-    return {
-      'uuid': this.props.program.uuid,
-      'title': this.props.title,
-      'event': {list: []},
-      'segment': {list: []},
-      'bigCalendarSlotInfo': {}, // clicked slot info
-      'bigCalendarDate': new Date(moment().startOf('isoWeek').format('YYYY, MM, DD')), // actual start calendar date
-      'showSegmentEditModal': false,
-      'showEventEditModal': false,
-      'showCreateCalendarModal': false
-    }
+  	return {
+			program: {program: {segments: [], events: []}},
+      playlist: {list: []},
+		}
   },
 
-  componentWillReceiveProps(p) {
-    this.setState({
-      'title': p.title,
-      'name': p.program.name,
-      'uuid': p.program.uuid,
-      'state': p.program.state,
-      'segment': {list: p.segment},
-      'event': {list: p.event}
+	componentWillMount() {
+    this.reload()
+  },
+
+  reload() {
+		ProgramActions.read(this.props.params.uuid)
+		PlaylistActions.list()
+  },
+
+  saveName(name) {
+    let r = ProgramActions.update.triggerAsync(this.state.program.program.uuid,
+      {name: name})
+
+    r.then(() => {
+      FeedbackActions.set('success', this.props.t('common:alerts.namechanged'))
+      ProgramActions.read(this.props.params.uuid)
     })
-  },
-
-  createEvent(slotInfo) {
-    var startDayMidnight = slotInfo ? moment(slotInfo.start).startOf('day') : moment().startOf('day')
-
-    var event = {}
-    event.uuid = guid()
-    event.program = this.props.program
-    event.state = StoreTypes.NEW
-
-    if (slotInfo) {
-      var start = moment(slotInfo.start)
-      var end = moment(slotInfo.end)
-
-      event.range = [start.diff(startDayMidnight, 'seconds'), end.diff(startDayMidnight, 'seconds')]
-      event.date = start.format('YYYY-MM-DD')
-    } else {
-      var now = moment()
-
-      event.range = [now.diff(startDayMidnight, 'seconds'), now.diff(startDayMidnight, 'seconds')]
-      event.date = now.format('YYYY-MM-DD')
-    }
-
-    return event
-  },
-
-  createSegment(slotInfo) {
-    var startDayMidnight = slotInfo ? moment(slotInfo.start).startOf('day') : moment().startOf('day')
-
-    var segment = {}
-    segment.uuid = guid()
-    segment.program = this.props.program
-    segment.state = StoreTypes.NEW
-
-    if (slotInfo) {
-      var start = moment(slotInfo.start)
-      var end = moment(slotInfo.end)
-
-      segment.range = [start.diff(startDayMidnight, 'seconds'), end.diff(startDayMidnight, 'seconds')]
-      segment.day = start.weekday()+1 // WTF hack??
-    } else {
-      var now = moment()
-
-      segment.day = now.weekday()+1 // WTF hack??
-      segment.range = [now.diff(startDayMidnight, 'seconds'), now.diff(startDayMidnight, 'seconds')]
-
-    }
-    return segment
-  },
-
-  deleteEvent(uuid) {
-    confirmModal(
-      'Are you sure?',
-      'Would you like to remove event?'
-    ).then(() => {
-      EventActions.delete(uuid, () => {
-        this.hideEventEditModal()
-        this.reloadEventsSources()
-      })
-    })
-  },
-
-  deleteSegment(uuid) {
-    confirmModal(
-      'Are you sure?',
-      'Would you like to remove segment?'
-    ).then(() => {
-      SegmentActions.delete(uuid, () => {
-        this.hideSegmentEditModal()
-        this.reloadEventsSources()
-      })
-    })
-  },
-
-  updateEvent(event) {
-    EventActions.update(event, () => {
-      this.hideEventEditModal()
-      this.reloadEventsSources()
-    })
-  },
-
-  updateSegment(segment) {
-    SegmentActions.update(segment, () => {
-      this.hideSegmentEditModal()
-      this.reloadEventsSources()
-    })
-  },
-
-  saveEvent(event) {
-    EventActions.create(event, () => {
-      this.hideCreateCalendarEventModal()
-      this.reloadEventsSources()
-    })
-  },
-
-  saveSegment(segment) {
-    SegmentActions.create(segment, () => {
-      this.hideCreateCalendarEventModal()
-      this.reloadEventsSources()
-    })
-  },
-
-  validate() {
-    var r = []
-
-    if (!this.state.name) {
-      r.push('Name is required')
-    }
-
-    if (!this.state.uuid) {
-      r.push('Uuid is required')
-    }
-
     return r
   },
 
-  handleChange(evt) {
-    this.setState({[evt.target.name]: evt.target.value})
-  },
+	getLink() {
+		var isEvent = this.props.children.props.route.eventView
 
-  save() {
-    var errors = this.validate()
+		var to = isEvent ? `/program/${this.props.params.uuid}/`
+										 : `/program/${this.props.params.uuid}/event`
 
-    if (errors.length > 0) {
-      FeedbackActions.set('error', 'Form contains invalid data:', errors)
-    } else {
+		var ico = isEvent ? 'th-large' : 'calendar'
 
-      // save only name
-      var program = {}
-      program.name = this.state.name
-      program.uuid = this.state.uuid
-      program.state = this.state.state
-      program.title = this.state.title
+		var text = isEvent ? this.props.t('program:links.segment')
+											 : this.props.t('program:links.event')
 
-      this.props.saveHandler(program)
-    }
-  },
-
-  delete() {
-    this.props.deleteHandler(this.state.uuid)
-  },
-
-  showEventEditModal() {
-    this.setState({showEventEditModal: true})
-  },
-
-  hideEventEditModal() {
-    this.setState({showEventEditModal: false})
-  },
-
-  showSegmentEditModal() {
-    this.setState({showSegmentEditModal: true})
-  },
-
-  hideSegmentEditModal() {
-    this.setState({showSegmentEditModal: false})
-  },
-
-  showCreateCalendarEventModal() {
-    this.setState({showCreateCalendarEventModal: true})
-  },
-
-  hideCreateCalendarEventModal() {
-    this.setState({showCreateCalendarEventModal: false})
-  },
-
-  handleSelectSlot(slotInfo) {
-    this.setState({
-      bigCalendarSlotInfo: slotInfo
-    })
-    this.showCreateCalendarEventModal()
-  },
-
-  handleSelectEvent(event)
-  {
-    if (event.type == 'event') {
-      EventActions.read(event.uuid, () => {
-        this.setState({
-          selectedEvent: EventStore.data.event
-        })
-        this.showEventEditModal()
-      })
-    } else if (event.type == 'segment') {
-      SegmentActions.read(event.uuid, () => {
-        this.setState({
-          selectedSegment: SegmentStore.data.segment
-        })
-        this.showSegmentEditModal()
-      })
-    }
-  },
-
-  reloadEventsSources() {
-    SegmentActions.list(() => {
-      var data = SegmentStore.data.list
-      this.setState({segment: {list: this.getFilteredSegments(data)}})
-    })
-    EventActions.list(() => {
-      var data = EventStore.data.list
-      this.setState({event: {list: this.getFilteredSegments(data)}})
-    })
-  },
-
-  getFilteredSegments(segments) {
-    return segments.filter((item) => {
-      return item.program == this.state.uuid
-    })
-  },
-
-  getFilteredEvents(events) {
-    return events.filter((item) => {
-      return item.program == this.state.uuid
-    })
-  },
-
-  getPreparedEvents()
-  {
-    var events = []
-
-    this.state.segment.list.forEach((item) => {
-
-      // +1 / -1 because  + 1, // cus bug of bigCalendar, events immediately behind yourselfs
-      var day = item.day
-      if (day == 0)
-          day = 7
-
-      var startMoment = moment(this.state.bigCalendarDate).startOf('week').add(day-1, 'days').seconds(item.range[0] + 1)
-      var endMoment = moment(this.state.bigCalendarDate).startOf('week').add(day-1, 'days').seconds(item.range[1] - 1)
-
-
-      events.push({
-        'title': item._playlist.name,
-        'start': startMoment.toDate(),
-        'end': endMoment.toDate(),
-        'type': 'segment',
-        'uuid': item.uuid
-      })
-    })
-
-    // +1 / -1 because  + 1, // cus bug of bigCalendar, events immediately behind yourselfs
-    this.state.event.list.forEach((item) => {
-      var startMoment = moment(item.date, 'YYYY-MM-DD').startOf('day').seconds(item.range[0] + 1)
-      var endMoment = moment(item.date, 'YYYY-MM-DD').startOf('day').seconds(item.range[1] - 1)
-
-      events.push({
-        'title': item._playlist.name,
-        'start': startMoment.toDate(),
-        'end': endMoment.toDate(),
-        'type': 'event',
-        'uuid': item.uuid
-      })
-    })
-
-    return events
-  },
-
-  onNavigate(date)
-  {
-    this.setState({
-      'bigCalendarDate': date
-    })
-  },
-
-  columnStyleGetter: function (event) {
-    var style = {
-      borderRadius: '0px',
-      opacity: 0.8,
-      color: 'black',
-      border: '0px',
-      display: 'block'
-    }
-
-    if (event.type == 'segment') {
-      style = {
-        backgroundColor: '#0CB3EB'
-      }
-    } else {
-      style = {
-        backgroundColor: '#D62439'
-      }
-    }
-    return {
-      style: style
-    }
-  },
-
-  render()
-  {
     return (
-      <div className='col-xs-24 container-fluid'>
-        <h1>{this.state.title}</h1>
-        <Feedback />
-        <div className='row'>
-          <div className='col-xs-24 col-md-12'>
-            <div className='panel panel-default'>
-              <div className='panel-heading'>
-                <FormattedMessage
-                  id="app.menu.program.title"
-                  description="Title"
-                  defaultMessage="Program"
-                />
-              </div>
-              <div className='panel-body'>
-                <div className="form-horizontal">
-                  <Input
-                    type="text"
-                    label="Name"
-                    ref="name"
-                    name="name"
-                    onChange={this.handleChange}
-                    value={this.state.name}
-                    {...this.commonProps} />
-                </div>
-              </div>
-              <div className='panel-footer'>
-                <div className="row">
-                  <div className="col-xs-6">
-                  { this.state.state == StoreTypes.LOADED ? <DeleteButton
-                      id={this.state.uuid}
-                      handler={this.delete}
-                    /> : null }
-                  </div>
-                  <div className="col-xs-6 text-right">
-                    <SaveButton
-                      handler={this.save}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-            { this.props.program.state == StoreTypes.LOADED ? <div className='panel panel-default'>
-              <div className='panel-body'>
-                <div className="form-horizontal">
+      <Link className='btn btn-default' to={to}>
+        <Icon fa={ico} /> {text}
+		  </Link>
+    )
+	},
 
-                  <div className="form-group">
-                    <label className="control-label col-xs-2">
-                      <FormattedMessage
-                        id="app.menu.program.timetable.title"
-                        description="Title"
-                        defaultMessage="Time table"
-                      />
-                    </label>
-                    <div className="col-xs-10">
-                    </div>
-                    <CreateCalendarEventModal
-                      title='Create event or segment'
-                      show={this.state.showCreateCalendarEventModal}
-                      program={this.props.program}
-                      playlist={this.props.playlist}
-                      slotInfo={this.state.bigCalendarSlotInfo}
-                      saveEventHandler={this.saveEvent}
-                      deleteEventHandler={this.deleteEvent}
-                      saveSegmentHandler={this.saveSegment}
-                      deleteSegmentHandler={this.deleteSegment}
-                      hideHandler={this.hideCreateCalendarEventModal}
-                    />
-                    <EventEditModal
-                      title={this.state.selectedEvent && this.state.selectedEvent.state == StoreTypes.LOADED ? this.state.selectedEvent.playlist.name : 'New Event'}
-                      show={this.state.showEventEditModal}
-                      event={this.state.selectedEvent ? this.state.selectedEvent : this.createEvent()}
-                      playlist={this.props.playlist}
-                      saveHandler={this.updateEvent}
-                      deleteHandler={this.deleteEvent}
-                      hideHandler={this.hideEventEditModal}
-                    />
-                    <SegmentEditModal
-                      title={this.state.selectedSegment && this.state.selectedSegment.state == StoreTypes.LOADED ? this.state.selectedSegment.playlist.name : 'New Segment'}
-                      show={this.state.showSegmentEditModal}
-                      segment={this.state.selectedSegment ? this.state.selectedSegment : this.createSegment()}
-                      playlist={this.props.playlist}
-                      saveHandler={this.updateSegment}
-                      deleteHandler={this.deleteSegment}
-                      hideHandler={this.hideSegmentEditModal}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div> : null }
-          </div>
-        </div>
-      </div>
+  verifyData(item) {
+    return find(this.state.program.program.events, (v) => {
+			if (v.uuid != item.uuid) {
+				var [v0, v1] = v.range
+				var [i0, i1] = item.range
+
+				var overlap = Math.max(v0, i0) < Math.min(v1, i1)
+				if (v.date == item.date && overlap) {
+					return true
+				}
+			}
+		})
+	},
+
+  saveProgram() {
+    this.refs.editcontent.getWrappedInstance().refs.child.save()
+  },
+
+	getButton() {
+		var isEvent = this.props.children.props.route.eventView
+
+		if (isEvent) {
+			var to = `/program/${this.props.params.uuid}/event/new`
+			var text = this.props.t('program:buttons.createevent')
+
+			return (
+				<Link to={to} className='btn btn-success'>
+          <Icon fa='plus' /> {text}
+    		</Link>
+			)
+		} else {
+			var to = `/program/${this.props.params.uuid}/event`
+			var text = this.props.t('program:buttons.savesegments')
+
+			return (
+				<button onClick={this.saveProgram} className='btn btn-primary'>
+          <Icon fa='check' /> {text}
+    		</button>
+			)
+		}
+	},
+
+	getName() {
+		if (this.props.children.props.route.simpleHeader) {
+			return <h1>{this.state.program.program.name}</h1>
+		} else {
+			return <InlineNameEdit
+              name={this.state.program.program.name}
+              uuid={this.state.program.program.uuid}
+              saveAction={this.saveName} />
+		}
+	},
+	
+	getButtons() {
+		if (this.props.children.props.route.simpleHeader) {
+			return null
+		} else {
+			return [this.getLink(), ' ', this.getButton()]
+		}
+	},
+
+  render() {
+    var childrenProps = {
+      playlists: this.state.playlist.list,
+      program: this.state.program.program,
+      verifyData: this.verifyData,
+      parentReload: this.reload,
+      ref: 'editcontent'
+    }
+
+    return (
+      <Grid fluid>
+				<Row>
+					<Col xs={6}>
+						{this.getName()}
+					</Col>
+					<Col xs={6} className='text-right h1'>
+						{this.getButtons()}
+					</Col>
+				</Row>
+        <Row>
+          <Col xs={12}>
+            <Feedback />
+          </Col>
+        </Row>
+				{React.cloneElement(this.props.children, childrenProps)}
+			</Grid>
     )
   }
-})
+}))

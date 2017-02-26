@@ -65,7 +65,10 @@
     "labels": {
       "actions": "Actions"
     },
-    "languagetoggle": "Přepnout do češtiny"
+    "languagetoggle": "Přepnout do češtiny",
+    "buttons": {
+      "cancel": "Cancel"
+    }
   },
   "playlist": {
     "availabelitems": "Available items and playlists",
@@ -118,10 +121,13 @@
       "edit": {
         "save": "Confirm",
         "delete": "Remove"
-      }
+      },
+      "createevent": "Create event",
+      "savesegments": "Save program"
     },
     "confirm": {
-      "delete": "Do you really want to delete program {{name}}?"
+      "delete": "Do you really want to delete program {{name}}?",
+      "deleteevent": "Do you really want to delete event {{name}} on {{date}}"
     },
     "labels": {
       "name": "Name"
@@ -143,12 +149,44 @@
     "availableplaylists": "Available playlists",
     "new": {
       "title": "New program"
+    },
+    "links": {
+      "event": "Events",
+      "segment": "Regular program"
+    },
+    "titles": {
+      "editevent": "Edit event"
     }
   },
   "messages": {
     "labels": {
       "error": "Error",
       "success": "Success"
+    }
+  },
+  "event": {
+    "alerts": {
+      "update": "Event updated"
+    },
+    "buttons": {
+      "confirmcreate": "Create event",
+      "confirmedit": "Edit event",
+      "delete": "Delete event",
+      "edit": "Edit",
+      "save": "Save event"
+    },
+    "errors": {
+      "events": {
+        "collision": "This event collides with {{playlist}} on {{date}} at {{time}}"
+      }
+    },
+    "labels": {
+      "date": "Date",
+      "playlist": "Playlist",
+      "range": "Time"
+    },
+    "titles": {
+      "newform": "New event"
     }
   }
 }

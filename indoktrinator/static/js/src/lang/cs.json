@@ -65,7 +65,10 @@
     "labels": {
       "actions": "Úpravy"
     },
-    "languagetoggle": "Switch to english"
+    "languagetoggle": "Switch to english",
+    "buttons": {
+      "cancel": "Storno"
+    }
   },
   "playlist": {
     "availabelitems": "Dostupné klipy a playlisty",
@@ -118,10 +121,13 @@
       "edit": {
         "save": "Potvrdit",
         "delete": "Odstranit"
-      }
+      },
+      "createevent": "Vytvořit událost",
+      "savesegments": "Uložit program"
     },
     "confirm": {
-      "delete": "Opravdu chcete smazat program {{name}}?"
+      "delete": "Opravdu chcete smazat program {{name}}?",
+      "deleteevent": "Opravdu chcete smazat událost {{name}} ({{date}})"
     },
     "labels": {
       "name": "Název programu"
@@ -143,12 +149,44 @@
     "availableplaylists": "Dostupné playlisty",
     "new": {
       "title": "Nový program"
+    },
+    "links": {
+      "event": "Přehled událostí",
+      "segment": "Běžný program"
+    },
+    "titles": {
+      "editevent": "Editace události"
     }
   },
   "messages": {
     "labels": {
       "error": "Chyba",
       "success": "Potvrzení"
+    }
+  },
+  "event": {
+    "alerts": {
+      "update": "Událost byla upravena"
+    },
+    "buttons": {
+      "confirmcreate": "Vytvořit událost",
+      "confirmedit": "Upravit událost",
+      "delete": "Smazat událost",
+      "edit": "Upravit",
+      "save": "Uložit událost"
+    },
+    "errors": {
+      "events": {
+        "collision": "Tato událost koliduje s {{playlist}}, {{date}} v {{time}}"
+      }
+    },
+    "labels": {
+      "date": "Datum",
+      "playlist": "Playlist",
+      "range": "Čas"
+    },
+    "titles": {
+      "newform": "Nová událost"
     }
   }
 }

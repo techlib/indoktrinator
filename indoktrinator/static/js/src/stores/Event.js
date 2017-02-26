@@ -9,6 +9,8 @@ export var EventStore = Reflux.createStore({
   mixins: [ErrorMixin, Api],
   listenables: [EventActions],
 
+  data: {},
+
   onDelete(id) {
     this.req('DELETE', `${API_URL}/api/event/${id}`,
              {action: EventActions.delete})
