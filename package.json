@@ -45,7 +45,7 @@
     "rc-time-picker": "^2.1.0",
     "react": "^15.3.0",
     "react-big-calendar": "^0.11.0",
-    "react-bootstrap": "^0.29.5",
+    "react-bootstrap": "^0.30.7",
     "react-bootstrap-confirm": "^1.0.1",
     "react-bootstrap-date-picker": "^3.7.0",
     "react-bootstrap-datetimepicker": "0.0.22",
