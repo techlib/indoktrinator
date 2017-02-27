@@ -4,7 +4,9 @@ import {PlaylistActions, FeedbackActions} from '../actions'
 import {PlaylistStore} from '../stores/Playlist'
 import {hashHistory as BrowserHistory} from 'react-router'
 import {Feedback} from './Feedback'
-import {Input, Form, Button} from 'react-bootstrap'
+import {FormGroup, ControlLabel, FormControl, Form, Button} from 'react-bootstrap'
+import {Panel} from 'react-bootstrap'
+import {Col, Row, Grid} from 'react-bootstrap'
 import {translate} from 'react-i18next'
 
 export var PlaylistNew = translate(['playlist', 'common'])(React.createClass({
@@ -49,52 +51,44 @@ export var PlaylistNew = translate(['playlist', 'common'])(React.createClass({
   render() {
 		const {t} = this.props
 
+    var footer = (
+      <Row>
+        <Col xs={12} className='text-right'>
+          <Button bsStyle='default'
+                  onClick={this.cancel}>
+            {t('playlist:buttons.new.cancel')}
+          </Button>
+          <Button bsStyle='primary'
+                  type='submit'>
+            {t('playlist:buttons.new.create')}
+          </Button>
+        </Col>
+      </Row>
+    )
+
     return (
-      <div className='col-xs-12 col-sm-6 col-sm-push-3 container-fluid'>
-        <h1></h1>
-        <div className='row'>
-          <div className='col-xs-12'>
-            <Form horizontal onSubmit={this.save}>
-            <div className='panel panel-default'>
-
-              <div className='panel-heading'>
-                {t('playlist:new.title')}
-              </div>
-
-              <div className='panel-body'>
-                  <Input
+      <Grid fluid>
+        <Col xs={12} sm={6} smOffset={3}>
+          <Form horizontal onSubmit={this.save}>
+            <Panel header={t('playlist:new.title')} footer={footer}>
+              <FormGroup>
+                <Col xs={3} componentClass={ControlLabel}>
+                  {t('playlist:labels.name')}
+                </Col>
+                <Col xs={9}>
+                  <FormControl
                     type="text"
-                    label={t('playlist:labels.name')}
-                    ref="name"
-                    name="name"
                     onChange={this.handleChange}
                     value={this.state.name}
-                    labelClassName="col-xs-3"
-                    wrapperClassName="col-xs-9"
                     autoFocus
                   />
-              </div>
-
-              <div className='panel-footer'>
-                <div className="row">
-                  <div className="col-xs-12 text-right">
-                    <Button bsStyle='default'
-                      onClick={this.cancel}>
-                      {t('playlist:buttons.new.cancel')}
-                    </Button>
-                    <Button bsStyle='primary'
-                      type='submit'>
-                      {t('playlist:buttons.new.create')}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-            </div>
+                </Col>
+              </FormGroup>
+            </Panel>
           </Form>
-          </div>
-        </div>
-      </div>)
+        </Col>
+      </Grid>
+    )
   }
 
 }))
