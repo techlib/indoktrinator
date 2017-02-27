@@ -2,7 +2,7 @@ import * as React from 'react'
 import {FeedbackActions, DeviceActions} from '../actions'
 import {Feedback} from './Feedback'
 import {hashHistory as BrowserHistory} from 'react-router'
-import {Input, Form, Button} from 'react-bootstrap'
+import {Col, Row, Grid, FormGroup, FormControl, ControlLabel, Form, Button, Panel} from 'react-bootstrap'
 import {BootstrapSelect} from './Select'
 import FileBase64 from '../util/react-file-base64.js'
 import {StoreTypes} from './../stores/StoreTypes'
@@ -11,11 +11,6 @@ import Dropzone from 'react-dropzone'
 import {API_URL} from './../stores/config'
 
 export var Device = translate('device')(React.createClass({
-
-  commonProps: {
-    labelClassName: 'col-xs-2',
-    wrapperClassName: 'col-xs-10',
-  },
 
   onDrop: function (acceptedFiles, rejectedFiles) {
     this.setState({'preview': acceptedFiles[0].preview, 'photo': acceptedFiles[0], 'custom_photo': true})
@@ -93,82 +88,99 @@ export var Device = translate('device')(React.createClass({
 
   render() {
     const {t} = this.props
+
+    var footer =(
+      <Row>
+        <Col xs={6}>
+        { this.state.state == StoreTypes.LOADED ? <Button bsStyle="danger" onClick={this.delete}>{t('device:delete')}</Button> : null }
+        { this.state.custom_photo ? <Button bsStyle="warning" onClick={this.resetImage}>{t('device:resetImage')}</Button> : null }
+        { this.state.state == StoreTypes.NEW ? <Button bsStyle='default' onClick={this.cancel}>{t('program:buttons.new.cancel')}</Button>: null }
+        </Col>
+        <Col xs={6}>
+          <Button bsStyle="primary"
+                  className="pull-right"
+                  type='submit'
+                  onClick={this.save}>{t('device:save')}
+          </Button>
+        </Col>
+      </Row>
+    )
     return (
-      <div className='col-xs-12 container-fluid'>
-        <div className='row'>
+      <Grid fluid>
+        <Row>
           <Form horizontal onSubmit={this.save}>
-            <div className='col-xs-12 col-md-6 col-md-offset-3'>
-              <h1>{this.state.title}</h1>
-              <Feedback />
-              <div className='panel panel-default'>
-                <div className='panel-heading'>
-                  {t('device:labels.title')}
-                </div>
-                <div className='panel-body'>
-                    <Input
-                      type="text"
-                      label={t('device:labels.id')}
-                      ref="id"
-                      name="id"
-                      disabled={this.state.state != StoreTypes.NEW}
-                      onChange={this.handleChange}
-                      value={this.state.id}
-                      {...this.commonProps} />
-                    <Input
-                      type="text"
-                      label={t('device:labels.name')}
-                      ref="name"
-                      name="name"
-                      onChange={this.handleChange}
-                      value={this.state.name}
-                      {...this.commonProps} />
-                    <BootstrapSelect
-                      label={t('device:labels.program')}
-                      ref='program'
-                      name='program'
-                      onChange={this.handleChange}
-                      data-live-search={true}
-                      value={this.state.program}
-                      {...this.commonProps}>
-                          <option value='none'>{t('device:programselect.noprogram')}</option>
-                          {this.props.program.map((item) => {
-                            return <option value={item.uuid} key={item.uuid}>
-                              {item.name}</option>
-                          })}
-                    </BootstrapSelect>
-                    <div className="form-group">
-                      <label className="control-label col-sm-2 col-xs-2">
-                        {t('device:labels.photo')}
-                      </label>
-                      <div className='col-sm-4 col-xs-10'>
-                          <Dropzone multiple={false} accept={['image/png', 'image/jpeg', 'image/gif']} onDrop={this.onDrop}>
-                              <div className="col-xs-10 col-xs-offset-1">{t('device:labels.dropzone')}</div>
-                          </Dropzone>
-                      </div>
-
-                      <div className="col-sm-6 col-xs-12">
-                        <img className="img-responsive" src={this.state.preview} style={{height: 250}}></img>
-                      </div>
-
-                    </div>
-                </div>
-                <div className='panel-footer'>
-                  <div className="row">
-                    <div className="col-xs-6">
-                      { this.state.state == StoreTypes.LOADED ? <Button bsStyle="danger" onClick={this.delete}>{t('device:delete')}</Button> : null }
-                      { this.state.custom_photo ? <Button bsStyle="warning" onClick={this.resetImage}>{t('device:resetImage')}</Button> : null }
-                      { this.state.state == StoreTypes.NEW ? <Button bsStyle='default' onClick={this.cancel}>{t('program:buttons.new.cancel')}</Button>: null }
-                    </div>
-                    <div className="col-xs-6">
-                      <Button bsStyle="primary" className="pull-right" type='submit' onClick={this.save}>{t('device:save')}</Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Form>
-        </div>
-      </div>
+            <Col xs={12} md={6} mdOffset={3}>
+            <h1>{this.state.title}</h1>
+            <Feedback />
+            <Panel bsStyle='default'
+              header={t('device:labels.title')}
+              footer={footer}>
+              <FormGroup>
+                <Col xs={2} componentClass={ControlLabel}>
+                  {t('device:labels.id')}
+                </Col>
+                <Col xs={10}>
+                  <FormControl
+                    type="text"
+                    name="id"
+                    disabled={this.state.state != StoreTypes.NEW}
+                    onChange={this.handleChange}
+                    value={this.state.id} />
+                </Col>
+              </FormGroup>
+              <FormGroup>
+                <Col xs={2} componentClass={ControlLabel}>
+                  {t('device:labels.name')}
+                </Col>
+                <Col xs={10}>
+                  <FormControl
+                    type="text"
+                    name="name"
+                    onChange={this.handleChange}
+                    value={this.state.name} />
+                </Col>
+              </FormGroup>
+              <FormGroup>
+                <Col xs={2} componentClass={ControlLabel}>
+                  {t('device:labels.program')}
+                </Col>
+                <Col xs={10}>
+                  <BootstrapSelect
+                    name='program'
+                    onChange={this.handleChange}
+                    data-live-search={true}
+                    value={this.state.program}>
+                        <option value='none'>{t('device:programselect.noprogram')}</option>
+                        {this.props.program.map((item) => {
+                          return <option value={item.uuid} key={item.uuid}>
+                            {item.name}</option>
+                        })}
+                      </BootstrapSelect>
+                    </Col>
+                  </FormGroup>
+              <FormGroup>
+                <Col xs={2} componentClass={ControlLabel}>
+                  {t('device:labels.photo')}
+                </Col>
+                <Col xs={10} sm={4}>
+                  <Dropzone multiple={false}
+                    accept={['image/png', 'image/jpeg', 'image/gif']}
+                    onDrop={this.onDrop}>
+                    <Col xs={10} xsOffset={1}>
+                      {t('device:labels.dropzone')}
+                    </Col>
+                </Dropzone>
+                </Col>
+                <Col sm={6} xs={12}>
+                  <img className="img-responsive"
+                       src={this.state.preview} style={{height: 250}}></img>
+                </Col>
+                </FormGroup>
+            </Panel>
+          </Col>
+        </Form>
+      </Row>
+    </Grid>
     )
   }
 }))
