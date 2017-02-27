@@ -19,7 +19,9 @@ React.createClass({
       return {
         playlist: item._playlist.uuid,
         range: item.range,
-        mode: 'full',
+        mode: item.mode,
+        sidebar: item.sidebar,
+        panel: item.panel,
         day: this.props.day
       }
     })
@@ -117,9 +119,12 @@ React.createClass({
     }))
   },
 
-  saveSegment(pos, start, end) {
+  saveSegment(pos, start, end, mode, sidebar, panel) {
     var items = cloneDeep(this.state.items)
     items[pos].range = [start, end]
+    items[pos].mode = mode
+    items[pos].sidebar = (mode == 'sidebar' || mode == 'panel') ? sidebar : null
+    items[pos].panel = (mode == 'panel') ? panel : null
     items = this.flowFrom(items, pos)
 
     this.setState({

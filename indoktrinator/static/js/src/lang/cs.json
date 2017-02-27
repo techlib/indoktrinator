@@ -130,7 +130,17 @@
       "deleteevent": "Opravdu chcete smazat událost {{name}} ({{date}})"
     },
     "labels": {
-      "name": "Název programu"
+      "name": "Název programu",
+      "end": "Konec",
+      "start": "Začátek",
+      "mode": {
+        "full": "Celá obrazovka",
+        "panel": "Panel + informační pruh",
+        "sidebar": "Postranní panel",
+        "title": "Režim"
+      },
+      "panelurl": "URL infopruhu",
+      "sidebarurl": "URL sidebaru"
     },
     "list": {
       "title": "Programy"

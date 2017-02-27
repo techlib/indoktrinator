@@ -5,7 +5,7 @@ import {Types} from './Types'
 import {findDOMNode} from 'react-dom'
 import {flow, isInteger, range} from 'lodash'
 import {Overlay, OverlayTrigger, Popover} from 'react-bootstrap'
-import {Col, Row, Form, FormGroup, ControlLabel} from 'react-bootstrap'
+import {Radio, Col, Row, Form, FormGroup, FormControl, ControlLabel} from 'react-bootstrap'
 import TimePicker from 'rc-time-picker';
 import classNames from 'classnames'
 import moment from 'moment'
@@ -23,6 +23,9 @@ const itemSource = {
       uuid: Date.now(),
       index: props.index,
       range: [props.range[0], props.range[1]],
+      mode: props.mode,
+      sidebar: props.sidebar,
+      panel: props.panel,
       added: props.day,
       empty: false,
       duration: props.playlist.duration,
@@ -76,6 +79,9 @@ var Item = React.createClass({
       start: this.props.range[0],
       end: this.props.range[1],
       duration: this.props.range[1] - this.props.range[0],
+      mode: this.props.mode,
+      sidebar: this.props.sidebar,
+      panel: this.props.panel
 		}
 	},
 
@@ -101,19 +107,9 @@ var Item = React.createClass({
     this.setState({end: momentToS(v)})
   },
 
-  getCurrentRepeat() {
-    let duration = this.props.playlist.duration
-
-    if (duration == 0) {
-      return 0
-    }
-
-    let currentLength = this.state.end - this.state.start
-    return currentLength / duration
-  },
-
   save() {
-    this.props.save(this.state.start, this.state.end)
+    this.props.save(this.state.start, this.state.end,
+                    this.state.mode, this.state.sidebar, this.state.panel)
     this.open() //TODO too early, won't render data properly
   },
 
@@ -136,14 +132,14 @@ var Item = React.createClass({
     return []
   },
 
-  getDisabledSeconds() {
-    let minTime = sToMoment(this.props.prevEnd)
-    let start = sToMoment(this.state.start)
-    if (minTime.hour() == start.hour()
-        && minTime.minute() == start.minute()) {
-      return range(0, minTime.second())
-    }
-    return []
+  handleMode(e) {
+    this.setState({mode: e.target.value})
+  },
+
+  handleUrl(e) {
+    var data = {}
+    data[e.target.name] = e.target.value
+    this.setState(data)
   },
 
   getEdit() {
@@ -167,7 +163,6 @@ var Item = React.createClass({
                 <TimePicker
                   disabledHours={this.getDisabledHours}
                   disabledMinutes={this.getDisabledMinutes}
-                  disabledSeconds={this.getDisabledSeconds}
                   hideDisabledOptions={true}
                   value={sToMoment(this.state.start)}
                   onChange={this.updateStart}
@@ -188,6 +183,52 @@ var Item = React.createClass({
                   />
               </Col>
             </FormGroup>
+
+            <FormGroup>
+              <Col componentClass={ControlLabel} xs={4}>
+                {this.props.t('program:labels.mode.title')}
+              </Col>
+              <Col xs={8}>
+                {['full', 'sidebar', 'panel'].map((mode) => {
+                  return (
+                    <Radio name='mode'
+                      onChange={this.handleMode}
+                      checked={this.state.mode == mode}
+                      value={mode}>
+                      {this.props.t('program:labels.mode.' + mode)}
+                    </Radio>
+                  )
+                })}
+              </Col>
+            </FormGroup>
+
+            {(this.state.mode == 'sidebar' || this.state.mode == 'panel') &&
+            <FormGroup>
+              <Col componentClass={ControlLabel} xs={4}>
+                {this.props.t('program:labels.sidebarurl')}
+              </Col>
+              <Col xs={8}>
+                <FormControl type='text'
+                  value={this.state.sidebar}
+                  name='sidebar'
+                  onChange={this.handleUrl} />
+              </Col>
+            </FormGroup>
+            }
+            {this.state.mode == 'panel' &&
+            <FormGroup>
+              <Col componentClass={ControlLabel} xs={4}>
+                {this.props.t('program:labels.panelurl')}
+              </Col>
+              <Col xs={8}>
+                <FormControl type='text'
+                  value={this.state.panel}
+                  name='panel'
+                  onChange={this.handleUrl} />
+              </Col>
+            </FormGroup>
+            }
+
           </Form>
     </div>
 

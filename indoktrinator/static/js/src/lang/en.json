@@ -130,7 +130,17 @@
       "deleteevent": "Do you really want to delete event {{name}} on {{date}}"
     },
     "labels": {
-      "name": "Name"
+      "name": "Name",
+      "end": "Start",
+      "start": "End",
+      "mode": {
+        "full": "Full",
+        "panel": "Panel",
+        "sidebar": "Sidebar",
+        "title": "Mode"
+      },
+      "panelurl": "Panel URL",
+      "sidebarurl": "Sidebar URL"
     },
     "list": {
       "title": "Programs"
