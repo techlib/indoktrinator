@@ -6,13 +6,15 @@ from twisted.python.procutils import which
 from twisted.internet.task import LoopingCall
 from twisted.internet import reactor, utils
 
-from os.path import sep, join, relpath, isfile, isdir
+from os.path import sep, join, relpath, isfile, isdir, basename
 from natsort import natsorted, ns
 from simplejson import loads
 from base64 import b64decode
 
 from indoktrinator.harvester.shadow_tree import *
 from indoktrinator.db import with_session
+
+import re
 
 
 __all__ = ['Harvester']
@@ -355,6 +357,13 @@ class Harvester (Tree):
             if 'unknown:' not in token:
                 file.token = token
 
+            # Re-check duration of all images. Their name might have changed
+            # during the move and we do not want to run the costly full probe.
+            if file.type == 'image':
+                duration = get_image_duration(basename(file.path))
+                log.msg('Duration of {!r} is now {}s.'.format(path, duration))
+                file.duration = duration
+
         else:
             log.msg('Failed to move item {!r}, updating.'.format(path))
             self.update_item(playlist, item, node)
@@ -370,6 +379,15 @@ def probe_file(filepath):
     d = utils.getProcessOutput(paths[0], (filepath,))
     d.addCallback(decode_preview)
     return d
+
+
+def get_image_duration(filename):
+    find = re.search(r'\((\d+)s\)|\[(\d+)s\]', filename)
+
+    if find:
+        return float(find.group(1) or find.group(2))
+    else:
+        return float(10)
 
 
 def decode_preview(data):
