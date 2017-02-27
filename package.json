@@ -51,6 +51,7 @@
     "react-bootstrap-datetimepicker": "0.0.22",
     "react-bootstrap-modal": "^3.0.1",
     "react-bootstrap-tabs": "0.0.1",
+    "react-datepicker": "^0.41.1",
     "react-dnd": "^2.1.4",
     "react-dnd-html5-backend": "^2.1.2",
     "react-dom": "^15.3.0",
