@@ -83,7 +83,8 @@
       },
       "create": "Create playlist"
     },
-    "items": "Playlist items",
+    "items": "playlist item",
+    "items_plural": "playlist items",
     "placeholder": "Drag item or playlist here",
     "confirm": {
       "delete": "Do you really want to delete playlist {{name}}?"
@@ -103,6 +104,13 @@
     },
     "new": {
       "title": "New playlist"
+    },
+    "type": {
+      "custom": "Custom",
+      "system": "System"
+    },
+    "bu                <button className=\"btn btn-default\" onClick={this": {
+      "handleDeletePlayList}>{t(": ""
     }
   },
   "program": {

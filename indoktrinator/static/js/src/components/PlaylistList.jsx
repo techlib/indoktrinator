@@ -3,7 +3,7 @@ import * as Reflux from 'reflux'
 import {Feedback} from './Feedback'
 import {PlaylistStore} from '../stores/Playlist'
 import {PlaylistActions as pa, FeedbackActions} from '../actions'
-import {Button} from 'react-bootstrap'
+import {Button, DropdownButton, MenuItem, Col, Row} from 'react-bootstrap'
 import {Link, hashHistory as BrowserHistory} from 'react-router'
 import Griddle from 'griddle-react'
 import {Pager} from './Pager'
@@ -11,32 +11,26 @@ import {regexGridFilter} from '../util/griddle-components'
 import {confirmModal} from './ModalConfirmMixin'
 import moment from 'moment'
 import {translate} from 'react-i18next'
+import {map, filter, each} from 'lodash'
+import {Icon} from './Icon'
 
 let Duration = React.createClass({
   render() {
-    let d = moment.duration(this.props.rowData.duration, 'seconds')
+    let d = moment.duration(this.props.duration, 'seconds')
                   .format('hh:mm:ss', {trim: false})
 
     return <span>{d}</span>
   }
 })
 
-let PlaylistLink = React.createClass({
-  render() {
-    return (<Link to={`/playlist/${this.props.rowData.uuid}`}>
-      {this.props.rowData.name}
-    </Link>)
-  }
-})
-
-let PlaylistActions = translate(['playlist', 'common'])(React.createClass({
+var ListViewItem = translate(['playlist', 'common'])(React.createClass({
 
   handleDeletePlayList() {
     confirmModal(
       this.props.t('confirm.areyousure'),
-      this.props.t('playlist:confirm.delete', {name: this.props.rowData.name})
+      this.props.t('playlist:confirm.delete', {name: this.props.name})
     ).then(() => {
-      pa.delete(this.props.rowData.uuid)
+      pa.delete(this.props.uuid)
       .then(() => {
         pa.list()
         FeedbackActions.set('success', this.props.t('playlist:alerts.delete'))
@@ -44,21 +38,42 @@ let PlaylistActions = translate(['playlist', 'common'])(React.createClass({
     })
   },
 
-  render() {
-    const {t} = this.props
 
+  render() {
+    const {t} =this.props
     return (
-      <span>
-        {!this.props.rowData.system ? <Button
-          label=''
-          bsStyle=''
-          onClick={this.handleDeletePlayList}>
-          <i className="fa fa-trash"></i> {t('playlist:buttons.delete')} 
-        </Button> : null}
-      </span>
+      <div className="list-group-item">
+        <div className="list-view-pf-actions">
+          {!this.props.system &&
+                <button className="btn btn-default" onClick={this.handleDeletePlayList}>{t('playlist:buttons.delete')}</button>
+          }
+        </div>
+        <div className="list-view-pf-main-info">
+          <div className="list-view-pf-body">
+            <div className="list-view-pf-description">
+              <div className="list-group-item-heading">
+                <Link to={`/playlist/${this.props.uuid}`}>
+                 {this.props.name}
+               </Link>
+              </div>
+            </div>
+            <div className="list-view-pf-additional-info">
+              <div className="list-view-pf-additional-info-item">
+                <Icon fa='clock-o' />
+                <strong><Duration duration={this.props.duration} /></strong>
+              </div>
+              <div className="list-view-pf-additional-info-item">
+                <Icon pf='image' />
+                  <strong>{this.props.items.length}</strong> {t('playlist:items', {count: this.props.items.length})}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     )
   }
 }))
+
 
 export var PlaylistList = translate(['playlist','common'])(React.createClass({
   mixins: [Reflux.connect(PlaylistStore, 'data')],
@@ -75,45 +90,43 @@ export var PlaylistList = translate(['playlist','common'])(React.createClass({
 
     const {t} = this.props
 
-    let columnMeta = [
-      {columnName: 'name', displayName: t('playlist:labels.name'), 
-          customComponent: PlaylistLink},
-      {columnName: 'duration', displayName: t('playlist:labels.duration'), 
-            customComponent: Duration},
-      {columnName: 'c', displayName: t('labels.actions'), 
-            customComponent: PlaylistActions, cssClassName: 'griddle-actions'}
-    ]
-
     return (
-      <div className='container-fluid col-xs-12'>
-        <div className="row">
-          <div className="col-xs-12 col-sm-10">
+      <Col xs={12} className='container-fluid'>
+        <Row>
+          <Col xs={12} sm={10}>
             <h1>
               {t('playlist:list.title')}
             </h1>
-          </div>
-          <div className="col-xs-12 col-sm-2 h1 text-right">
+          </Col>
+          <Col xs={12} sm={2} className="h1 text-right">
             <a className='btn btn-success' href='#/playlist/new'>
               <i className='fa fa-plus'></i> {t('playlist:buttons.new.new')}
             </a>
-          </div>
-        </div>
+          </Col>
+        </Row>
         <Feedback />
-        <Griddle results={this.state.data.list}
-          tableClassName='table table-bordered table-striped table-hover'
-          useGriddleStyles={false}
-          showFilter={true}
-          useCustomPagerComponent='true'
-          customPagerComponent={Pager}
-          sortAscendingComponent={<span className='fa fa-sort-alpha-asc'></span>}
-          sortDescendingComponent={<span className='fa fa-sort-alpha-desc'></span>}
-          columns={['name', 'duration', 'c']}
-          resultsPerPage='50'
-          customFilterer={regexGridFilter}
-          useCustomFilterer='true'
-          columnMetadata={columnMeta}
-        />
-      </div>
+
+       <Col xs={12} sm={6}>
+        <h3>{t('playlist:type.system')}</h3>
+          <div className='list-group list-view-pf list-view-pf-view'>
+            {filter(this.state.data.list, (item) => {return item.system}).map(function (item) {
+              return <ListViewItem {...item} />
+              }
+            )}
+          </div>
+        </Col>
+
+        <Col xs={12} sm={6}>
+          <h3>{t('playlist:type.custom')}</h3>
+          <div className='list-group list-view-pf list-view-pf-view'>
+            {filter(this.state.data.list, (item) => {return !item.system}).map(function (item) {
+              return <ListViewItem {...item} />
+              }
+            )}
+          </div>
+        </Col>
+
+      </Col>
     )
   }
 }))
