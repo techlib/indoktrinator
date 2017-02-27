@@ -5,6 +5,7 @@ import {Types} from './Types'
 import {findDOMNode} from 'react-dom'
 import {flow, isInteger, range} from 'lodash'
 import {Overlay, OverlayTrigger, Popover} from 'react-bootstrap'
+import {Col, Row, Form, FormGroup, ControlLabel} from 'react-bootstrap'
 import TimePicker from 'rc-time-picker';
 import classNames from 'classnames'
 import moment from 'moment'
@@ -157,24 +158,37 @@ var Item = React.createClass({
           </button>
         </div>
         <div className="panel-body">
-      Start:<br/>
-      <TimePicker
-        disabledHours={this.getDisabledHours}
-        disabledMinutes={this.getDisabledMinutes}
-        disabledSeconds={this.getDisabledSeconds}
-        hideDisabledOptions={true}
-        value={sToMoment(this.state.start)}
-        onChange={this.updateStart}
-        showSecond={false}
-      />
+          <Form horizontal>
+            <FormGroup>
+              <Col componentClass={ControlLabel} xs={4}>
+                {this.props.t('program:labels.start')}
+              </Col>
+              <Col xs={6}>
+                <TimePicker
+                  disabledHours={this.getDisabledHours}
+                  disabledMinutes={this.getDisabledMinutes}
+                  disabledSeconds={this.getDisabledSeconds}
+                  hideDisabledOptions={true}
+                  value={sToMoment(this.state.start)}
+                  onChange={this.updateStart}
+                  showSecond={false}
+                />
+              </Col>
+            </FormGroup>
 
-      End:<br/>
-      <TimePicker
-        value={sToMoment(this.state.end)}
-        onChange={this.updateEnd}
-        showSecond={false}
-      />
-
+            <FormGroup>
+              <Col componentClass={ControlLabel} xs={4}>
+                {this.props.t('program:labels.end')}
+              </Col>
+              <Col xs={6}>
+                 <TimePicker
+                  value={sToMoment(this.state.end)}
+                  onChange={this.updateEnd}
+                  showSecond={false}
+                  />
+              </Col>
+            </FormGroup>
+          </Form>
     </div>
 
     <div className="panel-footer">
