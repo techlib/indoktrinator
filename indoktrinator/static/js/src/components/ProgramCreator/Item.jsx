@@ -165,12 +165,14 @@ var Item = React.createClass({
         hideDisabledOptions={true}
         value={sToMoment(this.state.start)}
         onChange={this.updateStart}
+        showSecond={false}
       />
 
       End:<br/>
       <TimePicker
         value={sToMoment(this.state.end)}
         onChange={this.updateEnd}
+        showSecond={false}
       />
 
     </div>
@@ -196,9 +198,9 @@ var Item = React.createClass({
 
   render() {
     const from = moment().startOf('day')
-                         .second(this.props.range[0]).format('HH:mm:ss')
+                         .second(this.props.range[0]).format('HH:mm')
     const to =   moment().startOf('day')
-                         .second(this.props.range[1]).format('HH:mm:ss')
+                         .second(this.props.range[1]).format('HH:mm')
 
 		var style = {}
 		if (this.state.edit) {
