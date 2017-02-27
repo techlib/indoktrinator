@@ -100,14 +100,6 @@ var Item = React.createClass({
     this.setState({end: momentToS(v)})
   },
 
-  updateLength(v) {
-    if (v === null) {
-      return
-    }
-    this.setState({end: this.state.start + momentToS(v)})
-  },
-
-
   getCurrentRepeat() {
     let duration = this.props.playlist.duration
 
@@ -117,26 +109,6 @@ var Item = React.createClass({
 
     let currentLength = this.state.end - this.state.start
     return currentLength / duration
-  },
-
-  getRepeatUI() {
-    let val = this.getCurrentRepeat()
-    if (isInteger(val)) {
-      return val
-    }
-    return ''
-  },
-
-  repeat(val) {
-    let l = (Math.floor(this.getCurrentRepeat()) + val) * this.props.playlist.duration
-    this.updateLength(sToMoment(l))
-  },
-
-  repeatMinus() {
-    this.repeat(-1)
-  },
-  repeatPlus() {
-    this.repeat(1)
   },
 
   save() {
@@ -195,27 +167,12 @@ var Item = React.createClass({
         onChange={this.updateStart}
       />
 
-			<hr />
-      Length:<br/>
-      <TimePicker
-        value={sToMoment(this.state.end - this.state.start)}
-          onChange={this.updateLength}
-      />
-
       End:<br/>
       <TimePicker
         value={sToMoment(this.state.end)}
         onChange={this.updateEnd}
       />
 
-      {!this.props.empty &&
-        (<div>Repeat playlist:<br/>
-      <button onClick={this.repeatMinus}>-</button>
-      <input value={this.getRepeatUI()} size="4" type="text"/>
-      <button onClick={this.repeatPlus}>+</button>
-      <br /></div>)
-      }
-      <br />
     </div>
 
     <div className="panel-footer">
