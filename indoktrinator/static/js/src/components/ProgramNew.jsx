@@ -4,7 +4,8 @@ import {ProgramActions, FeedbackActions} from '../actions'
 import {hashHistory as BrowserHistory} from 'react-router'
 import {translate} from 'react-i18next'
 import {Feedback} from './Feedback'
-import {Input, Form, Button} from 'react-bootstrap'
+import {ControlLabel, FormGroup, FormControl, Form, Button} from 'react-bootstrap'
+import {Panel, Col, Row, Grid} from 'react-bootstrap'
 
 export var ProgramNew = translate(['program'])(React.createClass({
 
@@ -49,53 +50,51 @@ export var ProgramNew = translate(['program'])(React.createClass({
   render() {
 		const {t} = this.props
 
+    var footer = (
+      <Row>
+        <Col xs={12} className='text-right'>
+          <Button bsStyle='default'
+                  onClick={this.cancel}>
+              {t('program:buttons.new.cancel')}
+          </Button>
+          <Button bsStyle='primary'
+                  onClick={this.save}
+                  type='submit'>
+            {t('program:buttons.new.create')}
+          </Button>
+        </Col>
+      </Row>
+    )
+
     return (
-      <div className='col-xs-12 col-sm-6 col-sm-push-3 container-fluid'>
+      <Grid fluid>
+        <Col xs={12} sm={6} smOffset={3}>
         <h1>
           {t('program:titlenew')}
         </h1>
-        <div className='row'>
-          <div className='col-xs-12'>
-            <Form horizontal onSubmit={this.save}>
-            <div className='panel panel-default'>
-
-              <div className='panel-heading'>
-                {t('program:new.title')}
-              </div>
-
-              <div className='panel-body'>
-                  <Input
-                    type="text"
-                    label={t('program:labels.name')}
-                    ref="name"
-                    name="name"
-                    onChange={this.handleChange}
-                    value={this.state.name}
-                    labelClassName="col-xs-3"
-                    wrapperClassName="col-xs-9"
-                    autoFocus
-                  />
-              </div>
-
-              <div className='panel-footer'>
-                <div className="row">
-                  <div className="col-xs-12 text-right">
-                    <Button bsStyle='default'
-                      onClick={this.cancel}>
-                      {t('program:buttons.new.cancel')}
-                    </Button>
-                    <Button bsStyle='primary'
-                      type='submit'>
-                      {t('program:buttons.new.create')}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            </Form>
-          </div>
-        </div>
-      </div>)
+        <Row>
+          <Col xs={12}>
+            <Panel header={t('program:new.title')} footer={footer}>
+              <Form horizontal onSubmit={this.save}>
+                <FormGroup>
+                  <Col xs={3} componentClass={ControlLabel}>
+                    {t('program:labels.name')}
+                  </Col>
+                  <Col xs={9}>
+                    <FormControl
+                      type="text"
+                      name="name"
+                      onChange={this.handleChange}
+                      value={this.state.name}
+                      autoFocus
+                    />
+                  </Col>
+                </FormGroup>
+              </Form>
+            </Panel>
+          </Col>
+        </Row>
+        </Col>
+      </Grid>)
   }
-
 }))
