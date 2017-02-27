@@ -1,7 +1,7 @@
 /* global React, $ */
 'use strict'
 import * as React from 'react'
-import {Input} from 'react-bootstrap'
+import {FormControl} from 'react-bootstrap'
 import ReactDOM from 'react-dom'
 
 export var BootstrapSelect = React.createClass({
@@ -12,13 +12,18 @@ export var BootstrapSelect = React.createClass({
     }
   },
   componentDidUpdate: function () {
-    $(ReactDOM.findDOMNode(this)).find('select').selectpicker('refresh')
-    var select = $(ReactDOM.findDOMNode(this)).find('div.bootstrap-select')
+    var picker = $(ReactDOM.findDOMNode(this))
+    picker.selectpicker('refresh')
+
+    var select = picker.parents('div.bootstrap-select')
     select.toggleClass('open', this.state.open)
   },
   componentWillUnmount: function () {
-    var button = $(ReactDOM.findDOMNode(this)).find('button')
-    var items = $(ReactDOM.findDOMNode(this)).find('ul.dropdown-menu li a')
+    var select = $(ReactDOM.findDOMNode(this))
+    var picker = $(select.parents('.bootstrap-select'))
+
+    var button = $(picker).find('button')
+    var items = $(picker).find('ul.dropdown-menu li a')
 
     $('html').off('click')
     button.off('click')
@@ -26,12 +31,14 @@ export var BootstrapSelect = React.createClass({
   },
   componentDidMount: function () {
     var self = this
-    var select = $(ReactDOM.findDOMNode(this)).find('select')
-    $(select).selectpicker()
+    var select = $(ReactDOM.findDOMNode(this))
+    select.selectpicker()
 
-    var button = $(ReactDOM.findDOMNode(this)).find('button')
-    var dropdown = $(ReactDOM.findDOMNode(this)).find('.dropdown-menu.open')
-    var items = $(ReactDOM.findDOMNode(this)).find('ul.dropdown-menu li a')
+    var picker = $(select.parents('.bootstrap-select'))
+
+    var button = picker.find('button')
+    var dropdown = picker.find('.dropdown-menu.open')
+    var items = picker.find('ul.dropdown-menu li a')
 
     $('html').click(function () {
       self.setState({open: false})
@@ -58,7 +65,9 @@ export var BootstrapSelect = React.createClass({
   },
   render: function () {
     return (
-      <Input {...this.props} type='select'/>
+      <FormControl ref='select' {...this.props} componentClass='select'>
+        {this.props.children}
+      </FormControl>
     )
   }
 })
