@@ -18,15 +18,13 @@ import {StoreTypes} from './../stores/StoreTypes'
 import {Playlist} from './PlaylistCreator/Playlist'
 import {InlineNameEdit} from './InlineNameEdit'
 import {translate} from 'react-i18next'
+import {Grid, Row, Col, Panel, ListGroup, Button} from 'react-bootstrap'
+import {Form, FormGroup, FormControl} from 'react-bootstrap'
+import {Icon} from './Icon'
 
 var Component = React.createClass({
 
   mixins: [],
-
-  commonProps: {
-    labelClassName: 'col-xs-2',
-    wrapperClassName: 'col-xs-10',
-  },
 
   componentWillReceiveProps(p) {
     // FIXME - this is a terrible hack and should be done in a more elegant manner
@@ -241,70 +239,58 @@ var Component = React.createClass({
   render() {
     const {t} = this.props
 
-    return (
-      <div className='col-xs-12 container-fluid'>
-        <div className="row">
-          <div className="col-xs-12 col-sm-6">
+    var footer = (
+      <Row>
+        <Col xs={6}>
+          <Button bsStyle='primary'onClick={this.save}>
+            {t('playlist:buttons.save')}
+          </Button>
+        </Col>
+      </Row>
+    )
 
+    return (
+      <Grid fluid>
+        <Row>
+          <Col xs={12} sm={6}>
             <InlineNameEdit
               saveAction={this.nameChangeHandler}
               uuid={this.props.playlist.playlist.uuid}
               name={this.state.name}
             />
-          </div>
-        </div>
+          </Col>
+        </Row>
         <Feedback />
-        <div className='row'>
-          <div className='col-xs-12 col-md-6'>
-            <div className='panel panel-default'>
-              <div className='panel-heading'>
-                {t('playlist:items')}
-              </div>
-
-              <div className='panel-body'>
-                  <div className="list-group list-view-pf list-view-pf-view playlist">
+        <Row>
+          <Col xs={12} md={6}>
+            <Panel header={t('playlist:items')} footer={footer}>
+              <ListGroup className='list-view-pf list-view-pf-view playlist'>
                     {this.state.items.map((item, i) => {
                       return (this.getItem(item, i))
                     })}
-                    {!this.state.items.length && <Placeholder addToItems={this.addToItems}/>}
-                  </div>
-              </div>
-              <div className='panel-footer'>
-                <div className="row">
-                  <div className="col-xs-6">
-                    <button className='btn btn-primary'
-                      onClick={this.save}>
-                      {t('playlist:buttons.save')}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className='col-xs-12 col-md-6'>
-              <div className='panel panel-default'>
-                <div className='panel-heading'>
-                  {t('playlist:availabelitems')}
-                </div>
-                <div className='panel-body'>
+                    {!this.state.items.length 
+                      && <Placeholder addToItems={this.addToItems}/>}
+              </ListGroup>
+            </Panel>
+          </Col>
+          <Col xs={12} md={6}>
+            <Panel header={t('playlist:availabelitems')}>
+              <Form className="search-pf">
+                <FormGroup className='has-feedback search-pf-input-group'>
+                  <FormControl onChange={this.handleFilter}
+                               type="search"
+                               placeholder={t('search')} />
+                  <Icon glyph='search' className='form-control-feedback' />
+                </FormGroup>
+              </Form>
 
-										<form class="search-pf">
-											<div className="form-group has-feedback">
-												<div className="search-pf-input-group">
-													<input onChange={this.handleFilter} type="search" className="form-control" placeholder={t('search')} ref="filter"/>
- 													<span className="glyphicon glyphicon-search form-control-feedback" aria-hidden="true"></span>
-												</div>
-											</div>
-										</form>
-
-                   <div className="list-group list-view-pf list-view-pf-view playlist">
-                     {this.getAvailablePlaylists()}
-                   </div>
-                </div>
-              </div>
-          </div>
-        </div>
-      </div>
+              <ListGroup className="list-view-pf list-view-pf-view playlist">
+                {this.getAvailablePlaylists()}
+              </ListGroup>
+            </Panel>
+          </Col>
+        </Row>
+      </Grid>
     )
   }
 })
