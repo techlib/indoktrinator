@@ -23,14 +23,16 @@ export var App = React.createClass({
   render() {
     return (
       <I18nextProvider i18n={i18n}>
-        <ErrorFeedback/>
-        <AdminNavBar
-          changeLocaleHandler={this.handleChangeLang}
-          defaultLanguage={this.state.defaultLanguage}
-          languages={this.state.languages}
-          i18n={i18n}
-        />
-        {this.props.children}
+        <div>
+          <ErrorFeedback/>
+          <AdminNavBar
+            changeLocaleHandler={this.handleChangeLang}
+            defaultLanguage={this.state.defaultLanguage}
+            languages={this.state.languages}
+            i18n={i18n}
+          />
+          {this.props.children}
+        </div>
       </I18nextProvider>
     )
   }
