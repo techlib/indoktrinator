@@ -108,7 +108,7 @@ export var PlaylistList = translate(['playlist','common'])(React.createClass({
             <ListGroup className='list-view-pf list-view-pf-view'>
               {filter(this.state.data.list, (item) => {return item.system})
                 .map(function (item) {
-                  return <ListViewItem {...item} />
+                  return <ListViewItem {...item} key={item.uuid} />
                 }
               )}
             </ListGroup>
@@ -119,7 +119,7 @@ export var PlaylistList = translate(['playlist','common'])(React.createClass({
             <ListGroup className='list-view-pf list-view-pf-view'>
               {filter(this.state.data.list, (item) => {return !item.system})
                 .map(function (item) {
-                  return <ListViewItem {...item} />
+                  return <ListViewItem {...item} key={item.uuid} />
                 }
               )}
             </ListGroup>
