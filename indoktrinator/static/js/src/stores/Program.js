@@ -1,9 +1,8 @@
 'use strict'
 
 import * as Reflux from 'reflux'
-import {ProgramActions, FeedbackActions} from '../actions'
+import {ProgramActions} from '../actions'
 import {ErrorMixin, Api} from './Mixins'
-import {StoreTypes} from './StoreTypes'
 import {API_URL} from './config'
 import * as _ from 'lodash'
 

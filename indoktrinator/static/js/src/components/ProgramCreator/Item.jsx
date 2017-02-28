@@ -62,7 +62,7 @@ export const itemTarget = {
     monitor.getItem().index = hoverIndex
   },
 
-  drop(props, monitor) {
+  drop(props) {
     props.dropPlaylist()
   }
 
