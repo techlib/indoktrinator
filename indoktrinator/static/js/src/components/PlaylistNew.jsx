@@ -15,8 +15,8 @@ export var PlaylistNew = translate(['playlist', 'common'])(React.createClass({
     return {name: ''}
   },
 
-  handleChange(evt) {
-    this.setState({[evt.target.name]: evt.target.value})
+  handleChange() {
+    this.setState({name: this.input.value})
   },
 
   validate() {
@@ -80,6 +80,7 @@ export var PlaylistNew = translate(['playlist', 'common'])(React.createClass({
                     type="text"
                     onChange={this.handleChange}
                     value={this.state.name}
+                    inputRef={ref => {this.input = ref}}
                     autoFocus
                   />
                 </Col>
