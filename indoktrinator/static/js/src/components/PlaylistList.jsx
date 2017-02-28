@@ -3,11 +3,8 @@ import * as Reflux from 'reflux'
 import {Feedback} from './Feedback'
 import {PlaylistStore} from '../stores/Playlist'
 import {PlaylistActions as pa, FeedbackActions} from '../actions'
-import {Button, DropdownButton, MenuItem, Col, Row} from 'react-bootstrap'
+import {ListGroup, Col, Row, Grid} from 'react-bootstrap'
 import {Link, hashHistory as BrowserHistory} from 'react-router'
-import Griddle from 'griddle-react'
-import {Pager} from './Pager'
-import {regexGridFilter} from '../util/griddle-components'
 import {confirmModal} from './ModalConfirmMixin'
 import moment from 'moment'
 import {translate} from 'react-i18next'
@@ -91,7 +88,7 @@ export var PlaylistList = translate(['playlist','common'])(React.createClass({
     const {t} = this.props
 
     return (
-      <Col xs={12} className='container-fluid'>
+      <Grid fluid>
         <Row>
           <Col xs={12} sm={10}>
             <h1>
@@ -100,33 +97,35 @@ export var PlaylistList = translate(['playlist','common'])(React.createClass({
           </Col>
           <Col xs={12} sm={2} className="h1 text-right">
             <a className='btn btn-success' href='#/playlist/new'>
-              <i className='fa fa-plus'></i> {t('playlist:buttons.new.new')}
+              <Icon fa='plus' /> {t('playlist:buttons.new.new')}
             </a>
           </Col>
         </Row>
         <Feedback />
+        <Row>
+         <Col xs={12} sm={6}>
+          <h3>{t('playlist:type.system')}</h3>
+            <ListGroup className='list-view-pf list-view-pf-view'>
+              {filter(this.state.data.list, (item) => {return item.system})
+                .map(function (item) {
+                  return <ListViewItem {...item} />
+                }
+              )}
+            </ListGroup>
+          </Col>
 
-       <Col xs={12} sm={6}>
-        <h3>{t('playlist:type.system')}</h3>
-          <div className='list-group list-view-pf list-view-pf-view'>
-            {filter(this.state.data.list, (item) => {return item.system}).map(function (item) {
-              return <ListViewItem {...item} />
-              }
-            )}
-          </div>
-        </Col>
-
-        <Col xs={12} sm={6}>
-          <h3>{t('playlist:type.custom')}</h3>
-          <div className='list-group list-view-pf list-view-pf-view'>
-            {filter(this.state.data.list, (item) => {return !item.system}).map(function (item) {
-              return <ListViewItem {...item} />
-              }
-            )}
-          </div>
-        </Col>
-
-      </Col>
+          <Col xs={12} sm={6}>
+            <h3>{t('playlist:type.custom')}</h3>
+            <ListGroup className='list-view-pf list-view-pf-view'>
+              {filter(this.state.data.list, (item) => {return !item.system})
+                .map(function (item) {
+                  return <ListViewItem {...item} />
+                }
+              )}
+            </ListGroup>
+          </Col>
+        </Row>
+      </Grid>
     )
   }
 }))
