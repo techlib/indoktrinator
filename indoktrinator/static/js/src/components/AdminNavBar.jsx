@@ -1,5 +1,4 @@
 import * as React from 'react'
-//import {UserInfoStore} from "../stores/UserInfo"
 import {Nav, Navbar, NavItem} from 'react-bootstrap'
 import {LinkContainer} from 'react-router-bootstrap'
 import {LocaleSwitcher} from './LocaleSwitcher'
