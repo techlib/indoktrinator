@@ -83,7 +83,10 @@
       },
       "create": "Vytvořit playlist"
     },
-    "items": "Klipy",
+    "items": "klipů",
+    "items_0": "klip",
+    "items_1": "klipy",
+    "items_2": "klipů",
     "placeholder": "Sem přetáhněte klip nebo playlist",
     "confirm": {
       "delete": "Opravdu chcete smazat playlist {{name}}?"
@@ -103,6 +106,13 @@
     },
     "new": {
       "title": "Nový playlist"
+    },
+    "type": {
+      "custom": "Vlastní",
+      "system": "Systémové"
+    },
+    "bu                <button className=\"btn btn-default\" onClick={this": {
+      "handleDeletePlayList}>{t(": ""
     }
   },
   "program": {
