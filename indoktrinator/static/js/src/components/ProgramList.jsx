@@ -4,12 +4,13 @@ import {Feedback} from './Feedback'
 import {ProgramActions as pa, FeedbackActions} from '../actions'
 import Griddle from 'griddle-react'
 import {Pager} from './Pager'
-import {Button} from 'react-bootstrap'
+import {Button, Grid, Row, Col} from 'react-bootstrap'
 import {Link, hashHistory as BrowserHistory} from 'react-router'
 import {regexGridFilter} from '../util/griddle-components'
 import {ProgramStore} from '../stores/Program'
 import {confirmModal} from './ModalConfirmMixin'
 import {translate} from 'react-i18next'
+import {Icon} from './Icon'
 
 let ProgramLink = React.createClass({
   render() {
@@ -37,14 +38,12 @@ let ProgramActions = translate(['program', 'common'])(React.createClass({
 
   render() {
     return (
-      <span>
     <Button
       label=''
       bsStyle=''
       onClick={this.handleDeleteProgram}>
-      <i className="fa fa-trash"></i> {this.props.t('program:buttons.delete')}
+      <Icon fa='trash' /> {this.props.t('program:buttons.delete')}
       </Button>
-      </span>
     )
   }
 }))
@@ -73,19 +72,17 @@ export var ProgramList = translate(['program', 'common'])(React.createClass({
     ]
 
     return (
-      <div className='container-fluid col-xs-12'>
-        <div className="row">
-          <div className="col-xs-12 col-sm-10">
-            <h1>
+      <Grid fluid>
+        <Row>
+          <Col xs={12} sm={10} componentClass='h1'>
               {this.props.t('program:list.title')}
-            </h1>
-          </div>
-          <div className="col-xs-12 col-sm-2 h1 text-right">
+          </Col>
+          <Col xs={12} sm={2} className='h1 text-right'>
             <a className='btn btn-success' href='#/program/new'>
-              <i className='fa fa-plus'></i> {this.props.t('program:buttons.create')}
+              <Icon fa='plus' /> {this.props.t('program:buttons.create')}
             </a>
-          </div>
-        </div>
+          </Col>
+        </Row>
         <Feedback />
         <Griddle results={this.state.program.list}
           tableClassName='table table-bordered table-striped table-hover'
@@ -93,15 +90,15 @@ export var ProgramList = translate(['program', 'common'])(React.createClass({
           showFilter={true}
           useCustomPagerComponent='true'
           customPagerComponent={Pager}
-          sortAscendingComponent={<span className='fa fa-sort-alpha-asc'></span>}
-          sortDescendingComponent={<span className='fa fa-sort-alpha-desc'></span>}
+          sortAscendingComponent={<Icon fa='sort-alpha-asc' />}
+          sortDescendingComponent={<Icon fa='sort-alpha-desc' />}
           columns={['name', 'c']}
           resultsPerPage='50'
           customFilterer={regexGridFilter}
           useCustomFilterer='true'
           columnMetadata={columnMeta}
         />
-      </div>
+      </Grid>
     )
   }
 }))
