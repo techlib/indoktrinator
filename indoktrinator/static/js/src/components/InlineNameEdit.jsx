@@ -1,4 +1,6 @@
 import * as React from 'react'
+import {Col, Row, InputGroup, FormControl, Button} from 'react-bootstrap'
+import {Icon} from './Icon'
 
 export var InlineNameEdit = React.createClass({
 
@@ -14,7 +16,7 @@ export var InlineNameEdit = React.createClass({
   },
 
   save() {
-    this.props.saveAction(this.refs.name.value)
+    this.props.saveAction(this.input.value)
     .then(() => {
       this.cancel()
     })
@@ -34,33 +36,34 @@ export var InlineNameEdit = React.createClass({
 
   render() {
     if (this.state.editing) {
-      return <div onKeyUp={this.keyboard}
-                  className="col-xs-12 inline-name-edit row h1">
-              <div className="col-sm-6">
-                <div className="input-group">
-                  <input type="text"
-                    autoFocus
-                    defaultValue={this.props.name}
-                    className="form-control"
-                    ref="name" />
-                  <span className="input-group-btn">
-                    <button onClick={this.save}
-                            className="btn btn-primary" type="button">
-                      <span className="fa fa-check"> </span>
-                    </button>
-                    <button onClick={this.cancel}
-                            className="btn btn-danger" type="button">
-                      <span className="pf pficon-close"> </span>
-                    </button>
-                  </span>
-              </div>
-          </div>
-      </div>
+      return (
+        <Col xs={12} className='inline-name-edit h1 row' onKeyUp={this.keyboard}>
+          <Col sm={6}>
+            <InputGroup>
+              <FormControl
+                  type='text'
+                  defaultValue={this.props.name}
+                  autoFocus
+                  inputRef={ref => { this.input = ref; }} />
+                <InputGroup.Button>
+                  <Button bsStyle='primary' onClick={this.save}>
+                    <Icon fa='check' />
+                  </Button>
+                  <Button bsStyle='danger' onClick={this.cancel}>
+                    <Icon pf='close' />
+                  </Button>
+                </InputGroup.Button>
+              </InputGroup>
+          </Col>
+        </Col>
+      )
 
     } else {
-      return <h1 onClick={this.edit} className="editable">
-                    {this.props.name} <span className="pf pficon-edit small"> </span>
-      </h1>
+      return (
+        <h1 onClick={this.edit} className="editable">
+          {this.props.name} <Icon pf='edit' className='small' />
+        </h1>
+      )
     }
   }
 
