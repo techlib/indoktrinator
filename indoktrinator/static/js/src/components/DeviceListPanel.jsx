@@ -3,6 +3,8 @@ import {Link} from 'react-router'
 import {programSelectionModal} from './ModalProgramSelect'
 import {DeviceActions, FeedbackActions} from '../actions'
 import {translate} from 'react-i18next'
+import {Col, Panel} from 'react-bootstrap'
+import {Icon} from './Icon'
 
 export var DeviceListPanel = translate('device')(React.createClass({
 
@@ -22,43 +24,46 @@ export var DeviceListPanel = translate('device')(React.createClass({
   },
 
   render() {
-    var onlineIcon = this.props.online ? 'pficon-ok' : 'pficon-error-circle-o'
-    const {t} =this.props
+    var on = this.props.online
+    const {t} = this.props
+
+    var icon = on ? 'ok' : 'error-circle-o'
+    var status = on ? t('device:status.online') : t('device:status.offline')
+
+    var header = (
+      <h3 className="panel-title">
+        <Link to={`/device/${this.props.id}`}>
+          {this.props.name}
+        </Link>
+      </h3>
+    )
+
+    var footer = (
+      <div>
+        <Icon pf={icon} /> {status}
+
+        {this.props.online ? [
+          ', ',
+          <Icon fa='power-off' />,
+          ' ', t('device:status.' + this.props.power)
+          ] : null}
+        <br/>
+        <a onClick={this.selectProgram}>
+          {this.props.program ? this.props._program.name : t('device:noprogram')}
+        </a>
+      </div>
+    )
 
     return (
-      <div className="col-xs-12 col-sm-6 col-md-4 col-lg-3">
-        <div className="panel panel-default device">
-          <div className="panel-heading">
-            <h3 className="panel-title">
-              <Link to={`/device/${this.props.id}`}>
-                {this.props.name}
-              </Link>
-            </h3>
-          </div>
-          <div className="panel-body text-center">
-            <Link to={`/device/${this.props.id}`}>
-              <img className="img-responsive"
-                   src={`${this.props.photo}?${Date.now()}`}
-                   style={{height: 250}}></img>
-            </Link>
-          </div>
-          <div className="panel-footer">
-            <span className="pficon" className={onlineIcon}>
-            </span> {this.props.online ? t('device:status.online')
-                                       : t('device:status.offline')}
-
-            {this.props.online ? [
-              ', ',
-              <span className="fa fa-power-off"> </span>,
-                ' ', t('device:status.' + this.props.power)
-            ] : null}
-            <br/>
-            <a onClick={this.selectProgram}>
-              {this.props.program ? this.props._program.name : t('device:noprogram')}
-            </a>
-          </div>
-        </div>
-      </div>
+      <Col xs={12} sm={6} md={4} lg={3}>
+        <Panel header={header} footer={footer}>
+          <Link to={`/device/${this.props.id}`}>
+            <img className="img-responsive"
+                 src={`${this.props.photo}?${Date.now()}`}
+                 style={{height: 250}}></img>
+          </Link>
+        </Panel>
+      </Col>
     )
   }
 }))
