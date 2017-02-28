@@ -1,5 +1,5 @@
 import * as Reflux from 'reflux-core'
-import RefluxPromise from "reflux-promise"
+import RefluxPromise from 'reflux-promise'
 import * as _ from 'lodash'
 
 Reflux.use(RefluxPromise(window.Promise))
