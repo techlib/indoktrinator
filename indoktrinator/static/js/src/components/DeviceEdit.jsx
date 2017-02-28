@@ -28,7 +28,7 @@ export var DeviceEdit = translate(['device','common'])(React.createClass({
   },
 
   handleSave(data) {
-    if (data['photo'] == 'deleted'){
+    if (data['photo'] == 'deleted') {
       DeviceActions.resetImage.triggerAsync(data['id'])
     }
     delete data['preview']

@@ -53,7 +53,7 @@ export var Device = translate('device')(React.createClass({
     return r
   },
 
-  resetImage(){
+  resetImage() {
     this.setState({'preview': `${API_URL}/api/preview-image/device/0?${Date.now()}`, 'photo': 'deleted', 'custom_photo': false})
   },
 
@@ -68,7 +68,7 @@ export var Device = translate('device')(React.createClass({
     if (errors.length > 0) {
       FeedbackActions.set('error', this.props.t('common:alerts.invalidform'), errors)
     } else {
-      if(this.state.program=='none'){
+      if(this.state.program=='none') {
         this.props.saveHandler({id: this.state.id, name: this.state.name, program: null, photo: this.state.photo})
       } else {
         this.props.saveHandler({id: this.state.id, name: this.state.name, program: this.state.program, photo: this.state.photo})
