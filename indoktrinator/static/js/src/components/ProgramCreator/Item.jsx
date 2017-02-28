@@ -5,7 +5,7 @@ import {Types} from './Types'
 import {findDOMNode} from 'react-dom'
 import {flow, isInteger, range} from 'lodash'
 import {Overlay, OverlayTrigger, Popover} from 'react-bootstrap'
-import {Radio, Col, Row, Form, FormGroup, FormControl, ControlLabel} from 'react-bootstrap'
+import {Radio, Col, Row, Form, FormGroup, FormControl, ControlLabel, Panel} from 'react-bootstrap'
 import TimePicker from 'rc-time-picker';
 import classNames from 'classnames'
 import moment from 'moment'
@@ -13,6 +13,7 @@ import 'rc-time-picker/assets/index.css';
 import {translate} from 'react-i18next'
 import {UuidToRgba} from '../../util/color'
 import {momentToS, sToMoment} from '../../util/time'
+import {Icon} from '../Icon'
 
 const itemSource = {
   beginDrag(props, monitor, component) {
@@ -145,109 +146,109 @@ var Item = React.createClass({
   getEdit() {
     const {t} = this.props
 
-    return <div className="edit">
-      <div className="panel panel-default">
-        <div className="panel-heading">
-          <span>{this.props.playlist.name}</span>
-          <button type="button" onClick={this.open} className="close">
-            <span >&times;</span>
-          </button>
-        </div>
-        <div className="panel-body">
-          <Form horizontal>
-            <FormGroup>
-              <Col componentClass={ControlLabel} xs={4}>
-                {this.props.t('program:labels.start')}
-              </Col>
-              <Col xs={6}>
-                <TimePicker
-                  disabledHours={this.getDisabledHours}
-                  disabledMinutes={this.getDisabledMinutes}
-                  hideDisabledOptions={true}
-                  value={sToMoment(this.state.start)}
-                  onChange={this.updateStart}
-                  showSecond={false}
-                />
-              </Col>
-            </FormGroup>
-
-            <FormGroup>
-              <Col componentClass={ControlLabel} xs={4}>
-                {this.props.t('program:labels.end')}
-              </Col>
-              <Col xs={6}>
-                 <TimePicker
-                  value={sToMoment(this.state.end)}
-                  onChange={this.updateEnd}
-                  showSecond={false}
-                  />
-              </Col>
-            </FormGroup>
-
-            <FormGroup>
-              <Col componentClass={ControlLabel} xs={4}>
-                {this.props.t('program:labels.mode.title')}
-              </Col>
-              <Col xs={8}>
-                {['full', 'sidebar', 'panel'].map((mode) => {
-                  return (
-                    <Radio name='mode'
-                      onChange={this.handleMode}
-                      checked={this.state.mode == mode}
-                      value={mode}>
-                      {this.props.t('program:labels.mode.' + mode)}
-                    </Radio>
-                  )
-                })}
-              </Col>
-            </FormGroup>
-
-            {(this.state.mode == 'sidebar' || this.state.mode == 'panel') &&
-            <FormGroup>
-              <Col componentClass={ControlLabel} xs={4}>
-                {this.props.t('program:labels.sidebarurl')}
-              </Col>
-              <Col xs={8}>
-                <FormControl type='text'
-                  value={this.state.sidebar}
-                  name='sidebar'
-                  onChange={this.handleUrl} />
-              </Col>
-            </FormGroup>
-            }
-            {this.state.mode == 'panel' &&
-            <FormGroup>
-              <Col componentClass={ControlLabel} xs={4}>
-                {this.props.t('program:labels.panelurl')}
-              </Col>
-              <Col xs={8}>
-                <FormControl type='text'
-                  value={this.state.panel}
-                  name='panel'
-                  onChange={this.handleUrl} />
-              </Col>
-            </FormGroup>
-            }
-
-          </Form>
-    </div>
-
-    <div className="panel-footer">
-      <div className="row">
-        <div className="col-xs-6 text-left">
-            <a className="text-danger" onClick={this.delete}>
-              <span className="fa fa-trash"></span> {t('program:buttons.edit.delete')}
-            </a>
-        </div>
-
-        <div className="col-xs-6 text-right">
-            <a className="btn btn-primary" onClick={this.save}>
-              {t('program:buttons.edit.save')}
-            </a>
-        </div>
+    var header = (
+      <div>
+        <span>{this.props.playlist.name}</span>
+        <button type="button" onClick={this.open} className="close">
+          <span >&times;</span>
+        </button>
       </div>
-    </div>
-    </div>
+    )
+
+    var footer = (
+      <Row>
+        <Col xs={6} className="text-left">
+          <a className="text-danger" onClick={this.delete}>
+            <Icon fa='trash' /> {t('program:buttons.edit.delete')}
+          </a>
+        </Col>
+        <Col xs={6} className="text-right">
+          <a className="btn btn-primary" onClick={this.save}>
+            {t('program:buttons.edit.save')}
+          </a>
+        </Col>
+      </Row>
+    )
+
+    return <div className="edit">
+      <Panel header={header} footer={footer}>
+        <Form horizontal>
+          <FormGroup>
+            <Col componentClass={ControlLabel} xs={4}>
+              {this.props.t('program:labels.start')}
+            </Col>
+            <Col xs={6}>
+              <TimePicker
+                disabledHours={this.getDisabledHours}
+                disabledMinutes={this.getDisabledMinutes}
+                hideDisabledOptions={true}
+                value={sToMoment(this.state.start)}
+                onChange={this.updateStart}
+                showSecond={false}
+              />
+            </Col>
+          </FormGroup>
+
+          <FormGroup>
+            <Col componentClass={ControlLabel} xs={4}>
+              {this.props.t('program:labels.end')}
+            </Col>
+            <Col xs={6}>
+               <TimePicker
+                value={sToMoment(this.state.end)}
+                onChange={this.updateEnd}
+                showSecond={false}
+                />
+            </Col>
+          </FormGroup>
+
+          <FormGroup>
+            <Col componentClass={ControlLabel} xs={4}>
+              {this.props.t('program:labels.mode.title')}
+            </Col>
+            <Col xs={8}>
+              {['full', 'sidebar', 'panel'].map((mode) => {
+                return (
+                  <Radio name='mode'
+                    onChange={this.handleMode}
+                    checked={this.state.mode == mode}
+                    value={mode}>
+                    {this.props.t('program:labels.mode.' + mode)}
+                  </Radio>
+                )
+              })}
+            </Col>
+          </FormGroup>
+
+          {(this.state.mode == 'sidebar' || this.state.mode == 'panel') &&
+          <FormGroup>
+            <Col componentClass={ControlLabel} xs={4}>
+              {this.props.t('program:labels.sidebarurl')}
+            </Col>
+            <Col xs={8}>
+              <FormControl type='text'
+                value={this.state.sidebar}
+                name='sidebar'
+                onChange={this.handleUrl} />
+            </Col>
+          </FormGroup>
+          }
+          {this.state.mode == 'panel' &&
+          <FormGroup>
+            <Col componentClass={ControlLabel} xs={4}>
+              {this.props.t('program:labels.panelurl')}
+            </Col>
+            <Col xs={8}>
+              <FormControl type='text'
+                value={this.state.panel}
+                name='panel'
+                onChange={this.handleUrl} />
+            </Col>
+          </FormGroup>
+          }
+
+        </Form>
+    </Panel>
 		</div>
 	},
 
