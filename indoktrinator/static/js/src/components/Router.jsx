@@ -45,5 +45,5 @@ ReactDOM.render((
         <Route path="/playlist/:uuid" component={PlaylistEdit}/>
       </Route>
     </Router>
-  ), document.getElementById('AdminatorApp')
+  ), document.getElementById('IndoktrinatorApp')
 )
