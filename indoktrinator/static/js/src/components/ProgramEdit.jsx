@@ -12,6 +12,7 @@ import {Column} from './ProgramCreator/Column'
 import {Playlist} from './ProgramCreator/Playlist'
 import {Col, Row, Grid} from 'react-bootstrap'
 import {ListGroup, ListGroupItem} from 'react-bootstrap'
+import * as _ from 'lodash'
 
 var Component = React.createClass({
 

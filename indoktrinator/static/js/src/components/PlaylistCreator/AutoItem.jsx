@@ -14,7 +14,7 @@ const itemSource = {
     }
   },
 
-  endDrag(props) {
+  endDrag(props, monitor) {
     if (monitor.didDrop()) {
       props.finalizeDrop()
     } else {
@@ -24,7 +24,7 @@ const itemSource = {
 }
 
 export var AutoItem = flow(
-  DragSource(Types.PLAYLIST_ITEM, itemSource, (connect) => ({
+  DragSource(Types.PLAYLIST_ITEM, itemSource, (connect, monitor) => ({
     connectDragSource: connect.dragSource(),
     isDragging: monitor.isDragging()
   }))
