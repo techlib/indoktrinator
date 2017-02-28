@@ -31,7 +31,7 @@ export var DeviceListPanel = translate('device')(React.createClass({
     var status = on ? t('device:status.online') : t('device:status.offline')
 
     var header = (
-      <h3 className="panel-title">
+      <h3>
         <Link to={`/device/${this.props.id}`}>
           {this.props.name}
         </Link>
