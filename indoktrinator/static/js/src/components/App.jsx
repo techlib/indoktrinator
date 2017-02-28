@@ -4,9 +4,6 @@ import {ErrorFeedback} from './ErrorFeedback'
 import { I18nextProvider } from 'react-i18next'
 import i18n from './i18n'
 
-const enMessages = require('json!./../../../dist/lang/en-US.json')
-const czMessages = require('json!./../../../dist/lang/cz.json')
-
 export var App = React.createClass({
 
   getInitialState() {
