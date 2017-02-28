@@ -23,7 +23,7 @@ export var ProgramStore = Reflux.createStore({
     })
 
     _.each(segments, (items, index) => {
-      segments[index] = _.sortBy(items, [(o) => {return o.range[0]}]);
+      segments[index] = _.sortBy(items, [(o) => {return o.range[0]}])
     })
 
     data.segments = segments

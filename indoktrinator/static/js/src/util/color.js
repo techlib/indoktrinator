@@ -24,7 +24,7 @@ export function UuidToRgba(uuid) {
           r: Math.round(r * 255),
           g: Math.round(g * 255),
           b: Math.round(b * 255)
-      };
+      }
   }
 
   let hue = parseInt('0x' + uuid.substr(0, 4))

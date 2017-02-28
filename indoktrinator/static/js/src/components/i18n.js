@@ -1,5 +1,5 @@
-import i18n from 'i18next';
-import LngDetector from 'i18next-browser-languagedetector';
+import i18n from 'i18next'
+import LngDetector from 'i18next-browser-languagedetector'
 
 const en = require('json!../lang/en.json')
 const cs = require('json!../lang/cs.json')
@@ -28,6 +28,6 @@ i18n
       caches: ['localStorage', 'cookie']
     }
 
-  });
+  })
 
-export default i18n;
+export default i18n

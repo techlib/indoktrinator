@@ -87,7 +87,7 @@ var Component = React.createClass({
   cleanupDrag(ignoreColumn) {
     _.each(this.state.program.program.segments, (item, index) => {
       if (index != ignoreColumn) {
-        this.refs['column-' + index].getWrappedInstance().cleanupDrag();
+        this.refs['column-' + index].getWrappedInstance().cleanupDrag()
       }
     })
   },

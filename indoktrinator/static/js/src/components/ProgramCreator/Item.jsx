@@ -6,10 +6,10 @@ import {findDOMNode} from 'react-dom'
 import {flow, isInteger, range} from 'lodash'
 import {Overlay, OverlayTrigger, Popover} from 'react-bootstrap'
 import {Radio, Col, Row, Form, FormGroup, FormControl, ControlLabel, Panel} from 'react-bootstrap'
-import TimePicker from 'rc-time-picker';
+import TimePicker from 'rc-time-picker'
 import classNames from 'classnames'
 import moment from 'moment'
-import 'rc-time-picker/assets/index.css';
+import 'rc-time-picker/assets/index.css'
 import {translate} from 'react-i18next'
 import {UuidToRgba} from '../../util/color'
 import {momentToS, sToMoment} from '../../util/time'
@@ -264,7 +264,8 @@ var Item = React.createClass({
 		}
 
     var classes = classNames('list-group-item',
-                            {'list-group-item-warning': this.props.empty})
+                             {'list-group-item-warning': this.props.empty,
+                             'dirty': this.props._dirty})
 
 		style.backgroundColor = UuidToRgba(this.props.playlist.uuid)
 

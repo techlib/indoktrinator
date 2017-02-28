@@ -44,7 +44,7 @@ export var InlineNameEdit = React.createClass({
                   type='text'
                   defaultValue={this.props.name}
                   autoFocus
-                  inputRef={ref => { this.input = ref; }} />
+                  inputRef={ref => { this.input = ref }} />
                 <InputGroup.Button>
                   <Button bsStyle='primary' onClick={this.save}>
                     <Icon fa='check' />

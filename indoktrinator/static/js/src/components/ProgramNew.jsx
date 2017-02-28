@@ -14,7 +14,7 @@ export var ProgramNew = translate(['program'])(React.createClass({
   },
 
 	handleChange(e) {
-    this.setState({ name: e.target.value });
+    this.setState({ name: e.target.value })
   },
 
   validate() {
