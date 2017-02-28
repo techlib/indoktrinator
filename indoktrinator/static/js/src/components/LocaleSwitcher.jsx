@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {Nav, Navbar, NavItem} from 'react-bootstrap'
+import {NavItem} from 'react-bootstrap'
 import {translate} from 'react-i18next'
 
 export var LocaleSwitcher = translate('common')(React.createClass({

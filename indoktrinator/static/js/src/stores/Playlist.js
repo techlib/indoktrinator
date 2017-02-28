@@ -1,11 +1,10 @@
 'use strict'
 
 import * as Reflux from 'reflux'
-import {PlaylistActions, FeedbackActions} from '../actions'
+import {PlaylistActions} from '../actions'
 import {Api} from './Mixins'
 import {StoreTypes} from './StoreTypes'
 import {API_URL} from './config'
-import {map} from 'lodash'
 
 export var PlaylistStore = Reflux.createStore({
   mixins: [Api],

@@ -1,20 +1,14 @@
 import * as React from 'react'
-import * as Reflux from 'reflux'
-import {PlaylistActions, ItemActions, FeedbackActions, BrowserHistory} from '../actions'
+import {PlaylistActions, FeedbackActions} from '../actions'
 import update from 'react/lib/update'
-import {AutoItem} from './PlaylistCreator/AutoItem'
 import {Item}  from './PlaylistCreator/Item'
 import {Placeholder} from './PlaylistCreator/Placeholder'
 import {DragDropContext} from 'react-dnd'
 import HTML5Backend from 'react-dnd-html5-backend'
-import {map, filter, each} from 'lodash'
+import {filter, each} from 'lodash'
 import {Feedback} from './Feedback'
 import {Types} from './PlaylistCreator/Types'
-import {PlaylistStore} from '../stores/Playlist'
-import {ItemStore} from '../stores/Item'
-import {confirmModal} from './ModalConfirmMixin'
 import {getItems} from './PlaylistEdit'
-import {StoreTypes} from './../stores/StoreTypes'
 import {Playlist} from './PlaylistCreator/Playlist'
 import {InlineNameEdit} from './InlineNameEdit'
 import {translate} from 'react-i18next'
@@ -190,7 +184,7 @@ var Component = React.createClass({
   getAvailablePlaylists() {
     var result = []
 
-    each(this.state.playlist.list, (item, index) => {
+    each(this.state.playlist.list, (item) => {
 
       var items = filter(item.items, (file) => {
         return file._file.path.toLowerCase().indexOf(this.state.filter.toLowerCase()) >= 0

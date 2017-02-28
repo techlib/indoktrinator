@@ -1,12 +1,10 @@
 import * as React from 'react'
-import classNames from 'classnames'
 import moment from 'moment'
 import {DragSource} from 'react-dnd'
 import {Types} from './Types'
-import {findDOMNode} from 'react-dom'
 
 const itemSource = {
-  beginDrag(props, monitor, component) {
+  beginDrag(props) {
     return {
       uuid: Date.now(),
       duration: props.file.duration,
@@ -17,7 +15,7 @@ const itemSource = {
     }
   },
 
-  endDrag(props, monitor, component) {
+  endDrag(props, monitor) {
     if (monitor.didDrop()) {
       props.finalizeDrop()
     } else {

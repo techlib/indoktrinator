@@ -1,9 +1,7 @@
 import * as React from 'react'
-import * as Reflux from 'reflux'
 import {ProgramActions, FeedbackActions} from '../actions'
 import {hashHistory as BrowserHistory} from 'react-router'
 import {translate} from 'react-i18next'
-import {Feedback} from './Feedback'
 import {ControlLabel, FormGroup, FormControl, Form, Button} from 'react-bootstrap'
 import {Panel, Col, Row, Grid} from 'react-bootstrap'
 

@@ -1,6 +1,5 @@
 import * as React from 'react'
 import {EventActions, FeedbackActions} from '../actions'
-import {PlaylistStore} from '../stores/Playlist'
 import {hashHistory as BrowserHistory, Link} from 'react-router'
 import {translate} from 'react-i18next'
 import {Col, Row, Panel} from 'react-bootstrap'

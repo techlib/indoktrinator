@@ -1,5 +1,4 @@
 import * as React from 'react'
-import * as Reflux from 'reflux'
 //import {UserInfoStore} from "../stores/UserInfo"
 import {Nav, Navbar, NavItem} from 'react-bootstrap'
 import {LinkContainer} from 'react-router-bootstrap'
@@ -10,9 +9,6 @@ var Header = Navbar.Header
 var Brand = Navbar.Brand
 
 export var AdminNavBar = translate(['app','menu'])(React.createClass({
-  mixins: [
-    //Reflux.connect(UserInfoStore, 'user')
-    ],
 
   getInitialState() {
     return {user: {}}

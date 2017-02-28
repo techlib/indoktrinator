@@ -5,7 +5,7 @@ import classNames from 'classnames'
 import {UuidToRgba} from '../../util/color'
 
 const playlistSource = {
-  beginDrag(props, monitor, component) {
+  beginDrag(props, monitor) {
     var duration = Math.floor(Math.max(props.duration, 3600))
     return {
       uuid: Date.now(),

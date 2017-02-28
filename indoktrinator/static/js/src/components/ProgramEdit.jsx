@@ -10,8 +10,6 @@ import HTML5Backend from 'react-dnd-html5-backend'
 import {translate} from 'react-i18next'
 import {Column} from './ProgramCreator/Column'
 import {Playlist} from './ProgramCreator/Playlist'
-import {InlineNameEdit} from './InlineNameEdit'
-import {Feedback} from './Feedback'
 import {Col, Row, Grid} from 'react-bootstrap'
 import {ListGroup, ListGroupItem} from 'react-bootstrap'
 
@@ -115,7 +113,7 @@ var Component = React.createClass({
                   {this.props.t('program:availableplaylists')}
                 </h4>
               </ListGroupItem>
-            {this.state.playlist.list.map((item, index) => {
+            {this.state.playlist.list.map((item) => {
               return <Playlist name={item.name}
                 duration={item.duration}
                 uuid={item.uuid} />

@@ -4,11 +4,11 @@ import {Feedback} from './Feedback'
 import {PlaylistStore} from '../stores/Playlist'
 import {PlaylistActions as pa, FeedbackActions} from '../actions'
 import {ListGroup, Col, Row, Grid} from 'react-bootstrap'
-import {Link, hashHistory as BrowserHistory} from 'react-router'
+import {Link} from 'react-router'
 import {confirmModal} from './ModalConfirmMixin'
 import moment from 'moment'
 import {translate} from 'react-i18next'
-import {map, filter, each} from 'lodash'
+import {filter} from 'lodash'
 import {Icon} from './Icon'
 
 let Duration = React.createClass({

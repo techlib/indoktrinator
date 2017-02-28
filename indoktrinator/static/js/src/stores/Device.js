@@ -1,7 +1,7 @@
 'use strict'
 
 import * as Reflux from 'reflux'
-import {DeviceActions, FeedbackActions} from '../actions'
+import {DeviceActions} from '../actions'
 import {Api} from './Mixins'
 import {StoreTypes} from './StoreTypes'
 import {API_URL} from './config'

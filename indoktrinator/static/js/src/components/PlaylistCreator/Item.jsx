@@ -7,7 +7,7 @@ import moment from 'moment'
 import 'moment-duration-format'
 
 const itemSource = {
-  beginDrag(props, monitor, component) {
+  beginDrag(props) {
     return {
       uuid: props.uuid,
       index: props.index,

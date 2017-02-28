@@ -1,4 +1,3 @@
-/* global React, $ */
 'use strict'
 import * as React from 'react'
 import {FormControl} from 'react-bootstrap'

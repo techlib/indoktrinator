@@ -1,10 +1,10 @@
 import {flow} from 'lodash'
-import {DragSource, DropTarget} from 'react-dnd'
+import {DragSource} from 'react-dnd'
 import {Item} from './Item'
 import {Types} from './Types'
 
 const itemSource = {
-  beginDrag(props, monitor) {
+  beginDrag(props) {
     return {
       uuid: Date.now(),
       added: false,
@@ -14,7 +14,7 @@ const itemSource = {
     }
   },
 
-  endDrag(props, monitor, component) {
+  endDrag(props) {
     if (monitor.didDrop()) {
       props.finalizeDrop()
     } else {
@@ -24,7 +24,7 @@ const itemSource = {
 }
 
 export var AutoItem = flow(
-  DragSource(Types.PLAYLIST_ITEM, itemSource, (connect, monitor) => ({
+  DragSource(Types.PLAYLIST_ITEM, itemSource, (connect) => ({
     connectDragSource: connect.dragSource(),
     isDragging: monitor.isDragging()
   }))

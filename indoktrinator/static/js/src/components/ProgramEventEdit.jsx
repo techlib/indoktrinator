@@ -4,7 +4,6 @@ import {hashHistory as BrowserHistory, Link} from 'react-router'
 import {translate} from 'react-i18next'
 import {Col, Row, Panel} from 'react-bootstrap'
 import {EventForm} from './EventForm'
-import moment from 'moment'
 import {find} from 'lodash'
 import {Icon} from './Icon'
 

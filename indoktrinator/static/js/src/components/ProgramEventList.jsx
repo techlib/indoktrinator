@@ -1,8 +1,5 @@
 import * as React from 'react'
-import * as Reflux from 'reflux'
-import {Program} from './Program'
 import {EventActions, FeedbackActions} from '../actions'
-import {hashHistory as BrowserHistory} from 'react-router'
 import {confirmModal} from './ModalConfirmMixin'
 import {translate} from 'react-i18next'
 import {Col, Row, ListGroup} from 'react-bootstrap'

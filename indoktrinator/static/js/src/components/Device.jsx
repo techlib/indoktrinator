@@ -1,10 +1,9 @@
 import * as React from 'react'
-import {FeedbackActions, DeviceActions} from '../actions'
+import {FeedbackActions} from '../actions'
 import {Feedback} from './Feedback'
 import {hashHistory as BrowserHistory} from 'react-router'
 import {Col, Row, Grid, FormGroup, FormControl, ControlLabel, Form, Button, Panel} from 'react-bootstrap'
 import {BootstrapSelect} from './Select'
-import FileBase64 from '../util/react-file-base64.js'
 import {StoreTypes} from './../stores/StoreTypes'
 import {translate} from 'react-i18next'
 import Dropzone from 'react-dropzone'
@@ -12,7 +11,7 @@ import {API_URL} from './../stores/config'
 
 export var Device = translate('device')(React.createClass({
 
-  onDrop: function (acceptedFiles, rejectedFiles) {
+  onDrop: function (acceptedFiles) {
     this.setState({'preview': acceptedFiles[0].preview, 'photo': acceptedFiles[0], 'custom_photo': true})
   },
 

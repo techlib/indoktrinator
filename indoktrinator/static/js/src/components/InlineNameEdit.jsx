@@ -1,5 +1,5 @@
 import * as React from 'react'
-import {Col, Row, InputGroup, FormControl, Button} from 'react-bootstrap'
+import {Col, InputGroup, FormControl, Button} from 'react-bootstrap'
 import {Icon} from './Icon'
 
 export var InlineNameEdit = React.createClass({

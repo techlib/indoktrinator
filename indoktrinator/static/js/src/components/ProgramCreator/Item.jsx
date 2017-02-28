@@ -1,10 +1,8 @@
 import * as React from 'react'
-import * as ReactDOM from 'react-dom'
 import {DragSource, DropTarget} from 'react-dnd'
 import {Types} from './Types'
 import {findDOMNode} from 'react-dom'
-import {flow, isInteger, range} from 'lodash'
-import {Overlay, OverlayTrigger, Popover} from 'react-bootstrap'
+import {flow, range} from 'lodash'
 import {Radio, Col, Row, Form, FormGroup, FormControl, ControlLabel, Panel} from 'react-bootstrap'
 import TimePicker from 'rc-time-picker'
 import classNames from 'classnames'
@@ -16,7 +14,7 @@ import {momentToS, sToMoment} from '../../util/time'
 import {Icon} from '../Icon'
 
 const itemSource = {
-  beginDrag(props, monitor, component) {
+  beginDrag(props) {
 
     props.makeDirty(props.index)
 
@@ -64,7 +62,7 @@ export const itemTarget = {
     monitor.getItem().index = hoverIndex
   },
 
-  drop(props, monitor, component) {
+  drop(props, monitor) {
     props.dropPlaylist()
   }
 

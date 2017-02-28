@@ -56,7 +56,7 @@ export var Api = {
 
     var response = $.ajax(params)
 
-    response.done((data, textStatus, jqXHR) => {
+    response.done((data) => {
       this.data.errors = []
 
       var result = data.result ? data.result : data

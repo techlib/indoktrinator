@@ -1,13 +1,11 @@
 import * as React from 'react'
 import classNames from 'classnames'
-import moment from 'moment'
 import {DragSource} from 'react-dnd'
 import {Types} from './Types'
-import {findDOMNode} from 'react-dom'
 import {PlaylistItem} from './PlaylistItem'
 
 const playlistSource = {
-  beginDrag(props, monitor, component) {
+  beginDrag(props) {
     return {
       uuid: Date.now(),
       items: props.items,
@@ -18,7 +16,7 @@ const playlistSource = {
     }
   },
 
-  endDrag(props, monitor, component) {
+  endDrag(props, monitor) {
     if (monitor.didDrop()) {
       props.finalizeDrop()
     } else {
@@ -52,7 +50,7 @@ var Playlist = React.createClass({
 
     return (
       <div className="list-group-item-container">
-        {this.props.items.map((item, index) => {
+        {this.props.items.map((item) => {
           return <PlaylistItem
                   finalizeDrop={this.props.finalizeDrop}
                   cancelDrop={this.props.cancelDrop}
