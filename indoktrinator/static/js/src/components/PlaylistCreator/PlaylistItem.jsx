@@ -25,7 +25,7 @@ const itemSource = {
 
 }
 
-var PlaylistItem = React.createClass({
+var PlaylistItemComponent = React.createClass({
 
   void(e) {
     // stop propagating event to prevent it from reaching higher element in
@@ -73,5 +73,5 @@ var PlaylistItem = React.createClass({
 export var PlaylistItem = DragSource(Types.PLAYLIST_ITEM, itemSource, (connect, monitor) => ({
     connectDragSource: connect.dragSource(),
     isDragging: monitor.isDragging()
-  }))(PlaylistItem)
+  }))(PlaylistItemComponent)
 

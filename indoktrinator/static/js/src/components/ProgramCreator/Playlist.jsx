@@ -24,7 +24,7 @@ const playlistSource = {
   },
 }
 
-var Playlist = React.createClass({
+var PlaylistComponent = React.createClass({
 
   render() {
     let style = {backgroundColor: UuidToRgba(this.props.uuid)}
@@ -40,4 +40,4 @@ var Playlist = React.createClass({
 export var Playlist = DragSource(Types.PLAYLIST, playlistSource, (connect, monitor) => ({
     connectDragSource: connect.dragSource(),
     isDragging: monitor.isDragging()
-}))(Playlist)
+}))(PlaylistComponent)

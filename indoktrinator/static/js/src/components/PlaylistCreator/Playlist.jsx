@@ -25,7 +25,7 @@ const playlistSource = {
   }
 }
 
-var Playlist = React.createClass({
+var PlaylistComponent = React.createClass({
 
   getInitialState() {
     return {
@@ -111,5 +111,5 @@ var Playlist = React.createClass({
 export var Playlist = DragSource(Types.PLAYLIST, playlistSource, (connect, monitor) => ({
     connectDragSource: connect.dragSource(),
     isDragging: monitor.isDragging()
-  }))(Playlist)
+  }))(PlaylistComponent)
 

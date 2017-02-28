@@ -84,10 +84,11 @@ export var Program = translate(['program', 'common'])(React.createClass({
 
 	getButton() {
 		var isEvent = this.props.children.props.route.eventView
+    var to, text
 
 		if (isEvent) {
-			var to = `/program/${this.props.params.uuid}/event/new`
-			var text = this.props.t('program:buttons.createevent')
+			to = `/program/${this.props.params.uuid}/event/new`
+			text = this.props.t('program:buttons.createevent')
 
 			return (
 				<Link to={to} className='btn btn-success'>
@@ -95,8 +96,8 @@ export var Program = translate(['program', 'common'])(React.createClass({
     		</Link>
 			)
 		} else {
-			var to = `/program/${this.props.params.uuid}/event`
-			var text = this.props.t('program:buttons.savesegments')
+			to = `/program/${this.props.params.uuid}/event`
+			text = this.props.t('program:buttons.savesegments')
 
 			return (
 				<button onClick={this.saveProgram} className='btn btn-primary'>

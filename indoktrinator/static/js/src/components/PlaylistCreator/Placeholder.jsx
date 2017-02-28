@@ -4,7 +4,7 @@ import * as React from 'react'
 import {itemTarget as target} from './Item'
 import {translate} from 'react-i18next'
 
-var Placeholder = translate('playlist')(React.createClass({
+var PlaceholderComponent = translate('playlist')(React.createClass({
 
   render() {
     const {connectDropTarget} = this.props
@@ -29,5 +29,5 @@ export var Placeholder = DropTarget([Types.PLAYLIST_ITEM, Types.PLAYLIST],
     connectDropTarget: connect.dropTarget(),
     index: -1 // stupid hack, but we need index in hover(), which is then incremented
               // by one to add new item. This is for cases, where there are no items
-  }))(Placeholder)
+  }))(PlaceholderComponent)
 

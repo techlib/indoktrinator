@@ -69,7 +69,7 @@ export const itemTarget = {
 }
 
 
-var Item = React.createClass({
+var ItemComponent = React.createClass({
 
 	getInitialState() {
 		return {
@@ -292,6 +292,6 @@ export var Item = flow(
     isDragging: monitor.isDragging()
   }))
 
-)(translate(['common', 'program'])(Item))
+)(translate(['common', 'program'])(ItemComponent))
 
 

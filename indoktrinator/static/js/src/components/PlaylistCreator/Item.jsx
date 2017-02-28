@@ -55,7 +55,7 @@ export const itemTarget = {
   }
 }
 
-var Item = React.createClass({
+var ItemComponent = React.createClass({
 
   delete() {
     this.props.deleteItemHandler(this.props.index)
@@ -106,5 +106,5 @@ export var Item = flow(
     isDragging: monitor.isDragging()
   }))
 
-)(Item)
+)(ItemComponent)
 
