@@ -141,8 +141,8 @@ var Component = React.createClass({
             uuid: item.uuid + counter,
             duration: file._file.duration,
             _file: {
-						  duration: file._file.duration,
-						  path: file._file.path,
+              duration: file._file.duration,
+              path: file._file.path,
               uuid: file._file.uuid,
               preview: file._file.preview
             },

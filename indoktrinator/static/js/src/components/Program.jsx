@@ -20,7 +20,7 @@ export var Program = translate(['program', 'common'])(React.createClass({
   ],
 
   getInitialState() {
-  	return {
+    return {
 			program: {program: {segments: [], events: []}},
       playlist: {list: []},
 		}
@@ -50,17 +50,17 @@ export var Program = translate(['program', 'common'])(React.createClass({
 		var isEvent = this.props.children.props.route.eventView
 
 		var to = isEvent ? `/program/${this.props.params.uuid}/`
-										 : `/program/${this.props.params.uuid}/event`
+                     : `/program/${this.props.params.uuid}/event`
 
 		var ico = isEvent ? 'th-large' : 'calendar'
 
 		var text = isEvent ? this.props.t('program:links.segment')
-											 : this.props.t('program:links.event')
+                       : this.props.t('program:links.event')
 
     return (
       <Link className='btn btn-default' to={to}>
         <Icon fa={ico} /> {text}
-		  </Link>
+      </Link>
     )
 	},
 
@@ -93,7 +93,7 @@ export var Program = translate(['program', 'common'])(React.createClass({
 			return (
 				<Link to={to} className='btn btn-success'>
           <Icon fa='plus' /> {text}
-    		</Link>
+        </Link>
 			)
 		} else {
 			to = `/program/${this.props.params.uuid}/event`
@@ -102,7 +102,7 @@ export var Program = translate(['program', 'common'])(React.createClass({
 			return (
 				<button onClick={this.saveProgram} className='btn btn-primary'>
           <Icon fa='check' /> {text}
-    		</button>
+        </button>
 			)
 		}
 	},

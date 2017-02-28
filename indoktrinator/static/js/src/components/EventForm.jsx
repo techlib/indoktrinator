@@ -156,7 +156,7 @@ export var EventForm = translate(['event', 'common'], {withRef: true})(React.cre
 						<BootstrapSelect data-live-search={true}
                              bsClass='none'
                              value={this.state.playlist}
-														 onChange={this.handlePlaylist}>
+                             onChange={this.handlePlaylist}>
 							{this.props.playlists.map((item) => {
 								return <option value={item.uuid}>{item.name}</option>
 							})}

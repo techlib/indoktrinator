@@ -48,7 +48,7 @@ export var ProgramEventEdit = translate(['event', 'common'])(React.createClass({
 			<Row>
 				<Col xs={12} sm={6} smPush={3}>
 					<Panel header={this.props.t('program:titles.editevent')}
-								 footer={footer}>
+                 footer={footer}>
 						<EventForm
 							verifyData={this.props.verifyData}
 							handleSave={this.handleSave}
@@ -60,7 +60,7 @@ export var ProgramEventEdit = translate(['event', 'common'])(React.createClass({
 							showButton={false}
 							ref='form'
 							uuid={event.uuid}
-          	/>
+          />
 					</Panel>
 				</Col>
 			</Row>

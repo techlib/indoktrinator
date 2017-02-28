@@ -42,9 +42,9 @@ export var ProgramEventItem = translate(['event', 'common'])(React.createClass({
 			<ListGroupItem className={cls}>
 				<div className="list-view-pf-actions">
 					<SplitButton pullRight={true}
-											 bsStyle='default'
-											 title={editLink}
-											 onClick={this.gotoEvent}>
+                       bsStyle='default'
+                       title={editLink}
+                       onClick={this.gotoEvent}>
 
 						<MenuItem onClick={this.delete}>
 							<Icon pf='delete' /> {this.props.t('event:buttons.delete')}

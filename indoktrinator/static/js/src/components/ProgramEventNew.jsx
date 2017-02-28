@@ -46,7 +46,7 @@ export var ProgramEventNew = translate(['event', 'common'])(React.createClass({
 			<Row>
 				<Col xs={12} sm={6} smPush={3}>
 					<Panel header={this.props.t('event:titles.newform')}
-								 footer={footer}>
+                 footer={footer}>
             <EventForm
 							verifyData={this.props.verifyData}
 							handleSave={this.handleSave}
@@ -58,7 +58,7 @@ export var ProgramEventNew = translate(['event', 'common'])(React.createClass({
 							program={this.props.params.uuid}
               showButton={false}
               ref='newform'
-          	/>
+            />
 					</Panel>
 				</Col>
 			</Row>

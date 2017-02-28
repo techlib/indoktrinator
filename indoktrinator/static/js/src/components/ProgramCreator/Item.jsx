@@ -269,7 +269,7 @@ var ItemComponent = React.createClass({
 
     let res = (
       <div className={classes} onClick={!this.state.edit && this.open} style={style}>
-      			<span className="time">{from} - {to}</span>
+            <span className="time">{from} - {to}</span>
             {this.props.playlist.name}
 						{this.state.edit && this.getEdit()}
       </div>
