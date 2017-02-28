@@ -79,7 +79,7 @@ export var Program = translate(['program', 'common'])(React.createClass({
 	},
 
   saveProgram() {
-    this.refs.editcontent.getWrappedInstance().refs.child.save()
+    this.refs.editcontent.getWrappedInstance().child.save()
   },
 
 	getButton() {
