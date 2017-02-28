@@ -208,8 +208,17 @@ class Segment(Table):
     ORDER_BY = ['program', 'day', 'range']
 
 
+class DevicePhoto(Table):
+    NAME = 'device_photo'
+
+
+class FilePreview(Table):
+    NAME = 'file_preview'
+
+
 class Model:
-    TABLES = [Device, Event, File, Item, Playlist, Program, Segment]
+    TABLES = [Device, Event, File, Item, Playlist, Program, Segment,
+              DevicePhoto, FilePreview]
 
     def __init__(self, db):
         self.db = db
