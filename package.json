@@ -25,13 +25,10 @@
     "eslint-loader": "^1.5.0",
     "eslint-plugin-react": "^6.0.0",
     "griddle-react": "^0.6.1",
-    "gulp": "^3.9.0",
     "history": "^2.1.2",
     "i18next": "^4.2.0",
     "i18next-browser-languagedetector": "^1.0.1",
     "i18next-parser": "^0.11.1",
-    "ip-address": "^5.8.2",
-    "ipaddr.js": "",
     "json-loader": "^0.5.4",
     "lodash": "^4.14.1",
     "moment": "^2.15.1",
@@ -39,7 +36,6 @@
     "patternfly": "^3.17.0",
     "rc-time-picker": "^2.1.0",
     "react": "^15.3.0",
-    "react-big-calendar": "^0.11.0",
     "react-bootstrap": "^0.30.7",
     "react-bootstrap-confirm": "^1.0.1",
     "react-bootstrap-date-picker": "^3.7.0",
@@ -55,7 +51,6 @@
     "react-file-input": "^0.2.5",
     "react-file-reader-input": "^1.1.0",
     "react-i18next": "^2.0.0",
-    "react-resizable": "^1.4.2",
     "react-router": "^2.6.1",
     "react-router-bootstrap": "^0.23.0",
     "react-select": "^1.0.0-rc.2",
@@ -72,8 +67,6 @@
     "webpack-dev-server": "^1.16.1"
   },
   "scripts": {
-    "export-messages": "babel-node ./indoktrinator/static/js/src/components/Router.jsx",
-    "generate-lang-files": "babel-node ./scripts/translate/translate.js"
   },
   "repository": {
     "type": "git",
