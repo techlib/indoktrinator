@@ -261,15 +261,21 @@ var ItemComponent = React.createClass({
 			style.backgroundColor = '#efe'
 		}
 
+    var over = this.props.range[0] >= 86400 || this.props.range[1] > 86400
+
     var classes = classNames('list-group-item',
-                             {'list-group-item-warning': this.props.empty,
+                             {'over': over,
                              'dirty': this.props._dirty})
 
-		style.backgroundColor = UuidToRgba(this.props.playlist.uuid)
+    if (!over) {
+		  style.backgroundColor = UuidToRgba(this.props.playlist.uuid)
+    }
+
+    var overIcon = over && <Icon pf='warning-triangle-o'/>
 
     let res = (
       <div className={classes} onClick={!this.state.edit && this.open} style={style}>
-            <span className="time">{from} - {to}</span>
+            <span className="time">{overIcon} {from} - {to}</span>
             {this.props.playlist.name}
 						{this.state.edit && this.getEdit()}
       </div>

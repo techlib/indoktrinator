@@ -100,3 +100,8 @@ h1.editable {
 .event-form .rc-time-picker-input {
     width: 5em;
 }
+
+.list-group-item.over {
+    border: 3px solid red;
+    background-color: #eee;
+}
