@@ -51,7 +51,7 @@ export var ProgramStore = Reflux.createStore({
   },
 
   onList() {
-    this.req('GET', `${API_URL}/api/program/`, {dest: 'list'})
+    this.req('GET', `${API_URL}/api/program/?depth=1`, {dest: 'list'})
   }
 
 })

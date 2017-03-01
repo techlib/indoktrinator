@@ -170,6 +170,14 @@
     "new": {
       "title": "Nový program"
     },
+    "events": "událost",
+    "events_0": "událost",
+    "events_1": "události",
+    "events_2": "událostí",
+    "upcomingevents": "nadcházejících událostí",
+    "upcomingevents_0": "nadcházející událost",
+    "upcomingevents_1": "nadcházející události",
+    "upcomingevents_2": "nadcházejících událostí",
     "links": {
       "event": "Přehled událostí",
       "segment": "Běžný program"

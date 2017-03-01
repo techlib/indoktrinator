@@ -4,13 +4,15 @@ import {Feedback} from './Feedback'
 import {ProgramActions as pa, FeedbackActions} from '../actions'
 import Griddle from 'griddle-react'
 import {Pager} from './Pager'
-import {Button, Grid, Row, Col} from 'react-bootstrap'
+import {Button, Grid, Row, Col, ListGroup} from 'react-bootstrap'
 import {Link, hashHistory as BrowserHistory} from 'react-router'
 import {regexGridFilter} from '../util/griddle-components'
 import {ProgramStore} from '../stores/Program'
 import {confirmModal} from './ModalConfirmMixin'
 import {translate} from 'react-i18next'
 import {Icon} from './Icon'
+import {filter} from 'lodash'
+import moment from 'moment'
 
 let ProgramLink = React.createClass({
   render() {
@@ -48,6 +50,62 @@ let ProgramActions = translate(['program', 'common'])(React.createClass({
   }
 }))
 
+var ListViewItem = translate(['program', 'common'])(React.createClass({
+
+  handleDeleteProgram() {
+    confirmModal(
+      this.props.t('confirm.areyousure'),
+      this.props.t('program:confirm.delete', {name: this.props.name})
+    ).then(() => {
+      pa.delete(this.props.uuid)
+      .then(() => {
+        pa.list()
+        FeedbackActions.set('success', this.props.t('program:alerts.delete'))
+      })
+    })
+  },
+
+  render() {
+    const {t} =this.props
+    var upcomingEvents = filter(this.props.events, (item) => {
+                          return moment(item.date).add(item.range[0], 'seconds').isAfter(moment.now())
+                         })
+    return (
+      <div className="list-group-item">
+        <div className="list-view-pf-actions">
+          <button className="btn btn-default" onClick={this.handleDeleteProgram}>{t('program:buttons.delete')}</button>
+        </div>
+        <div className="list-view-pf-main-info">
+          <div className="list-view-pf-body">
+            <div className="list-view-pf-description">
+              <div className="list-group-item-heading">
+                <Link to={`/program/${this.props.uuid}`}>
+                 {this.props.name}
+               </Link>
+              </div>
+            </div>
+            <div className="list-view-pf-additional-info">
+              <div className="list-view-pf-additional-info-item">
+                <Link to={`/program/${this.props.uuid}/event`}>
+                <Icon fa='calendar-o' />
+                  <strong>{this.props.events.length}</strong>  {t('program:events', {count: this.props.events.length})}
+                </Link>
+              </div>
+              <div className="list-view-pf-additional-info-item">
+                <Link to={`/program/${this.props.uuid}/event`}>
+                <Icon fa='calendar-plus-o' />
+                <strong>{upcomingEvents.length}</strong> {t('program:upcomingevents', {count: upcomingEvents.length})}
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+}))
+
+
 export var ProgramList = translate(['program', 'common'])(React.createClass({
 
   mixins: [
@@ -63,14 +121,6 @@ export var ProgramList = translate(['program', 'common'])(React.createClass({
   },
 
   render() {
-
-    let columnMeta = [
-      {columnName: 'name', displayName: this.props.t('program:labels.name'),
-        customComponent: ProgramLink},
-      {columnName: 'c', displayName: this.props.t('common:labels.actions'),
-        customComponent: ProgramActions, cssClassName: 'griddle-actions'}
-    ]
-
     return (
       <Grid fluid>
         <Row>
@@ -84,20 +134,16 @@ export var ProgramList = translate(['program', 'common'])(React.createClass({
           </Col>
         </Row>
         <Feedback />
-        <Griddle results={this.state.program.list}
-          tableClassName='table table-bordered table-striped table-hover'
-          useGriddleStyles={false}
-          showFilter={true}
-          useCustomPagerComponent='true'
-          customPagerComponent={Pager}
-          sortAscendingComponent={<Icon fa='sort-alpha-asc' />}
-          sortDescendingComponent={<Icon fa='sort-alpha-desc' />}
-          columns={['name', 'c']}
-          resultsPerPage='50'
-          customFilterer={regexGridFilter}
-          useCustomFilterer='true'
-          columnMetadata={columnMeta}
-        />
+        <Row>
+         <Col xs={12}>
+            <ListGroup className='list-view-pf list-view-pf-view'>
+              {this.state.program.list.map(function (item) {
+                  return <ListViewItem {...item} key={item.uuid} />
+                }
+              )}
+            </ListGroup>
+          </Col>
+        </Row>
       </Grid>
     )
   }
