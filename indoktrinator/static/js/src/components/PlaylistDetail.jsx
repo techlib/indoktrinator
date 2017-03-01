@@ -6,7 +6,8 @@ import {Icon} from './Icon'
 export var PlaylistDetail = React.createClass({
 
   getDuration(item) {
-    return moment.duration(item._file.duration, 'seconds').format('mm:ss', {trim: false})
+    return moment.duration(item._file.duration, 'seconds')
+                 .format('HH:mm:ss', {trim: false})
   },
 
   render() {
