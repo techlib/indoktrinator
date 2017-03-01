@@ -821,11 +821,11 @@ ALTER TABLE ONLY device_photo
 
 
 --
--- Name: device_program_pkey; Type: FK CONSTRAINT; Schema: public; Owner: indoktrinator
+-- Name: device_program_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indoktrinator
 --
 
 ALTER TABLE ONLY device
-    ADD CONSTRAINT device_program_pkey FOREIGN KEY (program) REFERENCES program(uuid) ON UPDATE CASCADE ON DELETE SET NULL DEFERRABLE INITIALLY DEFERRED;
+    ADD CONSTRAINT device_program_fkey FOREIGN KEY (program) REFERENCES program(uuid) ON UPDATE CASCADE ON DELETE SET NULL DEFERRABLE INITIALLY DEFERRED;
 
 
 --
