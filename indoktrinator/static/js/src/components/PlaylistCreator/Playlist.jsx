@@ -3,6 +3,7 @@ import classNames from 'classnames'
 import {DragSource} from 'react-dnd'
 import {Types} from './Types'
 import {PlaylistItem} from './PlaylistItem'
+import {Icon} from '../Icon'
 
 const playlistSource = {
   beginDrag(props) {
@@ -74,7 +75,7 @@ var PlaylistComponent = React.createClass({
 
 
   render() {
-    const clsArrow = classNames('fa', 'fa-fw', this.state.open ? 'fa-angle-down' : 'fa-angle-right')
+    const clsArrow = this.state.open ? 'angle-down' : 'angle-right'
     const clsMain = classNames('list-group-item', {'list-view-pf-expand-active': this.state.open})
     const {connectDragSource} = this.props
 
@@ -83,7 +84,7 @@ var PlaylistComponent = React.createClass({
         <div className="list-group-item-header">
           <div className="list-view-pf-main-info">
             <div className="list-view-pf-left">
-               <span className={clsArrow}> </span>
+              <Icon fa={clsArrow} className="fa-fw" />
             </div>
 
             <div className="list-view-pf-body">
@@ -95,7 +96,7 @@ var PlaylistComponent = React.createClass({
             </div>
             <div className="list-view-pf-actions">
               <button onClick={this.add} type="button" className="close">
-                <span className="fa fa-plus"></span>
+                <Icon fa="plus" />
               </button>
             </div>
         </div>

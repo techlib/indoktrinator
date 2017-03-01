@@ -7,6 +7,7 @@ import moment from 'moment'
 import {Alert, Form, Col, FormGroup, ControlLabel} from 'react-bootstrap'
 import {momentToS, sToMoment} from '../util/time'
 import {range} from 'lodash'
+import {Icon} from './Icon'
 
 require('react-datepicker/dist/react-datepicker.css')
 
@@ -105,7 +106,7 @@ export var EventForm = translate(['event', 'common'], {withRef: true})(React.cre
     }
     return (
       <Alert bsStyle="danger">
-        <span className="pficon pficon-error-circle-o"></span>
+        <Icon pf="error-circle-o" />
         {this.props.t('event:errors.events.collision', data)}
       </Alert>)
   },

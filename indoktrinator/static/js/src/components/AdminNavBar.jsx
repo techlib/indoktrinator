@@ -3,6 +3,7 @@ import {Nav, Navbar, NavItem} from 'react-bootstrap'
 import {LinkContainer} from 'react-router-bootstrap'
 import {LocaleSwitcher} from './LocaleSwitcher'
 import {translate} from 'react-i18next'
+import {Icon} from './Icon'
 
 var Header = Navbar.Header
 var Brand = Navbar.Brand
@@ -62,7 +63,7 @@ export var AdminNavBar = translate(['app','menu'])(React.createClass({
               language={this.props.i18n.language}
             />
             <NavItem href="#">
-              <i className="pficon pficon-user"> </i> {this.state.user.username}
+              <Icon pf="user" /> {this.state.user.username}
             </NavItem>
         </Nav>
 

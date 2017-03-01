@@ -1,5 +1,6 @@
 import * as React from 'react'
 import {Alert} from 'react-bootstrap'
+import {Icon} from './Icon'
 
 function AlertNotice(level, message, code) {
   this.level = level
@@ -28,8 +29,8 @@ export var AlertDismissible = React.createClass({
 
   icon: function () {
     return {
-      'success': 'pficon pficon-ok',
-      'danger': 'pficon pficon-error-circle-o'
+      'success': 'ok',
+      'danger': 'error-circle-o'
     }[this.props.level]
   },
 
@@ -45,9 +46,9 @@ export var AlertDismissible = React.createClass({
     return (
       <Alert className="toast-pf toast-pf-top-right alert alert-dismissable" bsStyle={this.props.level}>
         <button type="button" className="close" data-dismiss="alert" aria-hidden="true">
-          <span className="pficon pficon-close"></span>
+          <Icon pf="close" />
         </button>
-        <span className={this.icon()}></span> {message}
+        <Icon pf={this.icon()} /> {message}
       </Alert>
     )
   },

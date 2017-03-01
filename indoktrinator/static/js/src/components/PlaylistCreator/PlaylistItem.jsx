@@ -2,6 +2,7 @@ import * as React from 'react'
 import moment from 'moment'
 import {DragSource} from 'react-dnd'
 import {Types} from './Types'
+import {Icon} from '../Icon'
 
 const itemSource = {
   beginDrag(props) {
@@ -56,14 +57,14 @@ var PlaylistItemComponent = React.createClass({
             </div>
             <div className="list-view-pf-additional-info">
               <div className="list-view-pf-additional-info-item">
-                <i className="fa fa-clock-o"> </i> {moment.duration(this.props.file.duration, 'seconds').format('mm:ss', {trim: false})}
+                <Icon fa="clock-o" /> {moment.duration(this.props.file.duration, 'seconds').format('mm:ss', {trim: false})}
               </div>
             </div>
           </div>
         </div>
         <div className="list-view-pf-actions">
           <button onClick={this.add} type="button" className="close">
-              <span className="fa fa-plus"></span>
+            <Icon fa="plus" />
           </button>
         </div>
       </div>
