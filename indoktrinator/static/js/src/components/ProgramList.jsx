@@ -2,53 +2,14 @@ import * as React from 'react'
 import * as Reflux from 'reflux'
 import {Feedback} from './Feedback'
 import {ProgramActions as pa, FeedbackActions} from '../actions'
-import Griddle from 'griddle-react'
-import {Pager} from './Pager'
 import {Button, Grid, Row, Col, ListGroup} from 'react-bootstrap'
 import {Link, hashHistory as BrowserHistory} from 'react-router'
-import {regexGridFilter} from '../util/griddle-components'
 import {ProgramStore} from '../stores/Program'
 import {confirmModal} from './ModalConfirmMixin'
 import {translate} from 'react-i18next'
 import {Icon} from './Icon'
 import {filter} from 'lodash'
 import moment from 'moment'
-
-let ProgramLink = React.createClass({
-  render() {
-    return (<Link to={`/program/${this.props.rowData.uuid}`}>
-      {this.props.rowData.name}
-    </Link>)
-  }
-})
-
-let ProgramActions = translate(['program', 'common'])(React.createClass({
-
-  handleDeleteProgram() {
-    confirmModal(
-      this.props.t('common:confirm.areyousure'),
-      this.props.t('program:confirm.delete', {name: this.props.rowData.name})
-    ).then(() => {
-      pa.delete(this.props.rowData.uuid)
-        .then(() => {
-          pa.list()
-          BrowserHistory.push('/program/')
-          FeedbackActions.set('success', this.props.t('program:alerts.delete'))
-      })
-    })
-  },
-
-  render() {
-    return (
-    <Button
-      label=''
-      bsStyle=''
-      onClick={this.handleDeleteProgram}>
-      <Icon fa='trash' /> {this.props.t('program:buttons.delete')}
-      </Button>
-    )
-  }
-}))
 
 var ListViewItem = translate(['program', 'common'])(React.createClass({
 
