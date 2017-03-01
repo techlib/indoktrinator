@@ -32,7 +32,9 @@ export var PlaylistDetail = React.createClass({
                         </div>
                       </div>
                       <div className="list-view-pf-additional-info">
-                        <Icon fa='clock-o' /> {this.getDuration(item)}
+                        <div className="list-view-pf-additional-info-item">
+                          <Icon fa='clock-o' /> {this.getDuration(item)}
+                        </div>
                       </div>
                     </div>
                   </div>
