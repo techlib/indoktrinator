@@ -268,7 +268,7 @@ var ItemComponent = React.createClass({
                              'dirty': this.props._dirty})
 
     if (!over) {
-		  style.backgroundColor = UuidToRgba(this.props.playlist.uuid)
+      style.backgroundColor = UuidToRgba(this.props.playlist.uuid)
     }
 
     var overIcon = over && <Icon pf='warning-triangle-o'/>
