@@ -3,7 +3,6 @@ import * as Reflux from 'reflux'
 import {FeedbackActions, ProgramActions, PlaylistActions} from '../actions'
 import {ProgramStore} from '../stores/Program'
 import {PlaylistStore} from '../stores/Playlist'
-import {EventStore} from '../stores/Event'
 import {Feedback} from './Feedback'
 import {Row, Col, Grid} from 'react-bootstrap'
 import {InlineNameEdit} from './InlineNameEdit'
@@ -11,6 +10,11 @@ import {translate} from 'react-i18next'
 import {Link} from 'react-router'
 import {Icon} from './Icon'
 import {find} from 'lodash'
+
+// ignore unused EventStore - this is needed to instantiate EventStore
+// somewhere to listen to EventActions, event though it's not used directly
+// eslint-disable-next-line no-unused-vars
+import {EventStore} from '../stores/Event'
 
 export var Program = translate(['program', 'common'])(React.createClass({
 
