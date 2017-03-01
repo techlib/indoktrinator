@@ -78,7 +78,9 @@ var ItemComponent = React.createClass({
                 </div>
               </div>
               <div className="list-view-pf-additional-info">
+                <div className="list-view-pf-additional-info-item">
                   <i className="fa fa-clock-o"> </i> {moment.duration(this.props.file.duration, 'seconds').format('mm:ss', {trim: false})}
+                </div>
               </div>
             </div>
           </div>
