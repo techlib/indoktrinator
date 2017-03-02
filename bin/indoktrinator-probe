@@ -108,7 +108,8 @@ if __name__ == '__main__':
             '-noaccurate_seek', '-y',
             '-i', filename,
             '-vf', 'scale=-1:90,'
-                   'pad=ih*16/9/sar:ih:(ow-iw)/2:(oh-ih)/2',
+                   'crop=min(160\,iw):90:(iw-ow)/2:0,'
+                   'pad=160:90:(ow-iw)/2:(oh-ih)/2',
             '-frames', '1', '-q:v', '1',
             '-f', 'mjpeg',
             '/dev/fd/{fd}'.format(fd=infd)
