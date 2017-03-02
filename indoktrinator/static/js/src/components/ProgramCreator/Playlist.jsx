@@ -12,6 +12,9 @@ const playlistSource = {
       index: props.index,
       added: false,
       empty: false,
+      mode: 'full',
+      sidebar: null,
+      panel: null,
       _playlist: {
         name: props.name,
         uuid: props.uuid,
@@ -22,6 +25,12 @@ const playlistSource = {
 
     }
   },
+
+  endDrag(props, monitor) {
+    if (!monitor.didDrop()) {
+      props.cleanup()
+    }
+  }
 }
 
 var PlaylistComponent = React.createClass({

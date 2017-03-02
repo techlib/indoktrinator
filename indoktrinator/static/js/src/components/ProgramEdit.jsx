@@ -91,6 +91,12 @@ var Component = React.createClass({
     })
   },
 
+  finishDrop() {
+    _.each(this.state.program.program.segments, (item, index) => {
+      this.refs['column-' + index].getWrappedInstance().drop()
+    })
+  },
+
   render() {
     return (
         <Row>
@@ -102,6 +108,7 @@ var Component = React.createClass({
                                  key={index}
                                  ref={'column-' + index}
                                  cleanup={this.cleanupDrag}
+                                 finishDrop={this.finishDrop}
                                  day={index} />
                 })}
             </Row>
@@ -116,6 +123,7 @@ var Component = React.createClass({
               </ListGroupItem>
             {this.state.playlist.list.map((item) => {
               return <Playlist name={item.name}
+                cleanup={this.cleanupDrag}
                 duration={item.duration}
                 uuid={item.uuid} />
             })}

@@ -1,7 +1,16 @@
 import * as React from 'react'
+import {itemTarget} from './Item'
+import {DropTarget} from 'react-dnd'
+import {Types} from './Types'
 
-export var Empty = React.createClass({
+var EmptyComponent = React.createClass({
   render() {
-    return <div className="list-group-item empty">&diams;</div>
+    return this.props.connectDropTarget(
+      <div className="list-group-item empty">&diams;</div>
+    )
   }
 })
+
+export var Empty = DropTarget([Types.ITEM, Types.PLAYLIST], itemTarget, connect => ({
+  connectDropTarget: connect.dropTarget()
+}))(EmptyComponent)

@@ -80,6 +80,7 @@ h1.editable {
 .list-group-item.empty {
     font-size: large;
     padding: 0;
+    padding: 5px 0;
     text-align: center;
 }
 
@@ -104,4 +105,11 @@ h1.editable {
 .list-group-item.over {
     border: 3px solid red;
     background-color: #eee;
+}
+
+.list-group-item.dirty {
+    text-indent: -9999px;
+    overflow: hidden;
+    border: 4px dotted #aaa;
+    color: #eee;
 }

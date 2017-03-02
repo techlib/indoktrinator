@@ -29,7 +29,13 @@ const itemSource = {
       empty: false,
       duration: props.playlist.duration,
       _playlist: props.playlist,
-      _type: Types.ITEM
+      _type: Types.ITEM,
+    }
+  },
+
+  endDrag(props, monitor) {
+    if (!monitor.didDrop()) {
+      props.cleanup()
     }
   }
 }
@@ -131,6 +137,20 @@ var ItemComponent = React.createClass({
     return []
   },
 
+  getDisabledHoursEnd() {
+    let minHour = sToMoment(this.state.start).hour()
+    return range(0, minHour)
+  },
+
+  getDisabledMinutesEnd() {
+    let minTime = sToMoment(this.state.start)
+    let start = sToMoment(this.state.end)
+    if (minTime.hour() == start.hour()) {
+      return range(0, minTime.minute() + 1)
+    }
+    return []
+  },
+
   handleMode(e) {
     this.setState({mode: e.target.value})
   },
@@ -195,7 +215,10 @@ var ItemComponent = React.createClass({
                <TimePicker
                 value={sToMoment(this.state.end)}
                 onChange={this.updateEnd}
+                hideDisabledOptions={true}
                 showSecond={false}
+                disabledHours={this.getDisabledHoursEnd}
+                disabledMinutes={this.getDisabledMinutesEnd}
                 />
             </Col>
           </FormGroup>
@@ -262,13 +285,16 @@ var ItemComponent = React.createClass({
 		}
 
     var over = this.props.range[0] >= 86400 || this.props.range[1] > 86400
-
     var classes = classNames('list-group-item',
                              {'over': over,
-                             'dirty': this.props._dirty})
+                             'dirty': this.props.moving})
 
     if (!over) {
       style.backgroundColor = UuidToRgba(this.props.playlist.uuid)
+    }
+
+    if (this.props.moving) {
+      style.backgroundColor = '#eee'
     }
 
     var overIcon = over && <Icon pf='warning-triangle-o'/>
