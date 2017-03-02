@@ -2,11 +2,12 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.5.5
--- Dumped by pg_dump version 9.5.5
+-- Dumped from database version 9.6.2
+-- Dumped by pg_dump version 9.6.2
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SET check_function_bodies = false;
@@ -152,6 +153,36 @@ END;$$;
 
 
 ALTER FUNCTION public.update_item_durations() OWNER TO indoktrinator;
+
+--
+-- Name: update_item_positions(); Type: FUNCTION; Schema: public; Owner: indoktrinator
+--
+
+CREATE FUNCTION update_item_positions() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$BEGIN
+  UPDATE item SET position = sq.rank
+  FROM
+   (SELECT item.uuid as uuid, file.uuid as fuid,
+           RANK() OVER(PARTITION BY item.playlist ORDER BY file.path) as rank,
+           sq_playlist.token
+    FROM file
+    JOIN item ON file.uuid = item.file
+    JOIN (SELECT playlist.uuid, playlist.token FROM playlist
+          JOIN item ON item.playlist = playlist.uuid
+          JOIN file ON item.file = file.uuid
+          WHERE file.uuid = NEW.uuid)
+        AS sq_playlist
+        ON item.playlist = sq_playlist.uuid
+    ORDER BY file.path ASC) as sq
+  WHERE sq.uuid = item.uuid 
+  AND sq.token <> '';
+  RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION public.update_item_positions() OWNER TO indoktrinator;
 
 --
 -- Name: update_playlist_durations(); Type: FUNCTION; Schema: public; Owner: indoktrinator
@@ -581,7 +612,7 @@ COMMENT ON COLUMN segment.mode IS 'Layout of the screen for the duration of this
 
 
 --
--- Name: device_photo_pkey; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+-- Name: device_photo device_photo_pkey; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
 --
 
 ALTER TABLE ONLY device_photo
@@ -589,7 +620,7 @@ ALTER TABLE ONLY device_photo
 
 
 --
--- Name: device_pkey; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+-- Name: device device_pkey; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
 --
 
 ALTER TABLE ONLY device
@@ -597,7 +628,7 @@ ALTER TABLE ONLY device
 
 
 --
--- Name: event_no_overlap; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+-- Name: event event_no_overlap; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
 --
 
 ALTER TABLE ONLY event
@@ -605,7 +636,7 @@ ALTER TABLE ONLY event
 
 
 --
--- Name: event_pkey; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+-- Name: event event_pkey; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
 --
 
 ALTER TABLE ONLY event
@@ -613,7 +644,7 @@ ALTER TABLE ONLY event
 
 
 --
--- Name: file_path_unique; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+-- Name: file file_path_unique; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
 --
 
 ALTER TABLE ONLY file
@@ -621,7 +652,7 @@ ALTER TABLE ONLY file
 
 
 --
--- Name: file_pkey; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+-- Name: file file_pkey; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
 --
 
 ALTER TABLE ONLY file
@@ -629,7 +660,7 @@ ALTER TABLE ONLY file
 
 
 --
--- Name: file_preview_pkey; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+-- Name: file_preview file_preview_pkey; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
 --
 
 ALTER TABLE ONLY file_preview
@@ -637,7 +668,7 @@ ALTER TABLE ONLY file_preview
 
 
 --
--- Name: file_token_unique; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+-- Name: file file_token_unique; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
 --
 
 ALTER TABLE ONLY file
@@ -645,7 +676,7 @@ ALTER TABLE ONLY file
 
 
 --
--- Name: item_pkey; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+-- Name: item item_pkey; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
 --
 
 ALTER TABLE ONLY item
@@ -653,7 +684,7 @@ ALTER TABLE ONLY item
 
 
 --
--- Name: playlist_path_unique; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+-- Name: playlist playlist_path_unique; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
 --
 
 ALTER TABLE ONLY playlist
@@ -661,7 +692,7 @@ ALTER TABLE ONLY playlist
 
 
 --
--- Name: playlist_pkey; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+-- Name: playlist playlist_pkey; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
 --
 
 ALTER TABLE ONLY playlist
@@ -669,7 +700,7 @@ ALTER TABLE ONLY playlist
 
 
 --
--- Name: program_name_unique; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+-- Name: program program_name_unique; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
 --
 
 ALTER TABLE ONLY program
@@ -677,7 +708,7 @@ ALTER TABLE ONLY program
 
 
 --
--- Name: program_pkey; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+-- Name: program program_pkey; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
 --
 
 ALTER TABLE ONLY program
@@ -685,7 +716,7 @@ ALTER TABLE ONLY program
 
 
 --
--- Name: segment_no_overlap; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+-- Name: segment segment_no_overlap; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
 --
 
 ALTER TABLE ONLY segment
@@ -693,7 +724,7 @@ ALTER TABLE ONLY segment
 
 
 --
--- Name: segment_pkey; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
+-- Name: segment segment_pkey; Type: CONSTRAINT; Schema: public; Owner: indoktrinator
 --
 
 ALTER TABLE ONLY segment
@@ -750,70 +781,77 @@ CREATE INDEX segment_program_idx ON segment USING gist (((program)::text));
 
 
 --
--- Name: device_changelog; Type: TRIGGER; Schema: public; Owner: indoktrinator
+-- Name: device device_changelog; Type: TRIGGER; Schema: public; Owner: indoktrinator
 --
 
 CREATE TRIGGER device_changelog AFTER INSERT OR DELETE OR UPDATE ON device FOR EACH ROW EXECUTE PROCEDURE changelog();
 
 
 --
--- Name: event_changelog; Type: TRIGGER; Schema: public; Owner: indoktrinator
+-- Name: event event_changelog; Type: TRIGGER; Schema: public; Owner: indoktrinator
 --
 
 CREATE TRIGGER event_changelog AFTER INSERT OR DELETE OR UPDATE ON event FOR EACH ROW EXECUTE PROCEDURE changelog();
 
 
 --
--- Name: file_changelog; Type: TRIGGER; Schema: public; Owner: indoktrinator
+-- Name: file file_changelog; Type: TRIGGER; Schema: public; Owner: indoktrinator
 --
 
 CREATE TRIGGER file_changelog AFTER INSERT OR DELETE OR UPDATE ON file FOR EACH ROW EXECUTE PROCEDURE changelog();
 
 
 --
--- Name: item_changelog; Type: TRIGGER; Schema: public; Owner: indoktrinator
+-- Name: item item_changelog; Type: TRIGGER; Schema: public; Owner: indoktrinator
 --
 
 CREATE TRIGGER item_changelog AFTER INSERT OR DELETE OR UPDATE ON item FOR EACH ROW EXECUTE PROCEDURE changelog();
 
 
 --
--- Name: playlist_changelog; Type: TRIGGER; Schema: public; Owner: indoktrinator
+-- Name: playlist playlist_changelog; Type: TRIGGER; Schema: public; Owner: indoktrinator
 --
 
 CREATE TRIGGER playlist_changelog AFTER INSERT OR DELETE OR UPDATE ON playlist FOR EACH ROW EXECUTE PROCEDURE changelog();
 
 
 --
--- Name: program_changelog; Type: TRIGGER; Schema: public; Owner: indoktrinator
+-- Name: program program_changelog; Type: TRIGGER; Schema: public; Owner: indoktrinator
 --
 
 CREATE TRIGGER program_changelog AFTER INSERT OR DELETE OR UPDATE ON program FOR EACH ROW EXECUTE PROCEDURE changelog();
 
 
 --
--- Name: segment_changelog; Type: TRIGGER; Schema: public; Owner: indoktrinator
+-- Name: segment segment_changelog; Type: TRIGGER; Schema: public; Owner: indoktrinator
 --
 
 CREATE TRIGGER segment_changelog AFTER INSERT OR DELETE OR UPDATE ON segment FOR EACH ROW EXECUTE PROCEDURE changelog();
 
 
 --
--- Name: update_item_durations_trigger; Type: TRIGGER; Schema: public; Owner: indoktrinator
+-- Name: file update_item_durations_trigger; Type: TRIGGER; Schema: public; Owner: indoktrinator
 --
 
 CREATE TRIGGER update_item_durations_trigger AFTER INSERT OR DELETE OR UPDATE OF duration ON file FOR EACH STATEMENT EXECUTE PROCEDURE update_item_durations();
 
 
 --
--- Name: update_playlist_durations_trigger; Type: TRIGGER; Schema: public; Owner: indoktrinator
+-- Name: file update_item_positions_trigger; Type: TRIGGER; Schema: public; Owner: indoktrinator
+--
+
+CREATE CONSTRAINT TRIGGER update_item_positions_trigger AFTER INSERT OR UPDATE ON file DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE PROCEDURE update_item_positions();
+
+
+--
+-- Name: item update_playlist_durations_trigger; Type: TRIGGER; Schema: public; Owner: indoktrinator
 --
 
 CREATE TRIGGER update_playlist_durations_trigger AFTER INSERT OR DELETE OR UPDATE OF duration ON item FOR EACH STATEMENT EXECUTE PROCEDURE update_playlist_durations();
 
 
 --
--- Name: device_photo_device_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indoktrinator
+-- Name: device_photo device_photo_device_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indoktrinator
 --
 
 ALTER TABLE ONLY device_photo
@@ -821,7 +859,7 @@ ALTER TABLE ONLY device_photo
 
 
 --
--- Name: device_program_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indoktrinator
+-- Name: device device_program_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indoktrinator
 --
 
 ALTER TABLE ONLY device
@@ -829,7 +867,7 @@ ALTER TABLE ONLY device
 
 
 --
--- Name: event_playlist_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indoktrinator
+-- Name: event event_playlist_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indoktrinator
 --
 
 ALTER TABLE ONLY event
@@ -837,7 +875,7 @@ ALTER TABLE ONLY event
 
 
 --
--- Name: event_program_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indoktrinator
+-- Name: event event_program_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indoktrinator
 --
 
 ALTER TABLE ONLY event
@@ -845,7 +883,7 @@ ALTER TABLE ONLY event
 
 
 --
--- Name: file_preview_file_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indoktrinator
+-- Name: file_preview file_preview_file_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indoktrinator
 --
 
 ALTER TABLE ONLY file_preview
@@ -853,7 +891,7 @@ ALTER TABLE ONLY file_preview
 
 
 --
--- Name: item_file_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indoktrinator
+-- Name: item item_file_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indoktrinator
 --
 
 ALTER TABLE ONLY item
@@ -861,7 +899,7 @@ ALTER TABLE ONLY item
 
 
 --
--- Name: item_playlist_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indoktrinator
+-- Name: item item_playlist_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indoktrinator
 --
 
 ALTER TABLE ONLY item
@@ -869,7 +907,7 @@ ALTER TABLE ONLY item
 
 
 --
--- Name: segment_playlist_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indoktrinator
+-- Name: segment segment_playlist_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indoktrinator
 --
 
 ALTER TABLE ONLY segment
@@ -877,7 +915,7 @@ ALTER TABLE ONLY segment
 
 
 --
--- Name: segment_program_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indoktrinator
+-- Name: segment segment_program_fkey; Type: FK CONSTRAINT; Schema: public; Owner: indoktrinator
 --
 
 ALTER TABLE ONLY segment
@@ -888,9 +926,6 @@ ALTER TABLE ONLY segment
 -- Name: public; Type: ACL; Schema: -; Owner: indoktrinator
 --
 
-REVOKE ALL ON SCHEMA public FROM PUBLIC;
-REVOKE ALL ON SCHEMA public FROM indoktrinator;
-GRANT ALL ON SCHEMA public TO indoktrinator;
 GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
