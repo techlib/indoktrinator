@@ -18,16 +18,24 @@ class Table:
     # This is the default since we have mostly `uuid` primary keys.
     PROTECTED_PKEY = True
 
-    def __init__(self, db):
+    def __init__(self, model, db):
+        self.model = model
         self.db = db
         self.table = getattr(db, self.NAME)
 
-        for (key, other_table) in self.RELS:
+        for key, other_table in self.RELS:
+            entity = getattr(db, other_table)
+            ordering = []
+
+            for column in self.model.TABLES[other_table].ORDER_BY:
+                ordering.append(getattr(entity, column))
+
             # NOTE: The passive_deletes and passive_updates options make
             #       SQLAlchemy leave the cascading to the database.
-            self.table.relate(key, getattr(db, other_table),
+            self.table.relate(key, entity,
                               passive_deletes='all',
-                              passive_updates=True)
+                              passive_updates=True,
+                              order_by=ordering)
 
         # Fox the `dbdict` function.
         self.table._table.fixup = self.fixup
@@ -75,9 +83,8 @@ class Table:
         return key
 
     def list(self, filter_by={}, order_by=[], depth=0):
-        objs = self.table.filter_by(**filter_by) \
-                         .order_by(*order_by, *self.ORDER_BY, self.PKEY) \
-                         .all()
+        ordering = order_by + self.ORDER_BY + [self.PKEY]
+        objs = self.table.filter_by(**filter_by).order_by(*ordering).all()
         results = []
 
         for obj in objs:
@@ -217,14 +224,23 @@ class FilePreview(Table):
 
 
 class Model:
-    TABLES = [Device, Event, File, Item, Playlist, Program, Segment,
-              DevicePhoto, FilePreview]
+    TABLES = {
+        Device.NAME: Device,
+        Event.NAME: Event,
+        File.NAME: File,
+        Item.NAME: Item,
+        Playlist.NAME: Playlist,
+        Program.NAME: Program,
+        Segment.NAME: Segment,
+        DevicePhoto.NAME: DevicePhoto,
+        FilePreview.NAME: FilePreview,
+    }
 
     def __init__(self, db):
         self.db = db
 
-        for table in self.TABLES:
-            setattr(self, table.NAME, table(db))
+        for name, table in self.TABLES.items():
+            setattr(self, name, table(self, db))
 
 
 def dbdict(obj, depth=0):

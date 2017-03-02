@@ -26,7 +26,7 @@ lint:
 	node_modules/eslint/bin/eslint.js --ext .js,.jsx indoktrinator/static/js/src/ -c .eslintrc.json
 
 pep:
-	@pep8 --show-source --ignore=E221,E712 ${pys}
+	@python3-pep8 --show-source --ignore=E221,E712 ${pys}
 
 npm:
 	npm install
