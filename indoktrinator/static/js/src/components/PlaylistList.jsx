@@ -25,7 +25,8 @@ var ListViewItem = translate(['playlist', 'common'])(React.createClass({
   handleDeletePlayList() {
     confirmModal(
       this.props.t('confirm.areyousure'),
-      this.props.t('playlist:confirm.delete', {name: this.props.name})
+      this.props.t('playlist:confirm.delete', {name: this.props.name}),
+      {confirmLabel: this.props.t('playlist:confirm.deletebutton')}
     ).then(() => {
       pa.delete(this.props.uuid)
       .then(() => {

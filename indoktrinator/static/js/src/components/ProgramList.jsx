@@ -17,7 +17,8 @@ var ListViewItem = translate(['program', 'common'])(React.createClass({
   handleDeleteProgram() {
     confirmModal(
       this.props.t('confirm.areyousure'),
-      this.props.t('program:confirm.delete', {name: this.props.name})
+      this.props.t('program:confirm.delete', {name: this.props.name}),
+      {confirmLabel: this.props.t('program:confirm.deletebutton')}
     ).then(() => {
       pa.delete(this.props.uuid)
       .then(() => {

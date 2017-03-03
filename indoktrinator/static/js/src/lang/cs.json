@@ -90,7 +90,8 @@
     "items_2": "klipů",
     "placeholder": "Sem přetáhněte klip nebo playlist",
     "confirm": {
-      "delete": "Opravdu chcete smazat playlist {{name}}?"
+      "delete": "Opravdu chcete smazat playlist {{name}}?",
+      "deletebutton": "Smazat playlist"
     },
     "labels": {
       "duration": "Délka",
@@ -135,7 +136,8 @@
     },
     "confirm": {
       "delete": "Opravdu chcete smazat program {{name}}?",
-      "deleteevent": "Opravdu chcete smazat událost {{name}} ({{date}})"
+      "deleteevent": "Opravdu chcete smazat událost {{name}} ({{date}})",
+      "deletebutton": "Smazat program"
     },
     "labels": {
       "name": "Název programu",
@@ -201,7 +203,8 @@
       "confirmedit": "Upravit událost",
       "delete": "Smazat událost",
       "edit": "Upravit",
-      "save": "Uložit událost"
+      "save": "Uložit událost",
+      "confirmdelete": "Smazat událost"
     },
     "errors": {
       "events": {

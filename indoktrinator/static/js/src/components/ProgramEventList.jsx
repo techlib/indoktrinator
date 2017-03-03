@@ -10,7 +10,8 @@ var Component = React.createClass({
   handleDelete(uuid, name, date) {
     confirmModal(
       this.props.t('common:confirm.areyousure'),
-      this.props.t('program:confirm.deleteevent', {name: name, date: date})
+      this.props.t('program:confirm.deleteevent', {name: name, date: date}),
+      {confirmLabel: this.props.t('event:buttons.confirmdelete')}
     ).then(() => {
       EventActions.delete.triggerAsync(uuid)
       .then(() => {

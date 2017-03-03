@@ -88,7 +88,8 @@
     "items_plural": "playlist items",
     "placeholder": "Drag item or playlist here",
     "confirm": {
-      "delete": "Do you really want to delete playlist {{name}}?"
+      "delete": "Do you really want to delete playlist {{name}}?",
+      "deletebutton": "Delete playlist"
     },
     "labels": {
       "duration": "Duration",
@@ -133,7 +134,8 @@
     },
     "confirm": {
       "delete": "Do you really want to delete program {{name}}?",
-      "deleteevent": "Do you really want to delete event {{name}} on {{date}}"
+      "deleteevent": "Do you really want to delete event {{name}} on {{date}}",
+      "deletebutton": "Delete program"
     },
     "labels": {
       "name": "Name",
@@ -196,7 +198,8 @@
       "confirmedit": "Edit event",
       "delete": "Delete event",
       "edit": "Edit",
-      "save": "Save event"
+      "save": "Save event",
+      "confirmdelete": "Delete event"
     },
     "errors": {
       "events": {
