@@ -78,7 +78,7 @@ export var EventForm = translate(['event', 'common'], {withRef: true})(React.cre
 	disabledEndMinutes() {
 		var [start, end] = this.state.range
 		if (start.hour() == end.hour()) {
-			return range(0, start.minute() + 15)
+			return range(0, start.minute() + 1)
 		}
 		return []
 	},
