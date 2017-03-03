@@ -36,7 +36,11 @@ export var DeviceEdit = translate(['device','common'])(React.createClass({
 
     const {t} = this.props
 
-    var updatePromise = DeviceActions.update.triggerAsync(data)
+    if(this.state.device.device.pending){
+      var updatePromise = DeviceActions.create.triggerAsync(data)
+    } else {
+      var updatePromise = DeviceActions.update.triggerAsync(data)
+    }
     var imagePromise = DeviceActions.setImage.triggerAsync(data['photo'], data['id'])
     Promise.all([updatePromise, imagePromise]).then(() => {
       DeviceActions.read(this.props.params.id)
