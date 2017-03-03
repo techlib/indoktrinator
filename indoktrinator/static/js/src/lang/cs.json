@@ -150,7 +150,8 @@
       "sidebarurl": "URL sidebaru"
     },
     "list": {
-      "title": "Programy"
+      "title": "Programy",
+      "blank": "Nejsou vytvořeny žádné programy"
     },
     "days": {
       "0": "Pondělí",

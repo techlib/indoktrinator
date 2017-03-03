@@ -148,7 +148,8 @@
       "sidebarurl": "Sidebar URL"
     },
     "list": {
-      "title": "Programs"
+      "title": "Programs",
+      "blank": "There are no programs"
     },
     "days": {
       "0": "Monday",

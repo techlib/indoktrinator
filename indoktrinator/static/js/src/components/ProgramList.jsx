@@ -28,7 +28,7 @@ var ListViewItem = translate(['program', 'common'])(React.createClass({
   },
 
   render() {
-    const {t} =this.props
+    const {t} = this.props
     var upcomingEvents = filter(this.props.events, (item) => {
                           return moment(item.date).add(item.range[0], 'seconds').isAfter(moment.now())
                          })
@@ -93,7 +93,22 @@ export var ProgramList = translate(['program', 'common'])(React.createClass({
     return filter(this.state.device.list, ['program', program])
   },
 
+	getBlank() {
+		return (
+			<div className="blank-slate-pf">
+				<h1>{this.props.t('program:list.blank')}</h1>
+				<div className="blank-slate-pf-main-action">
+          <a className='btn btn-success btn-lg' href='#/program/new'>
+						<Icon fa="plus" /> {this.props.t('program:buttons.create')}
+					</a>
+				</div>
+			</div>
+		)
+	},
+
   render() {
+    var programCount = this.state.program.list.length
+
     return (
       <Grid fluid>
         <Row>
@@ -108,16 +123,19 @@ export var ProgramList = translate(['program', 'common'])(React.createClass({
         </Row>
         <Feedback />
         <Row>
-         <Col xs={12}>
-            <ListGroup className='list-view-pf list-view-pf-view'>
-              {this.state.program.list.map((item) => {
-                return <ListViewItem
-                          key={item.uuid}
-                          devices={this.getDevices(item.uuid)}
-                          {...item} />
-                }
-              )}
-            </ListGroup>
+          <Col xs={12}>
+            {programCount > 0 &&
+              <ListGroup className='list-view-pf list-view-pf-view'>
+                {this.state.program.list.map((item) => {
+                  return <ListViewItem
+                            key={item.uuid}
+                            devices={this.getDevices(item.uuid)}
+                            {...item} />
+                  }
+                )}
+              </ListGroup>
+            }
+            {programCount == 0 && this.getBlank()}
           </Col>
         </Row>
       </Grid>
