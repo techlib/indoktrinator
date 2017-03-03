@@ -65,11 +65,8 @@ export var ProgramNew = translate(['program'])(React.createClass({
     )
 
     return (
-      <Grid fluid>
+      <Grid fluid className="no-title">
         <Col xs={12} sm={6} smOffset={3}>
-        <h1>
-          {t('program:titlenew')}
-        </h1>
         <Row>
           <Col xs={12}>
             <Panel header={t('program:new.title')} footer={footer}>

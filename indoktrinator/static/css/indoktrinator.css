@@ -113,3 +113,8 @@ h1.editable {
     border: 4px dotted #aaa;
     color: #eee;
 }
+
+.container.no-title,
+.container-fluid.no-title {
+    padding-top: 20px;
+}

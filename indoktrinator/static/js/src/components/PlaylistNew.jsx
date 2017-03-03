@@ -64,27 +64,29 @@ export var PlaylistNew = translate(['playlist', 'common'])(React.createClass({
     )
 
     return (
-      <Grid fluid>
-        <Col xs={12} sm={6} smOffset={3}>
-          <Form horizontal onSubmit={this.save}>
-            <Panel header={t('playlist:new.title')} footer={footer}>
-              <FormGroup>
-                <Col xs={3} componentClass={ControlLabel}>
-                  {t('playlist:labels.name')}
-                </Col>
-                <Col xs={9}>
-                  <FormControl
-                    type="text"
-                    onChange={this.handleChange}
-                    value={this.state.name}
-                    inputRef={ref => {this.input = ref}}
-                    autoFocus
-                  />
-                </Col>
-              </FormGroup>
-            </Panel>
-          </Form>
-        </Col>
+      <Grid fluid className="no-title">
+        <Row>
+          <Col xs={12} sm={6} smOffset={3}>
+            <Form horizontal onSubmit={this.save}>
+              <Panel header={t('playlist:new.title')} footer={footer}>
+                <FormGroup>
+                  <Col xs={3} componentClass={ControlLabel}>
+                    {t('playlist:labels.name')}
+                  </Col>
+                  <Col xs={9}>
+                    <FormControl
+                      type="text"
+                      onChange={this.handleChange}
+                      value={this.state.name}
+                      inputRef={ref => {this.input = ref}}
+                      autoFocus
+                    />
+                  </Col>
+                </FormGroup>
+              </Panel>
+            </Form>
+          </Col>
+        </Row>
       </Grid>
     )
   }
