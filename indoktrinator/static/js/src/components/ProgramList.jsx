@@ -35,7 +35,8 @@ var ListViewItem = translate(['program', 'common'])(React.createClass({
     return (
       <div className="list-group-item">
         <div className="list-view-pf-actions">
-          <button className="btn btn-default" onClick={this.handleDeleteProgram}>{t('program:buttons.delete')}</button>
+          <button className="btn btn-default" onClick={this.handleDeleteProgram}>
+            <Icon pf='delete' /> {t('program:buttons.delete')}</button>
         </div>
         <div className="list-view-pf-main-info">
           <div className="list-view-pf-body">
