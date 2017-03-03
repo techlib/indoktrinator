@@ -44,6 +44,7 @@ export var ProgramEventItem = translate(['event', 'common'])(React.createClass({
 					<SplitButton pullRight={true}
                        bsStyle='default'
                        title={editLink}
+                       id={this.props.uuid}
                        onClick={this.gotoEvent}>
 
 						<MenuItem onClick={this.delete}>
