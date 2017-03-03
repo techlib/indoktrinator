@@ -66,7 +66,7 @@ export var Device = translate(['common', 'device'])(React.createClass({
     var errors = this.validate()
 
     if (errors.length > 0) {
-      //FeedbackActions.set('error', this.props.t('common:alerts.invalidform'), errors)
+      FeedbackActions.set('error', this.props.t('common:alerts.invalidform'), errors)
     } else {
       if(this.state.program=='none') {
         this.props.saveHandler({id: this.state.id, name: this.state.name, program: null, photo: this.state.photo})
