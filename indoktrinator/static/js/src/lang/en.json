@@ -213,6 +213,9 @@
     },
     "titles": {
       "newform": "New event"
+    },
+    "list": {
+      "blank": "There are no events"
     }
   }
 }

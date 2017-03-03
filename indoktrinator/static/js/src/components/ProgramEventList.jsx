@@ -4,6 +4,7 @@ import {confirmModal} from './ModalConfirmMixin'
 import {translate} from 'react-i18next'
 import {Col, Row, ListGroup} from 'react-bootstrap'
 import {ProgramEventItem} from './ProgramEventItem'
+import {Icon} from './Icon'
 
 var Component = React.createClass({
 
@@ -21,23 +22,41 @@ var Component = React.createClass({
     })
   },
 
+  getBlank() {
+    return (
+      <div className="blank-slate-pf">
+        <h1>{this.props.t('event:list.blank')}</h1>
+        <div className="blank-slate-pf-main-action">
+          <a className='btn btn-success btn-lg' href={`#/program/${this.props.params.uuid}/event/new`}>
+            <Icon fa="plus" /> {this.props.t('program:buttons.createevent')}
+          </a>
+        </div>
+      </div>
+    )
+  },
+
   render() {
+    var programCount = this.props.program.events.length
+
     return (
       <Row className="program">
         <Col md={12}>
-          <ListGroup className="list-view-pf list-view-pf-view">
-              {this.props.program.events.map((item) => {
-                return <ProgramEventItem date={item.date}
-                                         range={item.range}
-                                         uuid={item.uuid}
-                                         program={item.program}
-                                         handleDelete={this.handleDelete}
-                                         handleSave={this.handleSave}
-                                         playlist={item._playlist.name}
-                                         playlistUuid={item._playlist.uuid}
-                                         playlists={this.props.playlists} />
-              })}
-          </ListGroup>
+          {programCount > 0 &&
+            <ListGroup className="list-view-pf list-view-pf-view">
+                {this.props.program.events.map((item) => {
+                  return <ProgramEventItem date={item.date}
+                                           range={item.range}
+                                           uuid={item.uuid}
+                                           program={item.program}
+                                           handleDelete={this.handleDelete}
+                                           handleSave={this.handleSave}
+                                           playlist={item._playlist.name}
+                                           playlistUuid={item._playlist.uuid}
+                                           playlists={this.props.playlists} />
+                })}
+            </ListGroup>
+          }
+          {programCount == 0 && this.getBlank()}
         </Col>
       </Row>
       )

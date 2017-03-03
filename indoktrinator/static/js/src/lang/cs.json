@@ -218,6 +218,9 @@
     },
     "titles": {
       "newform": "Nová událost"
+    },
+    "list": {
+      "blank": "Nejsou vytvořeny žádné události"
     }
   }
 }
