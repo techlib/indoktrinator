@@ -20,7 +20,8 @@
     },
     "list": {
       "new": "Create device",
-      "title": "Devices"
+      "title": "Devices",
+      "blank": "There are no devices"
     },
     "noprogram": "Select program",
     "status": {

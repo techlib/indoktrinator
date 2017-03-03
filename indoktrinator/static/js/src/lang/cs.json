@@ -20,7 +20,8 @@
     },
     "list": {
       "new": "Přidat zařízení",
-      "title": "Zařízení"
+      "title": "Zařízení",
+      "blank": "Nejdou definována žádná zařízení"
     },
     "noprogram": "Zvolit program",
     "status": {

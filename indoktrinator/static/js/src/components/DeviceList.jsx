@@ -20,6 +20,23 @@ export var DeviceList = translate(['device'])(React.createClass({
     return {data: {list: []}}
   },
 
+  getBlank() {
+    return (
+      <Row>
+        <Col xs={12}>
+          <div className="blank-slate-pf">
+            <h1>{this.props.t('device:list.blank')}</h1>
+            <div className="blank-slate-pf-main-action">
+              <a className='btn btn-success btn-lg' href='#/device/new'>
+                <Icon fa="plus" /> {this.props.t('device:list.new')}
+              </a>
+            </div>
+          </div>
+        </Col>
+      </Row>
+    )
+  },
+
   render() {
     return (
       <Grid fluid>
@@ -43,7 +60,8 @@ export var DeviceList = translate(['device'])(React.createClass({
             return <DeviceListPanel {...item} />
             }
           )}
-      </Row>
+        </Row>
+        {this.state.data.list.length == 0 && this.getBlank()}
     </Grid>
     )
   }
