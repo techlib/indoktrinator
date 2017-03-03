@@ -155,13 +155,24 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     def api_devices(depth, **kwargs):
         if 'GET' == request.method:
             devices = []
+            persistent = set()
 
             for device in model.device.list(depth=depth):
+                persistent.add(device['id'])
                 status = manager.devices.get(device['id'], {})
                 devices.append(dict(device, **{
                     'online': status.get('last_seen', 0) > time() - 300,
                     'power': status.get('power', False),
                 }))
+
+            for devid, status in manager.devices.items():
+                if devid not in persistent:
+                    devices.append({
+                        'id': devid,
+                        'pending': True,
+                        'online': status.get('last_seen', 0) > time() - 300,
+                        'power': status.get('power', False),
+                    })
 
             return jsonify(result=devices)
 
@@ -175,7 +186,12 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     @with_db_session(db)
     def api_device(id, depth, **kwargs):
         if 'GET' == request.method:
-            device = model.device.get(id, depth=depth)
+            try:
+                device = model.device.get(id, depth=depth)
+            except KeyError:
+                device = manager.devices.get(id)
+                device.update({'pending': True})
+
             status = manager.devices.get(id, {})
 
             return jsonify(dict(device, **{

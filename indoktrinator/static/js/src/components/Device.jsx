@@ -9,7 +9,7 @@ import {translate} from 'react-i18next'
 import Dropzone from 'react-dropzone'
 import {API_URL} from './../stores/config'
 
-export var Device = translate('device')(React.createClass({
+export var Device = translate(['common', 'device'])(React.createClass({
 
   onDrop: function (acceptedFiles) {
     this.setState({'preview': acceptedFiles[0].preview, 'photo': acceptedFiles[0], 'custom_photo': true})
@@ -66,7 +66,7 @@ export var Device = translate('device')(React.createClass({
     var errors = this.validate()
 
     if (errors.length > 0) {
-      FeedbackActions.set('error', this.props.t('common:alerts.invalidform'), errors)
+      //FeedbackActions.set('error', this.props.t('common:alerts.invalidform'), errors)
     } else {
       if(this.state.program=='none') {
         this.props.saveHandler({id: this.state.id, name: this.state.name, program: null, photo: this.state.photo})
