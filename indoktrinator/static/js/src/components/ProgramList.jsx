@@ -1,10 +1,11 @@
 import * as React from 'react'
 import * as Reflux from 'reflux'
 import {Feedback} from './Feedback'
-import {ProgramActions as pa, FeedbackActions} from '../actions'
+import {ProgramActions as pa, FeedbackActions, DeviceActions} from '../actions'
 import {Grid, Row, Col, ListGroup} from 'react-bootstrap'
 import {Link} from 'react-router'
 import {ProgramStore} from '../stores/Program'
+import {DeviceStore} from '../stores/Device'
 import {confirmModal} from './ModalConfirmMixin'
 import {translate} from 'react-i18next'
 import {Icon} from './Icon'
@@ -58,6 +59,10 @@ var ListViewItem = translate(['program', 'common'])(React.createClass({
                 <strong>{upcomingEvents.length}</strong> {t('program:upcomingevents', {count: upcomingEvents.length})}
                 </Link>
               </div>
+              <div className="list-view-pf-additional-info-item">
+                <Icon fa='television' />
+                <strong>{this.props.devices.length}</strong> {t('program:devicecount', {count: this.props.devices.length})}
+              </div>
             </div>
           </div>
         </div>
@@ -70,15 +75,21 @@ var ListViewItem = translate(['program', 'common'])(React.createClass({
 export var ProgramList = translate(['program', 'common'])(React.createClass({
 
   mixins: [
-    Reflux.connect(ProgramStore, 'program')
+    Reflux.connect(ProgramStore, 'program'),
+    Reflux.connect(DeviceStore, 'device')
   ],
 
   componentDidMount() {
     pa.list()
+    DeviceActions.list()
   },
 
   getInitialState() {
-    return {program: {list: []}}
+    return {program: {list: []}, device: {list: []}}
+  },
+
+  getDevices(program) {
+    return filter(this.state.device.list, ['program', program])
   },
 
   render() {
@@ -98,8 +109,11 @@ export var ProgramList = translate(['program', 'common'])(React.createClass({
         <Row>
          <Col xs={12}>
             <ListGroup className='list-view-pf list-view-pf-view'>
-              {this.state.program.list.map(function (item) {
-                  return <ListViewItem {...item} key={item.uuid} />
+              {this.state.program.list.map((item) => {
+                return <ListViewItem
+                          key={item.uuid}
+                          devices={this.getDevices(item.uuid)}
+                          {...item} />
                 }
               )}
             </ListGroup>
