@@ -12,13 +12,9 @@ export var ErrorFeedback = React.createClass({
   componentWillUpdate: function (nextProps, nextState) {
     // if message is error, we want to show modal instead plain message
     if (nextState.data && nextState.data.type === 'error') {
-      confirmModal(
-        'Error',
-        <Message type={nextState.data.type}
+        return <Message type={nextState.data.type}
                  message={nextState.data.message}
-                 extra={nextState.data.extra}/>,
-        {canAbort: false}
-      )
+                 extra={nextState.data.extra}/>
     }
   },
 

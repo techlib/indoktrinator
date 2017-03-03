@@ -9,7 +9,7 @@ export var Feedback = React.createClass({
   data: {},
 
   render() {
-    if (!this.state.data || this.state.data && this.state.data.type === 'error') {
+    if (!this.state.data) {
       return null
     }
 
