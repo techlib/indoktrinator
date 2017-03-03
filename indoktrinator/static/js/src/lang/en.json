@@ -108,9 +108,6 @@
     "type": {
       "custom": "Custom",
       "system": "System"
-    },
-    "bu                <button className=\"btn btn-default\" onClick={this": {
-      "handleDeletePlayList}>{t(": ""
     }
   },
   "program": {

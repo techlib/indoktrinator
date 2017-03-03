@@ -110,9 +110,6 @@
     "type": {
       "custom": "Vlastní",
       "system": "Systémové"
-    },
-    "bu                <button className=\"btn btn-default\" onClick={this": {
-      "handleDeletePlayList}>{t(": ""
     }
   },
   "program": {
