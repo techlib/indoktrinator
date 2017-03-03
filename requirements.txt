@@ -14,3 +14,4 @@ jsonschema
 flask-cors
 natsort
 intervaltree
+simplejson
