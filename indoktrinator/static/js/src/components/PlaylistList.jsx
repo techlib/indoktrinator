@@ -37,7 +37,7 @@ var ListViewItem = translate(['playlist', 'common'])(React.createClass({
 
 
   render() {
-    const {t} =this.props
+    const {t} = this.props
     return (
       <div className="list-group-item">
         <div className="list-view-pf-actions">
