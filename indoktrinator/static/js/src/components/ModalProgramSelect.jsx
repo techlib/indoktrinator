@@ -17,7 +17,7 @@ export var Select = React.createClass({
   getDefaultProps() {
     return {
       'show': true,
-      't': null,
+      't': function() {return ''},
     }
   },
 
@@ -100,7 +100,7 @@ export function programSelectionModal(selected, others, translate) {
   var wrapper = document.body.appendChild(document.createElement('div'))
   var component = ReactDOM.render(modal, wrapper)
   component.promise.always(() => {
-    ReactDOM.render(getModal(null, null, others, false), wrapper)
+    ReactDOM.render(getModal(null, others, false, translate), wrapper)
     setTimeout(() => {
       ReactDOM.unmountComponentAtNode(wrapper)
       wrapper.remove()
