@@ -1,15 +1,13 @@
 import * as React from 'react'
 import {BootstrapSelect} from './Select'
 import TimePicker from 'rc-time-picker'
-import DatePicker from 'react-datepicker'
+import DatePicker from 'react-bootstrap-date-picker'
 import {translate} from 'react-i18next'
 import moment from 'moment'
 import {Alert, Form, Col, FormGroup, ControlLabel} from 'react-bootstrap'
 import {momentToS, sToMoment} from '../util/time'
 import {range} from 'lodash'
 import {Icon} from './Icon'
-
-require('react-datepicker/dist/react-datepicker.css')
 
 export var EventForm = translate(['event', 'common'], {withRef: true})(React.createClass({
 
@@ -41,7 +39,7 @@ export var EventForm = translate(['event', 'common'], {withRef: true})(React.cre
 
 	handleDate(val) {
 		this.setState({
-			date: val
+			date: moment(val)
 		}, () => {
 			this.checkCollision()
 		})
@@ -116,20 +114,18 @@ export var EventForm = translate(['event', 'common'], {withRef: true})(React.cre
 			<Form horizontal className='event-form'>
 				{this.state.collision && this.getError()}
 
-				<FormGroup controlId="formHorizontalEmail">
+				<FormGroup>
 					<Col componentClass={ControlLabel} sm={2}>
 						{this.props.t('event:labels.date')}
 					</Col>
-					<Col sm={10}>
-						<DatePicker
-							selected={this.state.date}
+					<Col xs={10} sm={3}>
+            <DatePicker
+              showClearButton={false}
+              weekStartsOnMonday={true}
+							value={this.state.date.toISOString()}
 							onChange={this.handleDate}
 							dateFormat="YYYY-MM-DD"
-							peekNextMonth
-							showMonthDropdown
-							showYearDropdown
-							dropdownMode="select"
-							className='form-control' />
+							/>
 					</Col>
 				</FormGroup>
 				
@@ -149,7 +145,7 @@ export var EventForm = translate(['event', 'common'], {withRef: true})(React.cre
 					</Col>
 				</FormGroup>
 
-				<FormGroup controlId="xformHorizontalPassword">
+				<FormGroup>
 					<Col componentClass={ControlLabel} sm={2}>
 						{this.props.t('event:labels.playlist')}
 					</Col>

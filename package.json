@@ -37,11 +37,9 @@
     "react": "^15.3.0",
     "react-bootstrap": "^0.30.7",
     "react-bootstrap-confirm": "^1.0.1",
-    "react-bootstrap-date-picker": "^3.7.0",
-    "react-bootstrap-datetimepicker": "0.0.22",
+    "react-bootstrap-date-picker": "^4.0.0",
     "react-bootstrap-modal": "^3.0.1",
     "react-bootstrap-tabs": "0.0.1",
-    "react-datepicker": "^0.41.1",
     "react-dnd": "^2.1.4",
     "react-dnd-html5-backend": "^2.1.2",
     "react-dom": "^15.3.0",
@@ -64,8 +62,7 @@
     "webpack": "^1.13.1",
     "webpack-dev-server": "^1.16.1"
   },
-  "scripts": {
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": ""
