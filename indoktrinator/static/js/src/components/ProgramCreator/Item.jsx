@@ -74,7 +74,6 @@ export const itemTarget = {
 
 }
 
-
 var ItemComponent = React.createClass({
 
 	getInitialState() {
@@ -88,6 +87,18 @@ var ItemComponent = React.createClass({
       panel: this.props.panel
 		}
 	},
+
+  componentWillReceiveProps(p) {
+    this.setState({
+      range: p.range,
+      start: p.range[0],
+      end: p.range[1],
+      duration: p.range[1] - p.range[0],
+      mode: p.mode,
+      sidebar: p.sidebar,
+      panel: p.panel
+    })
+  },
 
   close() {
     this.refs.edit.hide()
