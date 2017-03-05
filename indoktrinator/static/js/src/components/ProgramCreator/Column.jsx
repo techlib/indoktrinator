@@ -150,6 +150,10 @@ React.createClass({
   },
 
   eatSpaces(startIndex, allItems) {
+    if (startIndex >= allItems.length - 1) {
+      return allItems
+    }
+
     var items = cloneDeep(allItems)
     var next = items[startIndex + 1]
     var item = items[startIndex]
@@ -227,6 +231,7 @@ React.createClass({
     items[pos].mode = mode
     items[pos].sidebar = (mode == 'sidebar' || mode == 'panel') ? sidebar : null
     items[pos].panel = (mode == 'panel') ? panel : null
+    items = this.eatSpaces(pos, items)
     items = this.flowFrom(items, pos)
 
     this.setState({
