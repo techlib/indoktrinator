@@ -16,7 +16,7 @@ var Component = React.createClass({
     ).then(() => {
       EventActions.delete.triggerAsync(uuid)
       .then(() => {
-        this.parentReload()
+        this.props.parentReload()
         FeedbackActions.set('success', this.props.t('program:alerts.delete'))
       })
     })
