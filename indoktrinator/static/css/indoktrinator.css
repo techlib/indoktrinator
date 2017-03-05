@@ -49,25 +49,6 @@ h1.editable {
     cursor: move;
 }
 
-
-.program .col .list-group-item .edit {
-    position: absolute;
-    height: 290px;
-    width: 400px;
-    left: -0px;
-    z-index: 4;
-    top: 15px;
-    box-shadow: #bbb 1px 1px 30px;
-}
-
-.program .edit .panel-heading > span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    width: 355px;
-    display: inline-block;
-}
-
 .program .list-group-item .time {
 	display: block;
 	font-weight: bold;
@@ -117,4 +98,18 @@ h1.editable {
 .container.no-title,
 .container-fluid.no-title {
     padding-top: 20px;
+}
+
+.popover.edit {
+    border: none;
+    max-width: 500px;
+    min-width: 400px;
+    box-shadow: #bbb 1px 1px 30px;
+}
+
+.popover.edit .popover-content {
+    padding: 0;
+}
+.popover.edit .popover-content .panel{
+    margin-bottom: 0;
 }

@@ -3,7 +3,7 @@ import {DragSource, DropTarget} from 'react-dnd'
 import {Types} from './Types'
 import {findDOMNode} from 'react-dom'
 import {flow, range} from 'lodash'
-import {Radio, Col, Row, Form, FormGroup, FormControl, ControlLabel, Panel} from 'react-bootstrap'
+import {Radio, Col, Row, Form, FormGroup, FormControl, ControlLabel, Panel, Popover, OverlayTrigger} from 'react-bootstrap'
 import TimePicker from 'rc-time-picker'
 import classNames from 'classnames'
 import moment from 'moment'
@@ -78,8 +78,7 @@ export const itemTarget = {
 var ItemComponent = React.createClass({
 
 	getInitialState() {
-		return {
-      edit: false,
+    return {
       range: this.props.range,
       start: this.props.range[0],
       end: this.props.range[1],
@@ -90,11 +89,9 @@ var ItemComponent = React.createClass({
 		}
 	},
 
-  open() {
-    var state = this.getInitialState()
-    state.edit = !this.state.edit
-    this.setState(state)
-	},
+  close() {
+    this.refs.edit.hide()
+  },
 
   updateStart(v) {
     if (v === null) {
@@ -115,7 +112,7 @@ var ItemComponent = React.createClass({
   save() {
     this.props.save(this.state.start, this.state.end,
                     this.state.mode, this.state.sidebar, this.state.panel)
-    this.open() //TODO too early, won't render data properly
+    this.close() //TODO too early, won't render data properly
   },
 
   delete() {
@@ -167,7 +164,7 @@ var ItemComponent = React.createClass({
     var header = (
       <div>
         <span>{this.props.playlist.name}</span>
-        <button type="button" onClick={this.open} className="close">
+        <button type="button" onClick={this.close} className="close">
           <span >&times;</span>
         </button>
       </div>
@@ -188,7 +185,7 @@ var ItemComponent = React.createClass({
       </Row>
     )
 
-    return <div className="edit">
+    return <Popover className="edit" id={`edit-${this.props.uuid}`}>
       <Panel header={header} footer={footer}>
         <Form horizontal>
           <FormGroup>
@@ -197,6 +194,7 @@ var ItemComponent = React.createClass({
             </Col>
             <Col xs={6}>
               <TimePicker
+                getPopupContainer={() => {return this.refs.time1}}
                 disabledHours={this.getDisabledHours}
                 disabledMinutes={this.getDisabledMinutes}
                 hideDisabledOptions={true}
@@ -204,6 +202,7 @@ var ItemComponent = React.createClass({
                 onChange={this.updateStart}
                 showSecond={false}
               />
+              <div ref="time1" />
             </Col>
           </FormGroup>
 
@@ -213,6 +212,7 @@ var ItemComponent = React.createClass({
             </Col>
             <Col xs={6}>
                <TimePicker
+                getPopupContainer={() => {return this.refs.time2}}
                 value={sToMoment(this.state.end)}
                 onChange={this.updateEnd}
                 hideDisabledOptions={true}
@@ -220,6 +220,7 @@ var ItemComponent = React.createClass({
                 disabledHours={this.getDisabledHoursEnd}
                 disabledMinutes={this.getDisabledMinutesEnd}
                 />
+                <div ref="time2" />
             </Col>
           </FormGroup>
 
@@ -270,7 +271,7 @@ var ItemComponent = React.createClass({
 
         </Form>
     </Panel>
-		</div>
+  </Popover>
 	},
 
   render() {
@@ -300,16 +301,22 @@ var ItemComponent = React.createClass({
     var overIcon = over && <Icon pf='warning-triangle-o'/>
 
     let res = (
-      <div className={classes} onClick={!this.state.edit && this.open} style={style}>
+      <div className={classes} style={style}>
+        <OverlayTrigger
+          rootClose
+          placement="bottom"
+          trigger="click"
+          overlay={this.getEdit()}
+          ref="edit">
+          <div>
             <span className="time">{overIcon} {from} - {to}</span>
             {this.props.playlist.name}
-						{this.state.edit && this.getEdit()}
+          </div>
+        </OverlayTrigger>
       </div>
     )
 
-    return this.state.edit
-      ? res
-      : this.props.connectDropTarget(this.props.connectDragSource(res))
+    return this.props.connectDropTarget(this.props.connectDragSource(res))
   }
 
 })
