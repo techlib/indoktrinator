@@ -124,7 +124,9 @@ export var EventForm = translate(['event', 'common'], {withRef: true})(React.cre
               weekStartsOnMonday={true}
 							value={this.state.date.toISOString()}
 							onChange={this.handleDate}
-							dateFormat="YYYY-MM-DD"
+              dateFormat="YYYY-MM-DD"
+              monthLabels={moment.months()}
+              dayLabels={moment.weekdaysShort()}
 							/>
 					</Col>
 				</FormGroup>
