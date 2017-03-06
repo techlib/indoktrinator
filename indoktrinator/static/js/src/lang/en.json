@@ -111,6 +111,12 @@
     "type": {
       "custom": "Custom",
       "system": "System"
+    },
+    "empty": {
+      "custom": "There are no custom playlists",
+      "system": "There are no system playlists",
+      "system2": "Create a folder with required playlist name and copy files inside it",
+      "custom2": "You can create custom playlist from any items in system playlists"
     }
   },
   "program": {

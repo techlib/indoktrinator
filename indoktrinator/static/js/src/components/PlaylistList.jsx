@@ -88,6 +88,9 @@ export var PlaylistList = translate(['playlist','common'])(React.createClass({
 
     const {t} = this.props
 
+    var system = filter(this.state.data.list, (item) => {return item.system})
+    var custom = filter(this.state.data.list, (item) => {return !item.system})
+
     return (
       <Grid fluid>
         <Row>
@@ -105,25 +108,33 @@ export var PlaylistList = translate(['playlist','common'])(React.createClass({
         <Feedback />
         <Row>
          <Col xs={12} sm={6}>
-          <h3>{t('playlist:type.system')}</h3>
+           <h3>{t('playlist:type.system')}</h3>
             <ListGroup className='list-view-pf list-view-pf-view'>
-              {filter(this.state.data.list, (item) => {return item.system})
-                .map(function (item) {
+              {system.map(function (item) {
                   return <ListViewItem {...item} key={item.uuid} />
                 }
               )}
             </ListGroup>
+           {system.length == 0 && [
+            <p className='lead text-center'>{t('playlist:empty.system')}</p>,
+            <p className='text-center'>{t('playlist:empty.system2')}</p>]
+           }
           </Col>
 
           <Col xs={12} sm={6}>
             <h3>{t('playlist:type.custom')}</h3>
             <ListGroup className='list-view-pf list-view-pf-view'>
-              {filter(this.state.data.list, (item) => {return !item.system})
-                .map(function (item) {
+              {custom.map(function (item) {
                   return <ListViewItem {...item} key={item.uuid} />
                 }
               )}
             </ListGroup>
+            {custom.length == 0 &&
+              <p className='lead text-center'>{t('playlist:empty.custom')}</p>
+            }
+            {(custom.length == 0 && system.length > 0) &&
+              <p className='text-center'>{t('playlist:empty.custom2')}</p>
+            }
           </Col>
         </Row>
       </Grid>

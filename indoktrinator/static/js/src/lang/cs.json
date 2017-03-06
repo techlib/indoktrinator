@@ -113,6 +113,12 @@
     "type": {
       "custom": "Vlastní",
       "system": "Systémové"
+    },
+    "empty": {
+      "custom": "Nebyly vytvořeny žádné vlastní playlisty.",
+      "system": "Nejsou k dispozici žádné systémové laylisty.",
+      "system2": "Vytvořte složku s požadovaným názvem playlistu a nahrajte do ní soubory.",
+      "custom2": "Vlastní playlist můžete vytvořit z libovolných položek systémových playlistů"
     }
   },
   "program": {
