@@ -17,7 +17,6 @@ export var Select = React.createClass({
   getDefaultProps() {
     return {
       'show': true,
-      't': function() {return ''},
     }
   },
 
