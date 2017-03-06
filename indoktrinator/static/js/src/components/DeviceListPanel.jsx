@@ -37,10 +37,13 @@ export var DeviceListPanel = translate('device')(React.createClass({
     var icon = on ? 'ok' : 'error-circle-o'
     var status = on ? t('device:status.online') : t('device:status.offline')
 
+    var name = this.props.pending ? this.props.id : this.props.name
+    var pendingIcon = this.props.pending && <Icon pf='warning-triangle-o'/>
+
     var header = (
       <h3>
         <Link to={`/device/${this.props.id}`}>
-        {this.props.pending ? this.props.id : this.props.name}
+          {pendingIcon} {name}
         </Link>
       </h3>
     )
@@ -64,7 +67,7 @@ export var DeviceListPanel = translate('device')(React.createClass({
 
     return (
       <Col xs={12} sm={6} md={4} lg={3}>
-        <Panel bsStyle={this.props.pending ? 'info': 'default'} header={header} footer={footer}>
+        <Panel header={header} footer={footer}>
           <Link to={`/device/${this.props.id}`}>
             <img className="img-responsive"
                  src={`${photo}?${Date.now()}`}
