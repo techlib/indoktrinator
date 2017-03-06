@@ -157,14 +157,6 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             devices = []
             persistent = set()
 
-            for device in model.device.list(depth=depth):
-                persistent.add(device['id'])
-                status = manager.devices.get(device['id'], {})
-                devices.append(dict(device, **{
-                    'online': status.get('last_seen', 0) > time() - 300,
-                    'power': status.get('power', False),
-                }))
-
             for devid, status in manager.devices.items():
                 if devid not in persistent:
                     devices.append({
@@ -173,6 +165,14 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
                         'online': status.get('last_seen', 0) > time() - 300,
                         'power': status.get('power', False),
                     })
+
+            for device in model.device.list(depth=depth):
+                persistent.add(device['id'])
+                status = manager.devices.get(device['id'], {})
+                devices.append(dict(device, **{
+                    'online': status.get('last_seen', 0) > time() - 300,
+                    'power': status.get('power', False),
+                }))
 
             return jsonify(result=devices)
 
