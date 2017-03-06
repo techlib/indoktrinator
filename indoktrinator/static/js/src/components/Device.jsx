@@ -7,7 +7,6 @@ import {BootstrapSelect} from './Select'
 import {StoreTypes} from './../stores/StoreTypes'
 import {translate} from 'react-i18next'
 import Dropzone from 'react-dropzone'
-import {API_URL} from './../stores/config'
 
 export var Device = translate(['common', 'device'])(React.createClass({
 
@@ -22,7 +21,7 @@ export var Device = translate(['common', 'device'])(React.createClass({
   componentWillReceiveProps(p) {
     // Invalidate cache
     if (p.device.photo === undefined) {
-        p.device.photo = `${API_URL}/api/preview-image/device/0?${Date.now()}`
+        p.device.photo = `/api/preview-image/device/0?${Date.now()}`
     }
     var preview = p.device.photo + '?c=' + Date.now()
     this.setState(
@@ -54,7 +53,7 @@ export var Device = translate(['common', 'device'])(React.createClass({
   },
 
   resetImage() {
-    this.setState({'preview': `${API_URL}/api/preview-image/device/0?${Date.now()}`, 'photo': 'deleted', 'custom_photo': false})
+    this.setState({'preview': `/api/preview-image/device/0?${Date.now()}`, 'photo': 'deleted', 'custom_photo': false})
   },
 
   handleChange(evt) {

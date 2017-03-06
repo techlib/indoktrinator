@@ -5,7 +5,6 @@ import {DeviceActions, FeedbackActions} from '../actions'
 import {translate} from 'react-i18next'
 import {Col, Panel} from 'react-bootstrap'
 import {Icon} from './Icon'
-import {API_URL} from './../stores/config'
 
 export var DeviceListPanel = translate('device')(React.createClass({
 
@@ -28,7 +27,7 @@ export var DeviceListPanel = translate('device')(React.createClass({
     // Invalidate cache
     var photo = this.props.photo
     if (photo === undefined) {
-        photo = `${API_URL}/api/preview-image/device/0?${Date.now()}`
+        photo = `/api/preview-image/device/0?${Date.now()}`
     }
 
     var on = this.props.online

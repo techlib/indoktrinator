@@ -4,7 +4,6 @@ import * as Reflux from 'reflux'
 import {DeviceActions} from '../actions'
 import {Api} from './Mixins'
 import {StoreTypes} from './StoreTypes'
-import {API_URL} from './config'
 import request from 'superagent'
 
 export var DeviceStore = Reflux.createStore({
@@ -13,7 +12,7 @@ export var DeviceStore = Reflux.createStore({
   data: {'device': [], 'list': [], 'errors': []},
 
   onRead(id) {
-    this.req('GET', `${API_URL}/api/device/${id}`,
+    this.req('GET', `/api/device/${id}`,
              {action: DeviceActions.read, dest: 'device',
                modifyResponse: (data) => {
                   data.state = StoreTypes.LOADED
@@ -22,28 +21,28 @@ export var DeviceStore = Reflux.createStore({
   },
 
   onDelete(id) {
-    this.req('DELETE', `${API_URL}/api/device/${id}`,
+    this.req('DELETE', `/api/device/${id}`,
              {action: DeviceActions.delete})
   },
 
   onUpdate(device) {
-    this.req('PATCH', `${API_URL}/api/device/${device.id}`,
+    this.req('PATCH', `/api/device/${device.id}`,
              {data: device, action: DeviceActions.update})
   },
 
   onCreate(device) {
-    this.req('POST', `${API_URL}/api/device/`,
+    this.req('POST', `/api/device/`,
              {data: device, action: DeviceActions.create})
   },
 
   onList() {
-    this.req('GET', `${API_URL}/api/device/?depth=1`,
+    this.req('GET', `/api/device/?depth=1`,
              {action: DeviceActions.list, dest: 'list'})
   },
 
   onSetImage(image, device_id) {
     if(image instanceof File) {
-      var req = request.put(`${API_URL}/api/preview-image/device/${device_id}`)
+      var req = request.put(`/api/preview-image/device/${device_id}`)
       req.send(image)
       req.end((data) => {
         DeviceActions.setImage.completed(data)
@@ -54,7 +53,7 @@ export var DeviceStore = Reflux.createStore({
   },
 
   onResetImage(id) {
-    this.req('RESET', `${API_URL}/api/preview-image/device/${id}`,
+    this.req('RESET', `/api/preview-image/device/${id}`,
              {action: DeviceActions.resetImage})
   }
 })

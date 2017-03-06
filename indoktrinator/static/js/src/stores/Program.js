@@ -3,7 +3,6 @@
 import * as Reflux from 'reflux'
 import {ProgramActions} from '../actions'
 import {ErrorMixin, Api} from './Mixins'
-import {API_URL} from './config'
 import * as _ from 'lodash'
 
 export var ProgramStore = Reflux.createStore({
@@ -30,28 +29,28 @@ export var ProgramStore = Reflux.createStore({
   },
 
   onRead(uuid) {
-    this.req('GET', `${API_URL}/api/program/${uuid}?depth=3`,
+    this.req('GET', `/api/program/${uuid}?depth=3`,
              {dest: 'program', action: ProgramActions.read,
               modifyResponse: this.processSegments})
   },
 
   onDelete(id) {
-    this.req('DELETE', `${API_URL}/api/program/${id}`,
+    this.req('DELETE', `/api/program/${id}`,
              {action: ProgramActions.delete})
   },
 
   onUpdate(uuid, program) {
-    this.req('PATCH', `${API_URL}/api/program/${uuid}`,
+    this.req('PATCH', `/api/program/${uuid}`,
              {data: program, action: ProgramActions.update})
   },
 
   onCreate(program) {
-    this.req('POST', `${API_URL}/api/program/`,
+    this.req('POST', `/api/program/`,
              {data: program, action: ProgramActions.create})
   },
 
   onList() {
-    this.req('GET', `${API_URL}/api/program/?depth=1`, {dest: 'list'})
+    this.req('GET', `/api/program/?depth=1`, {dest: 'list'})
   }
 
 })
