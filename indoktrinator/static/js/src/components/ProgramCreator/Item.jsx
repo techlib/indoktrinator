@@ -12,6 +12,8 @@ import {translate} from 'react-i18next'
 import {UuidToRgba} from '../../util/color'
 import {momentToS, sToMoment} from '../../util/time'
 import {Icon} from '../Icon'
+import {notEmpty} from '../../util/simple-validators.js'
+import {includes} from 'lodash'
 
 const itemSource = {
   beginDrag(props) {
@@ -84,7 +86,8 @@ var ItemComponent = React.createClass({
       duration: this.props.range[1] - this.props.range[0],
       mode: this.props.mode,
       sidebar: this.props.sidebar,
-      panel: this.props.panel
+      panel: this.props.panel,
+      errors: []
 		}
 	},
 
@@ -121,9 +124,17 @@ var ItemComponent = React.createClass({
   },
 
   save() {
-    this.props.save(this.state.start, this.state.end,
-                    this.state.mode, this.state.sidebar, this.state.panel)
-    this.close() //TODO too early, won't render data properly
+    var errors = this.validateEdit()
+
+    if (errors.length == 0) {
+      this.props.save(this.state.start, this.state.end,
+                      this.state.mode, this.state.sidebar, this.state.panel)
+      this.close() //TODO too early, won't render data properly
+    }
+
+    this.setState({
+      errors: errors
+    })
   },
 
   delete() {
@@ -167,6 +178,24 @@ var ItemComponent = React.createClass({
     var data = {}
     data[e.target.name] = e.target.value
     this.setState(data)
+  },
+
+  validateEdit() {
+    var errors = []
+
+    if (this.state.mode == 'sidebar' || this.state.mode == 'panel') {
+      if (!notEmpty(this.state.sidebar)) {
+        errors.push('sidebar')
+      }
+    }
+
+    if (this.state.mode == 'panel') {
+      if (!notEmpty(this.state.panel)) {
+        errors.push('panel')
+      }
+    }
+
+    return errors
   },
 
   getEdit() {
@@ -254,7 +283,8 @@ var ItemComponent = React.createClass({
           </FormGroup>
 
           {(this.state.mode == 'sidebar' || this.state.mode == 'panel') &&
-          <FormGroup>
+          <FormGroup
+              validationState={includes(this.state.errors, 'sidebar') && 'error'}>
             <Col componentClass={ControlLabel} xs={4}>
               {this.props.t('program:labels.sidebarurl')}
             </Col>
@@ -267,7 +297,8 @@ var ItemComponent = React.createClass({
           </FormGroup>
           }
           {this.state.mode == 'panel' &&
-          <FormGroup>
+          <FormGroup
+              validationState={includes(this.state.errors, 'panel') && 'error'}>
             <Col componentClass={ControlLabel} xs={4}>
               {this.props.t('program:labels.panelurl')}
             </Col>
