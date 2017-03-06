@@ -48,7 +48,8 @@
     },
     "delete": "Smazat",
     "save": "Uložit",
-    "resetImage": "Obnovit výchozí obrázek"
+    "resetImage": "Obnovit výchozí obrázek",
+    "pendingdesc": "Zařízení je nutné nejprve vytvořit"
   },
   "common": {
     "confirm": {

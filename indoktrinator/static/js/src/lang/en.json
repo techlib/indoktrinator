@@ -48,7 +48,8 @@
     },
     "delete": "Delete",
     "save": "Save",
-    "resetImage": "Reset preview image"
+    "resetImage": "Reset preview image",
+    "pendingdesc": "You have to create device first"
   },
   "common": {
     "confirm": {

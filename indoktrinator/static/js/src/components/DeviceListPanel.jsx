@@ -58,7 +58,7 @@ export var DeviceListPanel = translate('device')(React.createClass({
           ' ', t('device:status.' + this.props.power)
           ] : null}
         <br/>
-        {this.props.pending ? '' :
+        {this.props.pending ? t('device:pendingdesc') :
           <a onClick={this.selectProgram}>
             {this.props.program ? this.props._program.name : t('device:noprogram')}
           </a>}
