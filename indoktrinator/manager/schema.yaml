@@ -21,7 +21,7 @@ definitions:
     pattern: '://'
 
   power:
-    enum: [on, standby, to-on, to-standby, unknown]
+    enum: ['on', 'standby', 'to-on', 'to-standby', 'unknown']
 
   status:
     type: object
