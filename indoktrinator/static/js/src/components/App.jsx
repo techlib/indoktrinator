@@ -2,6 +2,7 @@ import * as React from 'react'
 import {AdminNavBar} from './AdminNavBar'
 import { I18nextProvider } from 'react-i18next'
 import i18n from './i18n'
+import moment from 'moment'
 
 export var App = React.createClass({
 
@@ -12,8 +13,13 @@ export var App = React.createClass({
     }
   },
 
+  componentWillMount() {
+    moment.locale(i18n.language)
+  },
+
   handleChangeLang(lang) {
     i18n.changeLanguage(lang)
+    moment.locale(lang)
   },
 
   render() {
