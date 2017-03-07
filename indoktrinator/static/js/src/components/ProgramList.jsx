@@ -2,7 +2,7 @@ import * as React from 'react'
 import * as Reflux from 'reflux'
 import {Feedback} from './Feedback'
 import {ProgramActions as pa, FeedbackActions, DeviceActions} from '../actions'
-import {Grid, Row, Col, ListGroup} from 'react-bootstrap'
+import {OverlayTrigger, Tooltip, Grid, Row, Col, ListGroup} from 'react-bootstrap'
 import {Link} from 'react-router'
 import {ProgramStore} from '../stores/Program'
 import {DeviceStore} from '../stores/Device'
@@ -34,6 +34,13 @@ var ListViewItem = translate(['program', 'common'])(React.createClass({
       return moment(item.date).add(item.range[0], 'seconds').isAfter(moment.now())
     })
 
+    var tooltip = (
+      <Tooltip>
+        {this.props.devices.map((device) => {
+          return <span>{device.name}<br/></span>
+        })}
+      </Tooltip>)
+
     return (
       <div className="list-group-item">
         <div className="list-view-pf-actions">
@@ -58,7 +65,11 @@ var ListViewItem = translate(['program', 'common'])(React.createClass({
               </div>
               <div className="list-view-pf-additional-info-item">
                 <Icon fa='television' />
-                <strong>{this.props.devices.length}</strong> {t('program:devicecount', {count: this.props.devices.length})}
+                <OverlayTrigger overlay={tooltip}>
+                  <div>
+                    <strong>{this.props.devices.length}</strong> {t('program:devicecount', {count: this.props.devices.length})}
+                  </div>
+                </OverlayTrigger>
               </div>
             </div>
           </div>
