@@ -190,12 +190,6 @@
     "devicecount": "device",
     "devicecount_plural": "devices"
   },
-  "messages": {
-    "labels": {
-      "error": "Error",
-      "success": "Success"
-    }
-  },
   "event": {
     "alerts": {
       "update": "Event updated"

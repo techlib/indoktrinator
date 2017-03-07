@@ -195,12 +195,6 @@
       "editevent": "Editace události"
     }
   },
-  "messages": {
-    "labels": {
-      "error": "Chyba",
-      "success": "Potvrzení"
-    }
-  },
   "event": {
     "alerts": {
       "update": "Událost byla upravena"

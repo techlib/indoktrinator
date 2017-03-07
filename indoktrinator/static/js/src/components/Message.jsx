@@ -24,15 +24,13 @@ export var Message = translate('message')(React.createClass({
   render() {
     const {t} = this.props
 
-    var cls, title, icon
+    var cls, icon
 
     if (this.props.type == 'success') {
       cls = 'alert-success'
-      title = t('messages:labels.success')
       icon = 'ok'
     } else if (this.props.type == 'error') {
       cls = 'alert-danger'
-      title = t('messages:labels.error')
       icon = 'error-circle-o'
     }
 
@@ -40,10 +38,9 @@ export var Message = translate('message')(React.createClass({
 
     return (
       <div className={clsAlert}>
-        <Icon pf={icon} />
-        <strong>{title}: </strong> {this.props.message}
-
-        {this.renderExtra()}
+          <Icon pf={icon} />
+          {this.props.message}
+          {this.renderExtra()}
       </div>
     )
   }
