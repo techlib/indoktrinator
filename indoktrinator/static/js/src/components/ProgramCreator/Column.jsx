@@ -14,9 +14,11 @@ React.createClass({
   spaceCounter: 0,
 
   getData() {
+    const DAY_END = 86400
     var items = this.removeSpaces(this.state.items)
-    return map(items, (item) => {
-      return {
+
+    items = map(items, (item) => {
+      var r = {
         playlist: item._playlist.uuid,
         range: item.range,
         mode: item.mode,
@@ -24,7 +26,16 @@ React.createClass({
         panel: item.panel,
         day: this.props.day
       }
+
+      if (item.range[0] < DAY_END && item.range[1] > DAY_END) {
+        r.range[1] = DAY_END
+      } else if (item.range[0] >= DAY_END) {
+        return null
+      }
+      return r
     })
+
+    return filter(items)
   },
 
   componentWillReceiveProps(p) {
