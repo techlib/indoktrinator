@@ -38,7 +38,7 @@ var PlaylistItemComponent = React.createClass({
 		this.props.addHandler({
 			uuid: Date.now(),
 			duration: this.props.file.duration,
-			file: this.props.file,
+			_file: this.props.file,
 			_type: Types.ITEM
 		})
 	},
