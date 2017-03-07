@@ -185,8 +185,6 @@
     },
     "events": "event",
     "events_plural": "events",
-    "upcomingevents": "upcoming event",
-    "upcomingevents_plural": "upcoming events",
     "devicecount": "device",
     "devicecount_plural": "devices"
   },

@@ -31,8 +31,9 @@ var ListViewItem = translate(['program', 'common'])(React.createClass({
   render() {
     const {t} = this.props
     var upcomingEvents = filter(this.props.events, (item) => {
-                          return moment(item.date).add(item.range[0], 'seconds').isAfter(moment.now())
-                         })
+      return moment(item.date).add(item.range[0], 'seconds').isAfter(moment.now())
+    })
+
     return (
       <div className="list-group-item">
         <div className="list-view-pf-actions">
@@ -50,15 +51,9 @@ var ListViewItem = translate(['program', 'common'])(React.createClass({
             </div>
             <div className="list-view-pf-additional-info">
               <div className="list-view-pf-additional-info-item">
-                <Link to={`/program/${this.props.uuid}/event`}>
-                <Icon fa='calendar-o' />
-                  <strong>{this.props.events.length}</strong>  {t('program:events', {count: this.props.events.length})}
-                </Link>
-              </div>
-              <div className="list-view-pf-additional-info-item">
-                <Link to={`/program/${this.props.uuid}/event`}>
                 <Icon fa='calendar-plus-o' />
-                <strong>{upcomingEvents.length}</strong> {t('program:upcomingevents', {count: upcomingEvents.length})}
+                <Link to={`/program/${this.props.uuid}/event`}>
+                <strong>{upcomingEvents.length}</strong> {t('program:events', {count: upcomingEvents.length})}
                 </Link>
               </div>
               <div className="list-view-pf-additional-info-item">
