@@ -140,7 +140,7 @@ export var Program = translate(['program', 'common'])(React.createClass({
     }
 
     return (
-      <Grid fluid>
+      <Grid fluid className='program'>
 				<Row>
 					<Col xs={6}>
 						{this.getName()}

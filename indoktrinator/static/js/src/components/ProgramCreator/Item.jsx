@@ -329,6 +329,7 @@ var ItemComponent = React.createClass({
 
     var over = this.props.range[0] >= 86400 || this.props.range[1] > 86400
     var classes = classNames('list-group-item',
+                             'item',
                              {'over': over,
                              'dirty': this.props.moving})
 

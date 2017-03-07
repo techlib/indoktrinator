@@ -44,8 +44,7 @@ h1.editable {
     min-height: 500px;
 }
 
-.program .col .list-group-item {
-    position: relative;
+.program .col .list-group-item.item {
     cursor: move;
 }
 
