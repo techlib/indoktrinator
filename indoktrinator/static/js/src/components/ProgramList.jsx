@@ -35,7 +35,7 @@ var ListViewItem = translate(['program', 'common'])(React.createClass({
     })
 
     var tooltip = (
-      <Tooltip>
+      <Tooltip id={this.props.uuid}>
         {this.props.devices.map((device) => {
           return <span>{device.name}<br/></span>
         })}
