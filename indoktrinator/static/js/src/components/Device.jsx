@@ -123,7 +123,7 @@ export var Device = translate(['common', 'device'])(React.createClass({
                     name="id"
                     disabled={this.state.state != StoreTypes.NEW}
                     onChange={this.handleChange}
-                    value={this.state.id} />
+                    value={this.state.id || ''} />
                 </Col>
               </FormGroup>
               <FormGroup>
@@ -135,7 +135,7 @@ export var Device = translate(['common', 'device'])(React.createClass({
                     type="text"
                     name="name"
                     onChange={this.handleChange}
-                    value={this.state.name} />
+                    value={this.state.name || ''} />
                 </Col>
               </FormGroup>
               <FormGroup>
