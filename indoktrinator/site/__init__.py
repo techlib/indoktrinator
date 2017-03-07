@@ -163,6 +163,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
                 devices.append(dict(device, **{
                     'online': status.get('last_seen', 0) > time() - 300,
                     'power': status.get('power', False),
+                    'hostname': status.get('hostname')
                 }))
 
             for devid, status in manager.devices.items():
@@ -172,6 +173,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
                         'pending': True,
                         'online': status.get('last_seen', 0) > time() - 300,
                         'power': status.get('power', False),
+                        'hostname': status.get('hostname')
                     })
 
             return jsonify(result=devices)
