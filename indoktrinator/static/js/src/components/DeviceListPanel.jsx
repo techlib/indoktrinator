@@ -36,7 +36,7 @@ export var DeviceListPanel = translate('device')(React.createClass({
     var icon = on ? 'ok' : 'error-circle-o'
     var status = on ? t('device:status.online') : t('device:status.offline')
 
-    var name = this.props.pending ? this.props.id : this.props.name
+    var name = this.props.pending ? this.props.hostname : this.props.name
     var pendingIcon = this.props.pending && <Icon pf='warning-triangle-o'/>
 
     var header = (
