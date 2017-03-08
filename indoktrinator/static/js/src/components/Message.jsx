@@ -32,6 +32,9 @@ export var Message = translate('message')(React.createClass({
     } else if (this.props.type == 'error') {
       cls = 'alert-danger'
       icon = 'error-circle-o'
+    } else if (this.props.type == 'warning') {
+      cls = 'alert-warning'
+      icon = 'warning-triangle-o'
     }
 
     var clsAlert = classNames('alert', cls)
