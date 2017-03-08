@@ -16,7 +16,9 @@ export var ErrorMixin = {
 }
 
 function errorFeedback(promise, textStatus, error) {
-    FeedbackActions.set('error', error)
+  var message = promise.responseJSON.message
+  var type = promise.responseJSON.error
+  FeedbackActions.set('error', error, [`${type}: ${message}`])
 }
 
 /*
