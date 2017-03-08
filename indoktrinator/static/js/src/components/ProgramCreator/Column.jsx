@@ -124,11 +124,6 @@ React.createClass({
     }))
 
     items = this.flowFrom(items, 0)
-    /*items = items.map( i => {
-      i._moving = false
-      return i
-      })*/
-
 
     this.setState(update(this.state, {
       items: {
