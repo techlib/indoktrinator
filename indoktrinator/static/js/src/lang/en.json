@@ -39,7 +39,8 @@
       "update": "Device updated"
     },
     "confirm": {
-      "delete": "Do you really want to delete {{name}}?"
+      "delete": "Do you really want to delete {{name}}?",
+      "deletebutton": "Delete device"
     },
     "abort": "Cancel",
     "programselect": {

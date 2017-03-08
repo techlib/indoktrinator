@@ -39,7 +39,8 @@
       "update": "Zařízení bylo aktualizováno"
     },
     "confirm": {
-      "delete": "Opravdu chcete smazat {{name}}?"
+      "delete": "Opravdu chcete smazat {{name}}?",
+      "deletebutton": "Smazat zařízení"
     },
     "abort": "Zrušit",
     "programselect": {

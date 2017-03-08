@@ -53,7 +53,8 @@ export var DeviceEdit = translate(['device','common'])(React.createClass({
 
     confirmModal(
       t('confirm.areyousure'),
-      t('device:confirm.delete', {name: this.state.device.device.name})
+      t('device:confirm.delete', {name: this.state.device.device.name}),
+      {confirmLabel: t('device:confirm.deletebutton')}
     ).then(() => {
       DeviceActions.delete.triggerAsync(id)
       .then(() => {
