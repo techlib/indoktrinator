@@ -13,6 +13,7 @@ import {Playlist} from './ProgramCreator/Playlist'
 import {Col, Row, Grid} from 'react-bootstrap'
 import {ListGroup, ListGroupItem} from 'react-bootstrap'
 import * as _ from 'lodash'
+import {Message} from './Message'
 
 var Component = React.createClass({
 
@@ -30,6 +31,7 @@ var Component = React.createClass({
     return {
       program: {program: {segments: []}},
       playlist: {list: []},
+      columnsOver: _.range(0,7).map(() => false)
     }
   },
 
@@ -46,6 +48,14 @@ var Component = React.createClass({
     }
     return r
 
+  },
+
+  handleOver(day, val) {
+    var cols = this.state.columnsOver
+    cols[day] = val
+    this.setState({
+      columnsOver: cols
+    })
   },
 
   save() {
@@ -98,9 +108,19 @@ var Component = React.createClass({
   },
 
   render() {
+    var overWarning = _.includes(this.state.columnsOver, true) && (
+      <Row>
+        <Col xs={12}>
+          <Message type='warning' message={this.props.t('program:alerts.over')} />
+        </Col>
+      </Row>
+    )
+
     return (
-        <Row>
-          <Grid fluid>
+      <div>
+        {overWarning}
+      <Row>
+        <Grid fluid>
           <Col md={10}>
             <Row className='program'>
               {this.state.program.program.segments.map((item, index) => {
@@ -109,6 +129,7 @@ var Component = React.createClass({
                                  ref={'column-' + index}
                                  cleanup={this.cleanupDrag}
                                  finishDrop={this.finishDrop}
+                                 handleOver={this.handleOver}
                                  day={index} />
                 })}
             </Row>
@@ -130,7 +151,8 @@ var Component = React.createClass({
           </ListGroup>
         </Col>
       </Grid>
-        </Row>
+    </Row>
+    </div>
     )
   }
 })

@@ -123,7 +123,8 @@
   "program": {
     "alerts": {
       "delete": "Program deleted",
-      "update": "Program updated"
+      "update": "Program updated",
+      "over": "Some days contain segment that span over midnight. These segments will be shortened or deleted"
     },
     "buttons": {
       "create": "Create program",

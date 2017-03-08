@@ -125,7 +125,8 @@
   "program": {
     "alerts": {
       "delete": "Program byl smazán",
-      "update": "Program byl upraven"
+      "update": "Program byl upraven",
+      "over": "Některé dny obsahují segmenty, které přesahují půlnoc. Takové segmenty budou zkráceny či odstraněny."
     },
     "buttons": {
       "create": "Vytvořit program",

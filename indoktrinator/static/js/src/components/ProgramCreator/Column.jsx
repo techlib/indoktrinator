@@ -7,14 +7,15 @@ import {Types} from './Types'
 import {cloneDeep, filter, map} from 'lodash'
 import {translate} from 'react-i18next'
 import {isEqual, findIndex, reduce} from 'lodash'
+import {Icon} from '../Icon'
 
 export var Column = translate(['program', 'common'], {withRef: true})(
 React.createClass({
 
   spaceCounter: 0,
+  DAY_END: 86400,
 
   getData() {
-    const DAY_END = 86400
     var items = this.removeSpaces(this.state.items)
 
     items = map(items, (item) => {
@@ -27,9 +28,9 @@ React.createClass({
         day: this.props.day
       }
 
-      if (item.range[0] < DAY_END && item.range[1] > DAY_END) {
-        r.range[1] = DAY_END
-      } else if (item.range[0] >= DAY_END) {
+      if (item.range[0] < this.DAY_END && item.range[1] > this.DAY_END) {
+        r.range[1] = this.DAY_END
+      } else if (item.range[0] >= this.DAY_END) {
         return null
       }
       return r
@@ -50,7 +51,18 @@ React.createClass({
   },
 
   getInitialState() {
-    return {items: [], itemsLoaded: false}
+    return {items: [], itemsLoaded: false, isOver: false}
+  },
+
+  checkIsOver() {
+    var items = this.state.items
+    var isOver = false
+    if (items.length > 0) {
+      isOver = items[items.length - 1].range[1] > this.DAY_END
+    }
+
+    this.setState({isOver: isOver})
+    this.props.handleOver(this.props.day, isOver)
   },
 
   addToItems(obj, pos) {
@@ -228,7 +240,9 @@ React.createClass({
           return item
         }), 0))
       }
-      }))
+    }), () => {
+      this.checkIsOver()
+    })
   },
 
   saveSegment(pos, start, end, mode, sidebar, panel) {
@@ -242,8 +256,9 @@ React.createClass({
 
     this.setState({
       items: this.createEmptyItems(this.removeSpaces(items))
+    }, () => {
+      this.checkIsOver()
     })
-
   },
 
   makeDirty(pos) {
@@ -259,7 +274,9 @@ React.createClass({
     items.splice(pos, 1)
     items = this.mergeSpaces(items)
     items = this.flowFrom(items, Math.max(pos - 1, 0))
-    this.setState({items: items})
+    this.setState({items: items}, () => {
+      this.checkIsOver()
+    })
   },
 
   flowFrom(srcItems, from) {
@@ -285,11 +302,13 @@ React.createClass({
   },
 
   render() {
+    var overIcon = this.state.isOver && <Icon pf='warning-triangle-o' />
+
     return <div className="col">
       <div className="list-group">
         <div className="list-group-item">
           <h4 className="list-group-item-heading">
-            {this.props.t('program:days.' + this.props.day)}
+            {overIcon} {this.props.t('program:days.' + this.props.day)}
           </h4>
         </div>
 
