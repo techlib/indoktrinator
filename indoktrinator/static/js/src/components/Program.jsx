@@ -27,6 +27,8 @@ export var Program = translate(['program', 'common'])(React.createClass({
     return {
 			program: {program: {segments: [], events: []}},
       playlist: {list: []},
+      programLoaded: false,
+      playlistsLoaded: false
 		}
   },
 
@@ -35,8 +37,10 @@ export var Program = translate(['program', 'common'])(React.createClass({
   },
 
   reload() {
-		ProgramActions.read(this.props.params.uuid)
-		PlaylistActions.list()
+    ProgramActions.read.triggerAsync(this.props.params.uuid)
+      .done(() => {this.setState({programLoaded: true})})
+		PlaylistActions.list.triggerAsync()
+      .done(() => {this.setState({playlistsLoaded: true})})
   },
 
   saveName(name) {
@@ -136,7 +140,9 @@ export var Program = translate(['program', 'common'])(React.createClass({
       program: this.state.program.program,
       verifyData: this.verifyData,
       parentReload: this.reload,
-      ref: 'editcontent'
+      ref: 'editcontent',
+      programLoaded: this.state.programLoaded,
+      playlistsLoaded: this.state.programLoaded
     }
 
     return (

@@ -5,6 +5,7 @@ import {translate} from 'react-i18next'
 import {Col, Row, ListGroup} from 'react-bootstrap'
 import {ProgramEventItem} from './ProgramEventItem'
 import {Icon} from './Icon'
+import {Spinner} from './Spinner'
 
 var Component = React.createClass({
 
@@ -41,7 +42,7 @@ var Component = React.createClass({
     return (
       <Row className="program">
         <Col md={12}>
-          {programCount > 0 &&
+          {(this.props.programLoaded && programCount > 0) &&
             <ListGroup className="list-view-pf list-view-pf-view">
                 {this.props.program.events.map((item) => {
                   return <ProgramEventItem date={item.date}
@@ -56,7 +57,8 @@ var Component = React.createClass({
                 })}
             </ListGroup>
           }
-          {programCount == 0 && this.getBlank()}
+          {(this.props.programLoaded && programCount == 0) && this.getBlank()}
+          {!this.props.programLoaded && <Spinner lg />}
         </Col>
       </Row>
       )
