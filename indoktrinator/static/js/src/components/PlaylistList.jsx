@@ -10,6 +10,7 @@ import moment from 'moment'
 import {translate} from 'react-i18next'
 import {filter} from 'lodash'
 import {Icon} from './Icon'
+import {Spinner} from './Spinner'
 
 let Duration = React.createClass({
   render() {
@@ -77,11 +78,12 @@ export var PlaylistList = translate(['playlist','common'])(React.createClass({
   mixins: [Reflux.connect(PlaylistStore, 'data')],
 
   componentDidMount() {
-    pa.list()
+    pa.list.triggerAsync()
+      .done(() => {this.setState({dataLoaded: true})})
   },
 
   getInitialState() {
-    return {data: {list: []}}
+    return {data: {list: []}, dataLoaded: false}
   },
 
   render() {
@@ -115,10 +117,11 @@ export var PlaylistList = translate(['playlist','common'])(React.createClass({
                 }
               )}
             </ListGroup>
-           {system.length == 0 && [
+           {(system.length == 0 && this.state.dataLoaded) && [
             <p className='lead text-center'>{t('playlist:empty.system')}</p>,
             <p className='text-center'>{t('playlist:empty.system2')}</p>]
            }
+           {!this.state.dataLoaded && <Spinner lg />}
           </Col>
 
           <Col xs={12} sm={6}>
@@ -129,12 +132,13 @@ export var PlaylistList = translate(['playlist','common'])(React.createClass({
                 }
               )}
             </ListGroup>
-            {custom.length == 0 &&
+            {(custom.length == 0 && this.state.dataLoaded) &&
               <p className='lead text-center'>{t('playlist:empty.custom')}</p>
             }
-            {(custom.length == 0 && system.length > 0) &&
+            {(custom.length == 0 && system.length > 0 && this.state.dataLoaded) &&
               <p className='text-center'>{t('playlist:empty.custom2')}</p>
             }
+            {!this.state.dataLoaded && <Spinner lg />}
           </Col>
         </Row>
       </Grid>
