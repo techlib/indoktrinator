@@ -14,6 +14,7 @@ import {Col, Row, Grid} from 'react-bootstrap'
 import {ListGroup, ListGroupItem} from 'react-bootstrap'
 import * as _ from 'lodash'
 import {Message} from './Message'
+import {Spinner} from './Spinner'
 
 var Component = React.createClass({
 
@@ -23,15 +24,19 @@ var Component = React.createClass({
   ],
 
   componentDidMount() {
-    ProgramActions.read(this.props.params.uuid)
-    PlaylistActions.list()
+    ProgramActions.read.triggerAsync(this.props.params.uuid)
+      .done(() => {this.setState({programLoaded: true})})
+    PlaylistActions.list.triggerAsync()
+      .done(() => {this.setState({playlistsLoaded: true})})
   },
 
   getInitialState() {
     return {
       program: {program: {segments: []}},
       playlist: {list: []},
-      columnsOver: _.range(0,7).map(() => false)
+      columnsOver: _.range(0,7).map(() => false),
+      playlistsLoaded: false,
+      programLoaded: false
     }
   },
 
@@ -123,7 +128,8 @@ var Component = React.createClass({
         <Grid fluid>
           <Col md={10}>
             <Row className='program'>
-              {this.state.program.program.segments.map((item, index) => {
+              {this.state.programLoaded &&
+                this.state.program.program.segments.map((item, index) => {
                   return <Column segments={item}
                                  key={index}
                                  ref={'column-' + index}
@@ -131,7 +137,8 @@ var Component = React.createClass({
                                  finishDrop={this.finishDrop}
                                  handleOver={this.handleOver}
                                  day={index} />
-                })}
+              })}
+              {!this.state.programLoaded && <Spinner lg />}
             </Row>
           </Col>
 
@@ -142,12 +149,13 @@ var Component = React.createClass({
                   {this.props.t('program:availableplaylists')}
                 </h4>
               </ListGroupItem>
-            {this.state.playlist.list.map((item) => {
+            {this.state.playlistsLoaded && this.state.playlist.list.map((item) => {
               return <Playlist name={item.name}
                 cleanup={this.cleanupDrag}
                 duration={item.duration}
                 uuid={item.uuid} />
             })}
+            {!this.state.playlistsLoaded && <Spinner lg />}
           </ListGroup>
         </Col>
       </Grid>
