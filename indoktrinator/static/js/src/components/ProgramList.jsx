@@ -11,6 +11,7 @@ import {translate} from 'react-i18next'
 import {Icon} from './Icon'
 import {filter} from 'lodash'
 import moment from 'moment'
+import {Spinner} from './Spinner'
 
 var ListViewItem = translate(['program', 'common'])(React.createClass({
 
@@ -88,12 +89,13 @@ export var ProgramList = translate(['program', 'common'])(React.createClass({
   ],
 
   componentDidMount() {
-    pa.list()
+    pa.list.triggerAsync()
+      .done(() => {this.setState({programsLoaded: true})})
     DeviceActions.list()
   },
 
   getInitialState() {
-    return {program: {list: []}, device: {list: []}}
+    return {program: {list: []}, device: {list: []}, programsLoaded: false}
   },
 
   getDevices(program) {
@@ -142,7 +144,8 @@ export var ProgramList = translate(['program', 'common'])(React.createClass({
                 )}
               </ListGroup>
             }
-            {programCount == 0 && this.getBlank()}
+            {(programCount == 0 && this.state.programsLoaded) && this.getBlank()}
+            {!this.state.programsLoaded && <Spinner lg />}
           </Col>
         </Row>
       </Grid>
