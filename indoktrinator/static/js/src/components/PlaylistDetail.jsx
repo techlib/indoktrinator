@@ -2,6 +2,7 @@ import * as React from 'react'
 import moment from 'moment'
 import {Grid, Col, Row, ListGroup, ListGroupItem} from 'react-bootstrap'
 import {Icon} from './Icon'
+import {Spinner} from './Spinner'
 
 export var PlaylistDetail = React.createClass({
 
@@ -43,6 +44,7 @@ export var PlaylistDetail = React.createClass({
               )
             })}
           </ListGroup>
+          {!this.props.dataLoaded && <Spinner lg />}
         </Col>
       </Row>
     </Grid>

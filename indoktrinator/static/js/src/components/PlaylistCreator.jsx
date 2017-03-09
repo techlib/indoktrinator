@@ -15,6 +15,7 @@ import {translate} from 'react-i18next'
 import {Grid, Row, Col, Panel, ListGroup, Button} from 'react-bootstrap'
 import {Form, FormGroup, FormControl} from 'react-bootstrap'
 import {Icon} from './Icon'
+import {Spinner} from './Spinner'
 
 var Component = React.createClass({
 
@@ -259,11 +260,12 @@ var Component = React.createClass({
           <Col xs={12} md={6}>
             <Panel header={t('playlist:items')} footer={footer}>
               <ListGroup className='list-view-pf list-view-pf-view playlist'>
-                    {this.state.items.map((item, i) => {
+                    {this.props.dataLoaded && this.state.items.map((item, i) => {
                       return (this.getItem(item, i))
                     })}
-                    {!this.state.items.length 
+                    {(!this.state.items.length && this.props.dataLoaded)
                       && <Placeholder addToItems={this.addToItems}/>}
+                    {!this.props.dataLoaded && <Spinner lg />}
               </ListGroup>
             </Panel>
           </Col>
@@ -279,7 +281,8 @@ var Component = React.createClass({
               </Form>
 
               <ListGroup className="list-view-pf list-view-pf-view playlist">
-                {this.getAvailablePlaylists()}
+                {this.props.listLoaded && this.getAvailablePlaylists()}
+                {!this.props.listLoaded && <Spinner lg />}
               </ListGroup>
             </Panel>
           </Col>

@@ -27,29 +27,36 @@ export var PlaylistEdit = React.createClass({
   ],
 
   componentDidMount() {
-    PlaylistActions.read(this.props.params.uuid)
-    PlaylistActions.list()
+    PlaylistActions.read.triggerAsync(this.props.params.uuid)
+      .done(() => {this.setState({itemLoaded: true})})
+    PlaylistActions.list.triggerAsync()
+      .done(() => {this.setState({listLoaded: true})})
     FileActions.list()
   },
 
   getInitialState() {
     return {
       playlist: {list: [], playlist: {items: [], system: true}},
-      file: {list: []}
+      file: {list: []},
+      listLoaded: false,
+      itemLoaded: false
     }
   },
 
   render() {
     return <div>{this.state.playlist.playlist.system ?
-       <PlaylistDetail
-         uuid={this.state.playlist.playlist.uuid}
-         name={this.state.playlist.playlist.name}
-         items={this.state.playlist.playlist.items}
-       />
+      <PlaylistDetail
+        dataLoaded={this.state.itemLoaded}
+        uuid={this.state.playlist.playlist.uuid}
+        name={this.state.playlist.playlist.name}
+        items={this.state.playlist.playlist.items}
+      />
      : <PlaylistCreator
-       playlist={this.state.playlist}
-       files={this.state.file.list}
-       items={getItems(this.state.playlist.playlist)}
+        dataLoaded={this.state.itemLoaded}
+        listLoaded={this.state.listLoaded}
+        playlist={this.state.playlist}
+        files={this.state.file.list}
+        items={getItems(this.state.playlist.playlist)}
      />}</div>
   }
 })
