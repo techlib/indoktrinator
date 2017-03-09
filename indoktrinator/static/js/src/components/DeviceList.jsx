@@ -7,17 +7,19 @@ import {DeviceListPanel} from './DeviceListPanel'
 import {translate} from 'react-i18next'
 import {Grid, Col, Row} from 'react-bootstrap'
 import {Icon} from './Icon'
+import {Spinner} from './Spinner'
 
 export var DeviceList = translate(['device'])(React.createClass({
 
   mixins: [Reflux.connect(DeviceStore, 'data')],
 
   componentDidMount() {
-    DeviceActions.list()
+    DeviceActions.list.triggerAsync()
+      .done(() => {this.setState({dataLoaded: true})})
   },
 
   getInitialState() {
-    return {data: {list: []}}
+    return {data: {list: []}, dataLoaded: false}
   },
 
   getBlank() {
@@ -61,7 +63,9 @@ export var DeviceList = translate(['device'])(React.createClass({
             }
           )}
         </Row>
-        {this.state.data.list.length == 0 && this.getBlank()}
+        {(this.state.data.list.length == 0 && this.state.dataLoaded)
+          && this.getBlank()}
+        {!this.state.dataLoaded && <Spinner lg />}
     </Grid>
     )
   }
