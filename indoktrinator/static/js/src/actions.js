@@ -1,8 +1,9 @@
 import * as Reflux from 'reflux-core'
 import RefluxPromise from 'reflux-promise'
 import * as _ from 'lodash'
+import Q from "q"
 
-Reflux.use(RefluxPromise(window.Promise))
+Reflux.use(RefluxPromise(Q.Promise))
 
 // Simple helper to create actions with {asyncResult: true}
 // Most of these actions call api anyway and it does nothing
