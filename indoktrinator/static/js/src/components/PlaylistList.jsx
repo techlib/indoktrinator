@@ -23,20 +23,9 @@ let Duration = React.createClass({
 
 var ListViewItem = translate(['playlist', 'common'])(React.createClass({
 
-  handleDeletePlayList() {
-    confirmModal(
-      this.props.t('confirm.areyousure'),
-      this.props.t('playlist:confirm.delete', {name: this.props.name}),
-      {confirmLabel: this.props.t('playlist:confirm.deletebutton')}
-    ).then(() => {
-      pa.delete(this.props.uuid)
-      .then(() => {
-        pa.list()
-        FeedbackActions.set('success', this.props.t('playlist:alerts.delete'))
-      })
-    })
+  delete() {
+    this.props.handleDelete(this.props.uuid, this.props.name)
   },
-
 
   render() {
     const {t} = this.props
@@ -44,7 +33,7 @@ var ListViewItem = translate(['playlist', 'common'])(React.createClass({
       <div className="list-group-item">
         <div className="list-view-pf-actions">
           {!this.props.system &&
-                <button className="btn btn-default" onClick={this.handleDeletePlayList}>{t('playlist:buttons.delete')}</button>
+                <button className="btn btn-default" onClick={this.delete}>{t('playlist:buttons.delete')}</button>
           }
         </div>
         <div className="list-view-pf-main-info">
@@ -86,6 +75,22 @@ export var PlaylistList = translate(['playlist','common'])(React.createClass({
     return {data: {list: []}, dataLoaded: false}
   },
 
+  handleDelete(uuid, name) {
+    confirmModal(
+      this.props.t('confirm.areyousure'),
+      this.props.t('playlist:confirm.delete', {name: name}),
+      {confirmLabel: this.props.t('playlist:confirm.deletebutton')}
+    ).then(() => {
+      pa.delete(uuid)
+      .then(() => {
+        this.setState({dataLoaded: false})
+        pa.list.triggerAsync()
+          .done(() => {this.setState({dataLoaded: true})})
+        FeedbackActions.set('success', this.props.t('playlist:alerts.delete'))
+      })
+    })
+  },
+
   render() {
 
     const {t} = this.props
@@ -112,7 +117,7 @@ export var PlaylistList = translate(['playlist','common'])(React.createClass({
          <Col xs={12} sm={6}>
            <h3>{t('playlist:type.system')}</h3>
             <ListGroup className='list-view-pf list-view-pf-view'>
-              {system.map(function (item) {
+              {this.state.dataLoaded && system.map(function (item) {
                   return <ListViewItem {...item} key={item.uuid} />
                 }
               )}
@@ -127,8 +132,9 @@ export var PlaylistList = translate(['playlist','common'])(React.createClass({
           <Col xs={12} sm={6}>
             <h3>{t('playlist:type.custom')}</h3>
             <ListGroup className='list-view-pf list-view-pf-view'>
-              {custom.map(function (item) {
-                  return <ListViewItem {...item} key={item.uuid} />
+              {this.state.dataLoaded && custom.map((item) => {
+                return <ListViewItem {...item} key={item.uuid}
+                  handleDelete={this.handleDelete} />
                 }
               )}
             </ListGroup>
