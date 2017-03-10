@@ -61,8 +61,14 @@ def make_plan(store, base_url, uuid):
     # Use another tree to track screen layouts.
     ltree = IntervalTree()
 
+    # And another tree to track device power
+    pwrtree = IntervalTree()
+
     # Start with an interval covering the whole 4h window.
     ltree[not_before:not_after] = DEFAULT_LAYOUT
+
+    # Assume off is default
+    pwrtree[not_before:not_after] = 'standby'
 
     for segment in store.segment.filter(program=uuid, day=today.weekday()):
         insert_segment(ptree, today, segment)
@@ -141,6 +147,46 @@ def make_plan(store, base_url, uuid):
                 # Advance to the next segment.
                 break
 
+    power = []
+
+    # minutes to start device before segment
+    before_on = 3
+    # minutes to stop device aftersegment
+    after_on = 2
+    # maximum number of minutes to keep device on withtout program
+    max_empty = 20
+
+    # Set power intervals
+    for interval in sorted(ptree):
+
+        if interval.end < not_before:
+            continue
+
+        if interval.begin > not_after:
+            break
+
+        # Start device a few mintues before start time to warmup
+        begin = interval.begin - 60 * before_on
+        # Shutdown device a few minutes after playback stopped
+        end = interval.end + 60 * after_on
+
+        pwrtree.chop(begin, end)
+        pwrtree[begin:end] = 'on'
+
+    for interval in sorted(pwrtree):
+        duration = interval.end - interval.begin
+
+        state = interval.data
+
+        if state == 'standby' and duration < (max_empty * 60):
+            state = 'on'
+
+        power.append({
+            'start': interval.begin,
+            'end': interval.end,
+            'power': state
+        })
+
     log.msg('''
         New plan has {} items and {} layouts.
     '''.strip().format(len(items), len(layouts)))
@@ -149,6 +195,7 @@ def make_plan(store, base_url, uuid):
         'id': uuid4().hex,
         'items': items,
         'layouts': layouts,
+        'power': power
     }
 
 
