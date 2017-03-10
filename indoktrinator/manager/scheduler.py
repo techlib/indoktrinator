@@ -23,6 +23,7 @@ EMPTY_PLAN = {
     'id': '0' * 32,
     'items': [],
     'layouts': [],
+    'power': [{'start': 0, 'end': 86400, 'power': 'standby'}]
 }
 
 DEFAULT_LAYOUT = {
