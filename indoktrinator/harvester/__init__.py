@@ -260,8 +260,6 @@ class Harvester (Tree):
         plst = self.db.playlist.filter_by(path=playlist).one_or_none()
 
         if plst is not None:
-            # FIXME: Calculate position properly.
-
             log.msg('Create item {!r}...'.format(path))
             self.db.item.insert(**{
                 'playlist': plst.uuid,
