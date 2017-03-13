@@ -1,5 +1,4 @@
 Twisted
-Pillow
 Werkzeug
 Flask
 SQLAlchemy
