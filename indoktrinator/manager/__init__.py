@@ -45,6 +45,10 @@ class Manager:
         # Plans based on the store data.
         self.plans = {}
 
+        # Delayed change application, used by on_change().
+        self.change_application = reactor.callLater(1, self.apply_changes)
+        self.change_application.cancel()
+
     def start(self):
         log.msg('Starting manager...')
 
@@ -124,9 +128,11 @@ class Manager:
         # Update the store with the change.
         self.store.update_with_change(table, old, new)
 
-        # FIXME: Delay applying any changes until things settle and we
-        #        stop receiving new table changes for a while.
-        self.apply_changes()
+        # Apply what we have if no changes happen for at least one second.
+        if self.change_application.active():
+            self.change_application.delay(0.1)
+        else:
+            self.change_application = reactor.callLater(1, self.apply_changes)
 
     def apply_changes(self):
         """
