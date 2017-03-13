@@ -191,8 +191,6 @@ def make_plan(store, base_url, uuid,
         New plan has {} items and {} layouts.
     '''.strip().format(len(items), len(layouts)))
 
-    log.msg('Power plan: {}'.format(power))
-
     return {
         'id': uuid4().hex,
         'items': items,
