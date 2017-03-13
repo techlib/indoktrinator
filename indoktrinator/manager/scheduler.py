@@ -152,9 +152,9 @@ def make_plan(store, base_url, uuid):
 
     # minutes to start device before segment
     before_on = 3
-    # minutes to stop device aftersegment
+    # minutes to stop device after segment
     after_on = 2
-    # maximum number of minutes to keep device on withtout program
+    # maximum number of minutes to keep device on without program
     max_empty = 20
 
     # Set power intervals
@@ -166,7 +166,7 @@ def make_plan(store, base_url, uuid):
         if interval.begin > not_after:
             break
 
-        # Start device a few mintues before start time to warmup
+        # Start device a few minutes before start time to warm up
         begin = interval.begin - 60 * before_on
         # Shutdown device a few minutes after playback stopped
         end = interval.end + 60 * after_on
