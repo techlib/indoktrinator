@@ -33,7 +33,10 @@ DEFAULT_LAYOUT = {
 }
 
 
-def make_plan(store, base_url, uuid):
+def make_plan(store, base_url, uuid,
+              power_up_before=60,
+              power_down_after=60,
+              power_down_gap=600):
     """
     Generate plan for selected program in the store.
     The plan goes at least 4 hours into the future.
@@ -150,13 +153,6 @@ def make_plan(store, base_url, uuid):
 
     power = []
 
-    # minutes to start device before segment
-    before_on = 3
-    # minutes to stop device after segment
-    after_on = 2
-    # maximum number of minutes to keep device on without program
-    max_empty = 20
-
     # Set power intervals
     for interval in sorted(ptree):
 
@@ -166,10 +162,11 @@ def make_plan(store, base_url, uuid):
         if interval.begin > not_after:
             break
 
-        # Start device a few minutes before start time to warm up
-        begin = interval.begin - 60 * before_on
-        # Shutdown device a few minutes after playback stopped
-        end = interval.end + 60 * after_on
+        # Power the device up a few seconds ahead to let it warm up.
+        begin = interval.begin - power_up_before
+
+        # Power the device down a few seconds after the segment ends.
+        end = interval.end + power_down_after
 
         pwrtree.chop(begin, end)
         pwrtree[begin:end] = 'on'
@@ -179,7 +176,9 @@ def make_plan(store, base_url, uuid):
 
         state = interval.data
 
-        if state == 'standby' and duration < (max_empty * 60):
+        # Do not turn the device off for gaps shorter than a certain
+        # minimum to limit equipment wear and improve user experience.
+        if state == 'standby' and duration < power_down_gap:
             state = 'on'
 
         power.append({
@@ -192,11 +191,13 @@ def make_plan(store, base_url, uuid):
         New plan has {} items and {} layouts.
     '''.strip().format(len(items), len(layouts)))
 
+    log.msg('Power plan: {}'.format(power))
+
     return {
         'id': uuid4().hex,
         'items': items,
         'layouts': layouts,
-        'power': power
+        'power': power,
     }
 
 

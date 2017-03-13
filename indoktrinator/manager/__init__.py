@@ -20,13 +20,21 @@ __all__ = ['Manager']
 
 
 class Manager:
-    def __init__(self, db, notifier, router, media_path, url):
+    def __init__(self, db, notifier, router, media_path, url,
+                 power_up_before=60,
+                 power_down_after=60,
+                 power_down_gap=600):
         # Save for later and also as a form of global context.
         self.db = db
         self.notifier = notifier
         self.router = router
         self.media_path = media_path
         self.url = url
+
+        # Parameters for power scheduling.
+        self.power_up_before = int(power_up_before)
+        self.power_down_after = int(power_down_after)
+        self.power_down_gap = int(power_down_gap)
 
         # Collection of devices we have come into contact with.
         self.devices = {}
@@ -136,17 +144,16 @@ class Manager:
 
         if program is not None:
             log.msg('Program {name!r} ({uuid}) changed.'.format(**program))
-
-            plan = make_plan(self.store, self.url, uuid)
-            self.plans[uuid] = plan
+            self.plans[uuid] = make_plan(self.store, self.url, uuid,
+                                         self.power_up_before,
+                                         self.power_down_after,
+                                         self.power_down_gap)
 
         else:
             log.msg('Program {} deleted.'.format(uuid))
 
             if uuid in self.plans:
                 self.plans.pop(uuid)
-
-            plan = []
 
         self.sync_devices()
 
@@ -156,8 +163,10 @@ class Manager:
         """
 
         for uuid in self.store.program:
-            plan = make_plan(self.store, self.url, uuid)
-            self.plans[uuid] = plan
+            self.plans[uuid] = make_plan(self.store, self.url, uuid,
+                                         self.power_up_before,
+                                         self.power_down_after,
+                                         self.power_down_gap)
 
         self.sync_devices()
 
