@@ -1,7 +1,7 @@
 {
   "app": {
-    "description": "Signage management",
-    "name": "Indoktrinátor"
+    "name": "Indoktrinátor",
+    "description": "Řízení zobrazovačů"
   },
   "menu": {
     "devices": "Zařízení",
