@@ -251,7 +251,6 @@ class Harvester (Tree):
             file_preview = self.db.file_preview.filter_by(uuid=file.uuid)
             file_preview.preview = info.get('preview')
 
-
         items = self.db.item.filter_by(file=file.uuid).all()
         if len(items) > 0:
             return

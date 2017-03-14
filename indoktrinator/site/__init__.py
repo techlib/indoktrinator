@@ -6,7 +6,7 @@ from twisted.python import log
 from werkzeug.exceptions import Forbidden, NotFound
 from flask_cors import CORS
 from flask import Flask, Response, request, render_template, jsonify, \
-                  send_file, send_from_directory
+    send_file, send_from_directory
 
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from sqlalchemy import desc
@@ -369,8 +369,9 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
 
                 # Insert all the new segments as usual.
                 for segment in segments:
-                    # Make sure that we are not inserting segments for a different
-                    # program. Set correct program for those without it.
+                    # Make sure that we are not inserting segments for a
+                    # different program. Set correct program for those
+                    # without it.
                     if segment.setdefault('program', uuid) != uuid:
                         raise ValueError(segment)
 
@@ -432,7 +433,8 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
         return send_from_directory(manager.media_path, path,
                                    mimetype='application/octet-stream')
 
-    @app.route('/api/preview-image/device/<id>', methods=['GET', 'PUT', 'RESET'])
+    @app.route('/api/preview-image/device/<id>',
+               methods=['GET', 'PUT', 'RESET'])
     @authorized_only('user')
     @with_db_session(db)
     def api_device_photo(id):
