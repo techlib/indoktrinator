@@ -17,53 +17,64 @@ Absence of streaming limits the amount of devices that can be deployed, but enab
 
 ## Installation
 
-First you have to install requirements for your Linux distribution so that all required Python and JavaScript libraries can be built. For RHEL/CentOS 7 it can be done with:
+First, you have to install requirements for your Linux distribution so that all required Python and JavaScript libraries can be built. For RHEL/CentOS 7 it can be done with the commands below. You need [EPEL](https://fedoraproject.org/wiki/EPEL) repository for Python 3.
 
-    yum install gcc python34-devel npm
+```sh
+yum groupinstall -y 'Development Tools'
+yum install -y python34-devel npm
+```
 
-Since Indoktrinátor runs on [Python 3][], the dependencies are currently somewhat unstable. Most notably, [Twisted][] WSGI support was only recently ported and thus a very fresh release (newer than 15.5.0) is required.
+All Python dependencies can be fetched automatically with:
 
-If such a release is available, all dependencies can be fetched automatically with:
-
-    pip3 install -r requirements.txt
-
-In case you need to install newer Twisted:
-
-    pip3 install -e 'git+https://github.com/twisted/twisted.git@trunk#egg=twisted'
+```sh
+pip3 install -r requirements.txt
+```
 
 You might want to consider creating a sandbox (so-called [virtualenv][]) to hold these dependencies so that you do not clobber your system packages.
 
 Next, you need to download the client code dependencies. This has been automated, but still requires `make` and `npm`:
 
-    make
+```sh
+make
+```
 
 
 ## Database
 
-First you need to install PostgreSQL database in case you don't already have it. For Indoktrinator to work, we need PostgreSQL 9.4+. Assuming you're on RHEL/CentOS 7+, you should start with adding official PostgreSQL repository using this:
+You need to install PostgreSQL database in case you do not already have it. Use PostgreSQL 9.4+ or newer. Assuming you are installing it on RHEL/CentOS 7+, start with adding the official PostgreSQL repository.
 
-    yum install https://download.postgresql.org/pub/repos/yum/9.6/redhat/rhel-7-x86_64/pgdg-redhat96-9.6-3.noarch.rpm
+```sh
+yum install -y https://download.postgresql.org/pub/repos/yum/9.6/redhat/rhel-7-x86_64/pgdg-redhat96-9.6-3.noarch.rpm
+```
 
 After that, the database itself needs to be installed:
 
-    yum install postgresql96-server postgresql96-contrib
+```sh
+yum install -y postgresql96-server postgresql96-contrib
+```
 
 And then initialized:
 
-    /usr/pgsql-9.6/bin/postgresql96-setup initdb
+```sh
+/usr/pgsql-9.6/bin/postgresql96-setup initdb
+```
 
 Then you probably want to enable the service and make some basic configuration in `/var/lib/pgsql/9.6/data/pg_hba.conf`.
 
 You need to initialize your database with the `sql/schema.sql` script. After creating the login role and the database as usual:
 
-    CREATE ROLE indoktrinator ENCRYPTED PASSWORD 'indoktrinator' LOGIN;
-    CREATE DATABASE indoktrinator OWNER indoktrinator;
-    \c indoktrinator
-    ALTER SCHEMA public OWNER TO indoktrinator;
+```sql
+CREATE ROLE indoktrinator ENCRYPTED PASSWORD 'indoktrinator' LOGIN;
+CREATE DATABASE indoktrinator OWNER indoktrinator;
+\c indoktrinator
+ALTER SCHEMA public OWNER TO indoktrinator;
+```
 
 You should just read the file in:
 
-    psql -U indoktrinator indoktrinator <sql/schema.sql
+```sh
+psql -U indoktrinator indoktrinator <sql/schema.sql
+```
 
 And that's it.
 
@@ -72,7 +83,9 @@ And that's it.
 
 Create a configuration file based on the included `config/indoktrinator.ini` and start the application with:
 
-    bin/indoktrinator -c config/indoktrinator.ini
+```sh
+bin/indoktrinator -c config/indoktrinator.ini
+```
 
 If you feel like it, create an [unit file][] to start the application automatically.
 
@@ -92,12 +105,16 @@ There are several ways to get this header set, but you probably want to use [htt
 
 Documentation requires `asciidoctor` with some add-ons:
 
-    gem install asciidoctor asciidoctor-diagram
-    gem install --pre asciidoctor-pdf
+```sh
+gem install asciidoctor asciidoctor-diagram
+gem install --pre asciidoctor-pdf
+```
 
 Since it contains some diagrams, you also need `plantuml`:
 
-    yum install -y plantuml
+```sh
+yum install -y plantuml
+```
 
 You most probably do not care, since its just the original project specification written in Czech. Sorry for that.
 
