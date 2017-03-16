@@ -2,15 +2,8 @@
 # -*- coding: utf-8 -*-
 
 # Twisted helps with async tasks.
-# The application threads are structured in the following way:
-#
-#  reactor
-#   `-- harvester (1 thread)
-#   `-- workers (8 threads)
-#
 from twisted.internet import reactor
 from twisted.web.wsgi import WSGIResource
-from twisted.python.threadpool import ThreadPool
 from twisted.python import log
 
 # Data are accessed through SQLSoup, using SQLAlchemy.
