@@ -17,6 +17,10 @@ Absence of streaming limits the amount of devices that can be deployed, but enab
 
 ## Installation
 
+First you have to install requirements for your Linux distribution so that all required Python and JavaScript libraries can be built. For RHEL/CentOS 7 it can be done with:
+
+    yum install gcc python34-devel npm
+
 Since Indoktrinátor runs on [Python 3][], the dependencies are currently somewhat unstable. Most notably, [Twisted][] WSGI support was only recently ported and thus a very fresh release (newer than 15.5.0) is required.
 
 If such a release is available, all dependencies can be fetched automatically with:
@@ -35,6 +39,20 @@ Next, you need to download the client code dependencies. This has been automated
 
 
 ## Database
+
+First you need to install PostgreSQL database in case you don't already have it. For Indoktrinator to work, we need PostgreSQL 9.4+. Assuming you're on RHEL/CentOS 7+, you should start with adding official PostgreSQL repository using this:
+
+    yum install https://download.postgresql.org/pub/repos/yum/9.6/redhat/rhel-7-x86_64/pgdg-redhat96-9.6-3.noarch.rpm
+
+After that, the database itself needs to be installed:
+
+    yum install postgresql96-server postgresql96-contrib
+
+And then initialized:
+
+    /usr/pgsql-9.6/bin/postgresql96-setup initdb
+
+Then you probably want to enable the service and make some basic configuration in `/var/lib/pgsql/9.6/data/pg_hba.conf`.
 
 You need to initialize your database with the `sql/schema.sql` script. After creating the login role and the database as usual:
 
