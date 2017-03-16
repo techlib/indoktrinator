@@ -6,7 +6,7 @@ from twisted.internet import reactor
 from twisted.python import log
 
 from jsonschema import validate, ValidationError
-from json import loads, dumps, JSONDecodeError
+from simplejson import loads, dumps
 from uuid import uuid4
 from time import time
 
