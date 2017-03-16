@@ -5,7 +5,7 @@
 from getopt import gnu_getopt
 from sys import argv, stderr, stdout
 
-from subprocess import PIPE, STDOUT, Popen, check_output
+from subprocess import STDOUT, Popen, check_output
 from simplejson import loads, dump
 from base64 import b64encode
 
@@ -72,7 +72,7 @@ if __name__ == '__main__':
                 filename,
             ]
 
-            stdout = check_output(args, stdout=PIPE)
+            stdout = check_output(args)
             info = loads(stdout.decode('utf-8'))
 
             return float(info['format']['duration'])
