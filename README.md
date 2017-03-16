@@ -17,11 +17,11 @@ Absence of streaming limits the amount of devices that can be deployed, but enab
 
 ## Installation
 
-First, you have to install requirements for your Linux distribution so that all required Python and JavaScript libraries can be built. For RHEL/CentOS 7 it can be done with the commands below. You need [EPEL](https://fedoraproject.org/wiki/EPEL) repository for Python 3.
+First, you have to install requirements for your Linux distribution so that all required Python and JavaScript libraries can be built. For RHEL/CentOS 7 it can be done with the commands below. You need [EPEL][] repository for Python 3 and [NUX Desktop][] for FFMPEG.
 
 ```sh
 yum groupinstall -y 'Development Tools'
-yum install -y python34-devel npm
+yum install -y python34-devel npm ffmpeg
 ```
 
 All Python dependencies can be fetched automatically with:
@@ -127,3 +127,5 @@ You most probably do not care, since its just the original project specification
 [httpd]: https://httpd.apache.org/docs/2.4/
 [Shibboleth SSO]: https://shibboleth.net/
 [Telescreen]: http://github.com/techlib/telescreen/
+[EPEL]: https://fedoraproject.org/wiki/EPEL
+[NUX Desktop]: https://li.nux.ro/repos.html
