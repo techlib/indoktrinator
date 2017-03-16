@@ -7,7 +7,6 @@ from twisted.internet.task import LoopingCall
 from twisted.internet import reactor, utils
 
 from os.path import sep, join, relpath, isfile, isdir, basename
-from natsort import natsorted, ns
 from simplejson import loads
 from base64 import b64decode
 

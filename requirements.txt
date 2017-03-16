@@ -11,6 +11,5 @@ txZMQ
 pyyaml
 jsonschema
 flask-cors
-natsort
 intervaltree
 simplejson
