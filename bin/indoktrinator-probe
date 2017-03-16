@@ -5,7 +5,7 @@
 from getopt import gnu_getopt
 from sys import argv, stderr, stdout
 
-from subprocess import PIPE, STDOUT, Popen, run
+from subprocess import PIPE, STDOUT, Popen, check_output
 from simplejson import loads, dump
 from base64 import b64encode
 
@@ -50,8 +50,8 @@ if __name__ == '__main__':
         })
 
     def get_type(filename):
-        proc = run(['file', '-b', '--mime-type', filename], stdout=PIPE)
-        return proc.stdout.decode('utf-8').split('/')[0]
+        stdout = check_output(['file', '-b', '--mime-type', filename])
+        return stdout.decode('utf-8').split('/')[0]
 
     def get_image_duration(filename):
         find = re.search(r'\((\d+)s\)|\[(\d+)s\]', filename)
@@ -72,8 +72,8 @@ if __name__ == '__main__':
                 filename,
             ]
 
-            proc = run(args, stdout=PIPE)
-            info = loads(proc.stdout.decode('utf-8'))
+            stdout = check_output(args, stdout=PIPE)
+            info = loads(stdout.decode('utf-8'))
 
             return float(info['format']['duration'])
 
