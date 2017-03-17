@@ -300,6 +300,9 @@ class Harvester (Tree):
 
             log.msg('Rename playlist {!r} -> {!r}...'.format(plst.path, path))
 
+            # Remove the previous playlist going by that name.
+            self.db.playlist.filter_by(path=path).delete()
+
             # Perform the update.
             plst.path = path
             plst.name = path
