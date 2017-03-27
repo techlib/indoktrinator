@@ -51,7 +51,23 @@ if __name__ == '__main__':
 
     def get_type(filename):
         stdout = check_output(['file', '-b', '--mime-type', filename])
-        return stdout.decode('utf-8').split('/')[0]
+        if 'image' in stdout.decode('utf-8').split('/')[0]:
+            return 'image'
+        else:
+            args = [
+                'ffprobe',
+                '-v', 'quiet',
+                '-select_streams', 'v:0',
+                '-show_entries', 'stream=codec_type',
+                '-of', 'default=nokey=1:noprint_wrappers=1',
+                filename,
+            ]
+
+            stdout = check_output(args)
+            if 'video' in stdout.decode('utf-8'):
+                return 'video'
+            else:
+                return 'unsupported'
 
     def get_image_duration(filename):
         find = re.search(r'\((\d+)s\)|\[(\d+)s\]', filename)
