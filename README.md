@@ -61,6 +61,16 @@ And then initialized:
 
 Then you probably want to enable the service and make some basic configuration in `/var/lib/pgsql/9.6/data/pg_hba.conf`.
 
+For proper sorting of files you need to compile and install pg extension [pg_strverscmp][].
+
+```sh
+yum install -y postgresql96-devel libunistring libunistring-devel
+git clone https://github.com/singularita/pg_strverscmp.git
+cd pg_strverscmp
+make
+make install
+```
+
 You need to initialize your database with the `sql/schema.sql` script. After creating the login role and the database as usual:
 
 ```sql
@@ -129,3 +139,4 @@ You most probably do not care, since its just the original project specification
 [Telescreen]: http://github.com/techlib/telescreen/
 [EPEL]: https://fedoraproject.org/wiki/EPEL
 [NUX Desktop]: https://li.nux.ro/repos.html
+[pg_strverscmp]: https://github.com/singularita/pg_strverscmp

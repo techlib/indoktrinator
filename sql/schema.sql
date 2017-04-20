@@ -43,6 +43,20 @@ COMMENT ON EXTENSION btree_gist IS 'support for indexing common datatypes in GiS
 
 
 --
+-- Name: pg_strverscmp; Type: EXTENSION; Schema: -; Owner: 
+--
+
+CREATE EXTENSION IF NOT EXISTS pg_strverscmp WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION pg_strverscmp; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION pg_strverscmp IS 'Linux-specific natural sort';
+
+
+--
 -- Name: uuid-ossp; Type: EXTENSION; Schema: -; Owner: 
 --
 
@@ -164,7 +178,7 @@ CREATE FUNCTION update_item_positions() RETURNS trigger
   UPDATE item SET position = sq.rank
   FROM
    (SELECT item.uuid as uuid, file.uuid as fuid,
-           RANK() OVER(PARTITION BY item.playlist ORDER BY file.path) as rank,
+           RANK() OVER(PARTITION BY item.playlist ORDER BY file.path USING +<) as rank,
            sq_playlist.token
     FROM file
     JOIN item ON file.uuid = item.file
@@ -174,7 +188,7 @@ CREATE FUNCTION update_item_positions() RETURNS trigger
           WHERE file.uuid = NEW.uuid)
         AS sq_playlist
         ON item.playlist = sq_playlist.uuid
-    ORDER BY file.path ASC) as sq
+    ORDER BY file.path USING +<) as sq
   WHERE sq.uuid = item.uuid 
   AND sq.token <> '';
   RETURN NEW;
