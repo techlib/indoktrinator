@@ -197,7 +197,10 @@ class Watch:
         if name is not None:
             kwargs['name'] = name
 
-        self.callback(event, watch=self, **kwargs)
+        try:
+            self.callback(event, watch=self, **kwargs)
+        except Exception as exn:
+            log.err(exn)
 
     def ignore(self):
         """
