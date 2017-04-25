@@ -123,6 +123,7 @@ def make_plan(store, base_url, uuid,
             break
 
         playlist = store.item.filter(playlist=interval.data['playlist'])
+        playlist = sorted(playlist, key=lambda item: item['position'])
 
         for item in cycle(playlist):
             # Locate the file backing the item.
