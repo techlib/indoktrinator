@@ -23,7 +23,6 @@ class Tree:
         self.path = realpath(path)
         self.notify = INotify(reactor=reactor)
         self.root = Node(self, None, self.path, True)
-        self.moves = {}
 
     def start(self):
         """
@@ -33,42 +32,11 @@ class Tree:
         self.notify.startReading()
         self.root.scan()
 
-    def begin_move(self, child, cookie):
-        """
-        Begin a new file move.
-        """
-
-        self.moves[cookie] = Move(child, cookie)
-        return self.moves[cookie]
-
-    def finish_move(self, dest, name, cookie):
-        """
-        Successfully end a file move.
-        """
-
-        if cookie in self.moves:
-            move = self.moves.pop(cookie)
-            move.finish(dest, name)
-            return True
-
-        return False
-
-    def fail_move(self, cookie):
-        """
-        Discard a failed file move record.
-        """
-
-        if cookie in self.moves:
-            self.moves.pop(cookie)
-
     def on_update(self, node):
         log.msg('Node {!r} updated.'.format(node.path))
 
     def on_delete(self, node):
         log.msg('Node {!r} deleted.'.format(node.path))
-
-    def on_move(self, node):
-        log.msg('Node {!r} moved.'.format(node.path))
 
 
 class Node:
@@ -108,58 +76,27 @@ class Node:
         if self.watch is None:
             self.watch = self.tree.notify.watch(self.path, self.on_event,
                                                 mask=IN_TREE_EVENTS)
-            self.tree.on_move(self)
+            self.tree.on_update(self)
 
         if not self.is_dir:
             return
 
-        tries = 3
-        while True:
-            try:
-                missing = set(self.children)
+        missing = set(self.children)
 
-                for base, dirs, files in walk(self.path):
-                    for dname in dirs:
-                        missing.discard(dname)
-                        self.add_child(dname, True)
+        for base, dirs, files in walk(self.path):
+            for dname in dirs:
+                missing.discard(dname)
+                self.add_child(dname, True)
 
-                    for fname in files:
-                        missing.discard(fname)
-                        self.add_child(fname, False)
+            for fname in files:
+                missing.discard(fname)
+                self.add_child(fname, False)
 
-                    for child in missing:
-                        child = self.children.pop(missing)
-                        child.lost()
+            for child in missing:
+                child = self.children.pop(missing)
+                child.lost()
 
-                    break
-                break
-
-            except OSError:
-                log.msg('Failed to scan {!r}.'.format(self.path))
-
-                if tries == 0:
-                    tries -= 1
-                    log.err()
-                    continue
-
-                log.msg('Giving up.')
-                raise
-
-    def rename(self, dest, name):
-        """
-        Change node parent and name in reaction to a move.
-        """
-
-        self.prev = self.path
-
-        self.parent = dest
-        self.parent.children[name] = self
-        self.path = join(dest.path, name)
-
-        self.tree.on_move(self)
-
-        for child_name, child in self.children.items():
-            child.rename(self, child_name)
+            break
 
     def add_child(self, name, is_dir):
         assert self.is_dir, 'Cannot add child node to a non-directory'
@@ -179,21 +116,19 @@ class Node:
 
         self.children = {}
 
-        self.watch.ignore()
+        if self.watch is not None:
+            self.watch.ignore()
+
         self.tree.on_delete(self)
 
     def on_event(self, event, **kwargs):
         """Called when a file system change is detected."""
 
-        handler = 'on_' + event
-
         assert kwargs.pop('watch') is self.watch
 
+        handler = 'on_' + event
         if hasattr(self, handler):
-            # log.msg('Handle {!r} {!r}...'.format(event, kwargs))
             getattr(self, handler)(**kwargs)
-        else:
-            log.msg('No handler for {!r} {!r}.'.format(event, kwargs))
 
     def on_close_write(self, name=None, is_dir=False):
         if name is None:
@@ -205,32 +140,18 @@ class Node:
         self.tree.on_update(child)
 
     def on_create(self, name, is_dir=False):
-        try:
-            # We might lose the race to install the watch.
-            child = self.add_child(name, is_dir)
-        except OSError:
-            return
-
+        child = self.add_child(name, is_dir)
         self.tree.on_update(child)
 
     def on_delete(self, name, is_dir=False):
         if name in self.children:
-            self.children.pop(name)
+            self.children.pop(name).lost()
 
     def on_moved_from(self, name, cookie, is_dir=False):
         if name in self.children:
-            # Remove the child from this parent and start a delayed lost.
-            # It can be interrupted by a successfull move to another node.
-            child = self.children.pop(name)
-            self.tree.begin_move(child, cookie)
+            self.children.pop(name).lost()
 
     def on_moved_to(self, name, cookie, is_dir=False):
-        # Try to finish an intra-tree move.
-        if self.tree.finish_move(self, name, cookie):
-            return
-
-        # It failed, which means that we did not know about it,
-        # ergo it came from the outside of the tree.
         if is_dir:
             self.on_create(name, is_dir)
         else:
@@ -241,26 +162,6 @@ class Node:
 
     def on_ignored(self):
         pass
-
-
-class Move:
-    """Process of file move."""
-
-    def __init__(self, node, cookie):
-        self.node = node
-        self.cookie = cookie
-        self.timer = reactor.callLater(0.1, self.lost)
-
-    def finish(self, dest, name):
-        try:
-            self.timer.cancel()
-            self.node.rename(dest, name)
-        except AlreadyCalled:
-            pass
-
-    def lost(self):
-        self.node.tree.fail_move(self.cookie)
-        self.node.lost()
 
 
 if __name__ == '__main__':

@@ -136,36 +136,6 @@ class Harvester (Tree):
                 # A file has been deleted.
                 self.delete_item(playlist, item, node)
 
-    def on_move(self, node):
-        """
-        A file or directory has been moved.
-
-        We do not get to know the original file location, since moves are
-        also used to inform us about initially watched files. When a playlist
-        directory or file moves, we need to extract its unique identifier
-        and use it to locate the database record to update.
-        """
-
-        playlist, item = self.parse_path(node.path)
-
-        # Ignore the top-level directory.
-        if playlist is None:
-            return
-
-        prev = relpath(node.prev, self.path) if node.prev is not None else None
-        path = relpath(node.path, self.path)
-        log.msg('Node {!r} -> {!r} moved.'.format(prev, path))
-
-        if node.is_dir:
-            if item is None:
-                # A playlist directory has been moved.
-                self.rename_playlist(playlist, node)
-
-        else:
-            if item is not None:
-                # A file has been moved.
-                self.rename_item(playlist, item, node)
-
     @with_session
     def update_playlist(self, playlist, node):
         token = node.token
@@ -198,7 +168,15 @@ class Harvester (Tree):
             self.db.delete(plst)
 
     def update_item(self, playlist, item, node):
+        token = node.token
         path = relpath(node.path, self.path)
+
+        file = self.db.file.filter_by(path=path).one_or_none()
+
+        if file is not None:
+            if token == file.token:
+                # We don't want to anylyze all files on every start.
+                return
 
         def probe_done(info):
             self.update_item_with_info(playlist, item, node, info)
@@ -276,96 +254,6 @@ class Harvester (Tree):
         if file is not None:
             log.msg('Delete file {!r}...'.format(path))
             self.db.delete(file)
-
-    @with_session
-    def rename_playlist(self, playlist, node):
-        token = node.token
-        path = relpath(node.path, self.path)
-        plst = None
-
-        if node.prev is not None:
-            # We have previous file name and thus can perform the move
-            # with 100% confidence in the correct result.
-            prev = relpath(node.prev, self.path)
-            plst = self.db.playlist.filter_by(path=prev).one_or_none()
-
-        if plst is None:
-            # Without previous path we can rely only on the token.
-            plst = self.db.playlist.filter_by(token=token).one_or_none()
-
-        if plst is not None:
-            if plst.path == path and plst.token == token:
-                # Nothing to update, playlist is still good.
-                return
-
-            log.msg('Rename playlist {!r} -> {!r}...'.format(plst.path, path))
-
-            # Remove the previous playlist going by that name.
-            self.db.playlist.filter_by(path=path).delete()
-
-            # Perform the update.
-            plst.path = path
-            plst.name = path
-
-            # We might have been unable to obtain the token,
-            # so do not damage the previous one.
-            if 'unknown:' not in token:
-                plst.token = token
-
-        else:
-            log.msg('Failed to move playlist {!r}, updating.'.format(playlist))
-            self.update_playlist(playlist, node)
-
-    @with_session
-    def rename_item(self, playlist, item, node):
-        token = node.token
-        path = relpath(node.path, self.path)
-        file = None
-
-        if node.prev is not None:
-            # We have previous file name and thus can perform the move
-            # with 100% confidence in the correct result.
-            prev = relpath(node.prev, self.path)
-            file = self.db.file.filter_by(path=prev).one_or_none()
-
-        if file is None:
-            # Without previous path we can rely only on the token.
-            file = self.db.file.filter_by(token=token).one_or_none()
-
-        if file is not None:
-            if file.path == path and file.token == token:
-                # Nothing to update, item is still good.
-                return
-
-            log.msg('Rename item {!r} -> {!r}...'.format(file.path, path))
-
-            # Determine correct playlist for the file.
-            plst = self.db.playlist.filter_by(path=playlist).one_or_none()
-
-            if plst is not None:
-                # We happen to know the correct playlist, so update it.
-                file.playlist = plst.uuid
-            else:
-                log.msg('Failed to locate playlist {!r}.'.format(playlist))
-
-            # Update path to the file.
-            file.path = path
-
-            # We might have been unable to obtain the token,
-            # so do not damage the previous one.
-            if 'unknown:' not in token:
-                file.token = token
-
-            # Re-check duration of all images. Their name might have changed
-            # during the move and we do not want to run the costly full probe.
-            if file.type == 'image':
-                duration = get_image_duration(basename(file.path))
-                log.msg('Duration of {!r} is now {}s.'.format(path, duration))
-                file.duration = duration
-
-        else:
-            log.msg('Failed to move item {!r}, updating.'.format(path))
-            self.update_item(playlist, item, node)
 
 
 def probe_file(filepath):
