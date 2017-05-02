@@ -207,6 +207,7 @@ class Playlist(Table):
 class Program(Table):
     NAME = 'program'
     RELS = [('segments', 'segment'), ('events', 'event')]
+    ORDER_BY = ['name']
 
 
 class Segment(Table):
