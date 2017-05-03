@@ -70,5 +70,8 @@
   },
   "author": "",
   "license": "MIT",
-  "homepage": ""
+  "homepage": "",
+  "dependencies": {
+    "react-image-fallback": "^4.0.1"
+  }
 }

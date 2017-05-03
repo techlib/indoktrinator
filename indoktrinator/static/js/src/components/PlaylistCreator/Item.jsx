@@ -6,6 +6,7 @@ import * as React from 'react'
 import moment from 'moment'
 import 'moment-duration-format'
 import {Icon} from '../Icon'
+import ReactImageFallback from "react-image-fallback"
 
 const itemSource = {
   beginDrag(props) {
@@ -69,7 +70,7 @@ var ItemComponent = React.createClass({
         <div className="list-group-item" style={{opacity}}>
           <div className="list-view-pf-main-info">
             <div className="list-view-pf-left">
-              <img src={this.props.file.preview} height="45"  width="80"
+              <ReactImageFallback src={this.props.file.preview} fallbackImage="/static/img/video.png" height="45"  width="80"
                    alt="placeholder image"/>
             </div>
             <div className="list-view-pf-body">

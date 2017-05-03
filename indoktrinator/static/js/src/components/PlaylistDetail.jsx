@@ -1,6 +1,7 @@
 import * as React from 'react'
 import moment from 'moment'
 import {Grid, Col, Row, ListGroup, ListGroupItem} from 'react-bootstrap'
+import ReactImageFallback from "react-image-fallback"
 import {Icon} from './Icon'
 import {Spinner} from './Spinner'
 
@@ -24,8 +25,8 @@ export var PlaylistDetail = React.createClass({
                 <ListGroupItem>
                   <div className="list-view-pf-main-info">
                     <div className="list-view-pf-left">
-                      <img src={item._file.preview} width="80" height="45"
-                           alt="placeholder image"/>
+                      <ReactImageFallback src={item._file.preview} width="80" height="45"
+                        alt="placeholder image" fallbackImage="/static/img/video.png"/>
                     </div>
                     <div className="list-view-pf-body">
                       <div className="list-view-pf-description">
