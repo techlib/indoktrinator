@@ -12,6 +12,7 @@ import {Column} from './ProgramCreator/Column'
 import {Playlist} from './ProgramCreator/Playlist'
 import {Col, Row, Grid} from 'react-bootstrap'
 import {ListGroup, ListGroupItem} from 'react-bootstrap'
+import {AutoAffix} from 'react-overlays'
 import * as _ from 'lodash'
 import {Message} from './Message'
 import {Spinner} from './Spinner'
@@ -141,22 +142,23 @@ var Component = React.createClass({
               {!this.state.programLoaded && <Spinner lg />}
             </Row>
           </Col>
-
           <Col md={2}>
-            <ListGroup>
-              <ListGroupItem>
-                <h4 className="list-group-item-heading">
-                  {this.props.t('program:availableplaylists')}
-                </h4>
-              </ListGroupItem>
-            {this.state.playlistsLoaded && this.state.playlist.list.map((item) => {
-              return <Playlist name={item.name}
-                cleanup={this.cleanupDrag}
-                duration={item.duration}
-                uuid={item.uuid} />
-            })}
-            {!this.state.playlistsLoaded && <Spinner lg />}
-          </ListGroup>
+            <AutoAffix>
+              <ListGroup  className='scrollable-playlists'>
+                <ListGroupItem>
+                  <h4 className="list-group-item-heading">
+                    {this.props.t('program:availableplaylists')}
+                  </h4>
+                </ListGroupItem>
+              {this.state.playlistsLoaded && this.state.playlist.list.map((item) => {
+                return <Playlist name={item.name}
+                  cleanup={this.cleanupDrag}
+                  duration={item.duration}
+                  uuid={item.uuid} />
+              })}
+              {!this.state.playlistsLoaded && <Spinner lg />}
+            </ListGroup>
+          </AutoAffix>
         </Col>
       </Grid>
     </Row>

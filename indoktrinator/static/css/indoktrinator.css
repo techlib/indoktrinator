@@ -112,3 +112,7 @@ h1.editable {
 .popover.edit .popover-content .panel{
     margin-bottom: 0;
 }
+.scrollable-playlists {
+    overflow: auto;
+    height: 80vh;
+}
