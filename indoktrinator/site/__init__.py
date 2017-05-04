@@ -202,7 +202,16 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             }))
 
         if 'DELETE' == request.method:
-            return jsonify(deleted=model.device.delete(id))
+            try:
+                return jsonify(deleted=model.device.delete(id))
+            except KeyError:
+                pass
+            finally:
+                if id not in manager.devices:
+                    raise KeyError('No device with id: {id}'.format(id=id))
+                else:
+                    del manager.devices[id]
+                return jsonify(deleted=id)
 
         if 'PATCH' == request.method:
             patch = request.get_json(force=True)
