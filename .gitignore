@@ -9,5 +9,11 @@ __pycache__
 */static/vendor/
 */static/dist/*
 /config/indoktrinator.local.ini
+*/static/dist/*
+*/static/fonts/*
+*/static/css/patternfly*
+*/static/js/patternfly*
+*/static/img/spinner*
+
 
 node_modules

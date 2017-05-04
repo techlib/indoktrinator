@@ -35,6 +35,10 @@ clean:
 	rm -rf node_modules
 	rm -rf indoktrinator/static/dist/app.bundle.js
 	rm -rf doc/*.html doc/*.pdf doc/*.png doc/*.cache doc/.asciidoctor
+	rm indoktrinator/static/dist/app.bundle.js
+	rm indoktrinator/static/fonts/*
+	rm indoktrinator/static/css/patternfly*
+	rm indoktrinator/static/js/patternfly*
 
 
 %.html: %.adoc

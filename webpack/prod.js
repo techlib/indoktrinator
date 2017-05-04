@@ -1,4 +1,5 @@
 var webpack = require('webpack')
+var CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   entry: './indoktrinator/static/js/src/components/Router.jsx',
@@ -36,6 +37,30 @@ module.exports = {
         'NODE_ENV': JSON.stringify('production')
       }
     }),
+     new CopyWebpackPlugin([
+        {
+            from: { glob: './node_modules/patternfly/dist/img/*.*'},
+            to: '../img',
+            ignore: ['brand*', 'RH*', 'apple-touch*', 'favicon',
+                     'OpenShift*', 'kubernetes*', 'logo*'],
+            flatten: true
+        },
+        {
+            from: { glob: './node_modules/patternfly/dist/fonts/*.*'},
+            to: '../fonts',
+            flatten: true
+        },
+        {
+            from: { glob: './node_modules/patternfly/dist/css/*.*'},
+            to: '../css',
+            flatten: true
+        },
+        {
+            from: { glob: './node_modules/patternfly/dist/js/*.*'},
+            to: '../js',
+            flatten: true
+        }
+      ]),
   ]
 };
 
