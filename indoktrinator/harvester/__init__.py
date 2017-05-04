@@ -183,16 +183,20 @@ class Harvester (Tree):
                 return
 
         def probe_done(info):
-            self.update_item_with_info(playlist, item, node, info)
+            if info is None:
+                return
 
-        def probe_failed(err):
-            log.msg('Failed to analyze file {!r}.'.format(node.path))
+            if 'error' in info:
+                log.msg('Probe error: {error}\nfilename: {filename}\ndetail: {message}'.format(**info))
+                return
+
+            self.update_item_with_info(playlist, item, node, info)
 
         log.msg('Probing file {!r}...'.format(path))
         d = probe_file(node.path)
 
         if d is not None:
-            d.addCallbacks(probe_done, probe_failed)
+            d.addCallback(probe_done)
 
     @with_session
     def update_item_with_info(self, playlist, item, node, info):
@@ -206,7 +210,9 @@ class Harvester (Tree):
         file = self.db.file.filter_by(path=path).one_or_none()
 
         if file is None:
-            log.msg('Create file {!r}...'.format(path))
+            log.msg('Create file {!r} (preview={})...'
+                    .format(path, 'preview' in info))
+
             file = self.db.file.insert(**{
                 'path': path,
                 'token': token,
@@ -216,21 +222,31 @@ class Harvester (Tree):
 
             self.db.flush()
 
-            preview = self.db.file_preview.insert(**{
-                'uuid': file.uuid,
-                'preview': info.get('preview'),
-            })
+            if info.get('preview'):
+                preview = self.db.file_preview.insert(**{
+                    'uuid': file.uuid,
+                    'preview': info['preview'],
+                })
 
-            self.db.flush()
+                self.db.flush()
+
         else:
-            if 'unknown:' not in token:
-                file.token = token
+            log.msg('Update file {!r} (preview={})...'
+                    .format(path, 'preview' in info))
 
             file.duration = info['duration']
             file.type = info['type']
 
-            file_preview = self.db.file_preview.filter_by(uuid=file.uuid)
-            file_preview.preview = info.get('preview')
+            self.db.flush()
+
+            if info.get('preview'):
+                self.db.file_preview.filter_by(uuid=file.uuid).delete()
+                self.db.file_preview.insert(**{
+                    'uuid': file.uuid,
+                    'preview': info['preview'],
+                })
+
+            self.db.flush()
 
         items = self.db.item.filter_by(file=file.uuid).all()
         if len(items) > 0:
@@ -267,8 +283,12 @@ def probe_file(filepath):
         log.msg('The indoktrinator-probe is not in PATH, aborting.')
         return
 
+    def probe_failed(exn):
+        log.msg('Failed to analyze file {!r}.'.format(filepath))
+        log.err(exn)
+
     d = utils.getProcessOutput(paths[0], (filepath,))
-    d.addCallback(decode_preview)
+    d.addCallbacks(decode_preview, probe_failed)
     return d
 
 
@@ -283,7 +303,10 @@ def get_image_duration(filename):
 
 def decode_preview(data):
     data = loads(data.decode('utf-8'))
-    data['preview'] = b64decode(data['preview'])
+
+    if 'preview' in data:
+        data['preview'] = b64decode(data['preview'])
+
     return data
 
 
