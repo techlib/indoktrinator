@@ -29,7 +29,7 @@ pep:
 	@python3-pep8 --show-source --ignore=E221,E712 ${pys}
 
 npm:
-	npm install
+	npm update
 
 clean:
 	rm -rf node_modules
