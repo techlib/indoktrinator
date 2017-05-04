@@ -74,8 +74,12 @@ class Node:
         """
 
         if self.watch is None:
-            self.watch = self.tree.notify.watch(self.path, self.on_event,
-                                                mask=IN_TREE_EVENTS)
+            try:
+                self.watch = self.tree.notify.watch(self.path, self.on_event,
+                                                    mask=IN_TREE_EVENTS)
+            except OSError as exn:
+                log.msg(str(exn))
+
             self.tree.on_update(self)
 
         if not self.is_dir:
@@ -117,7 +121,10 @@ class Node:
         self.children = {}
 
         if self.watch is not None:
-            self.watch.ignore()
+            try:
+                self.watch.ignore()
+            except OSError as exn:
+                log.msg(str(exn))
 
         self.tree.on_delete(self)
 
