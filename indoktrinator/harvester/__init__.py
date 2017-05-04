@@ -174,7 +174,11 @@ class Harvester (Tree):
         file = self.db.file.filter_by(path=path).one_or_none()
 
         if file is not None:
-            if token == file.token:
+            preview = self.db.file_preview \
+                .filter_by(uuid=file.uuid) \
+                .one_or_none()
+
+            if token == file.token and preview and preview.preview:
                 # We don't want to anylyze all files on every start.
                 return
 
