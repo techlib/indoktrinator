@@ -3,6 +3,8 @@ import {AdminNavBar} from './AdminNavBar'
 import { I18nextProvider } from 'react-i18next'
 import i18n from './i18n'
 import moment from 'moment'
+import {UserInfoActions} from '../actions'
+import {UserInfoStore} from '../stores/UserInfo'
 
 export var App = React.createClass({
 
@@ -15,6 +17,11 @@ export var App = React.createClass({
 
   componentWillMount() {
     moment.locale(i18n.language)
+  },
+
+  componentDidMount() {
+    // Repeatedly ping (5 minutes) server to keep session open
+    window.setInterval(UserInfoActions.read, 300000)
   },
 
   handleChangeLang(lang) {
