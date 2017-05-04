@@ -139,12 +139,10 @@ class Node:
 
     def on_close_write(self, name=None, is_dir=False):
         if name is None:
-            # Obtain the event from the parent directory,
-            # not from the file itself. No need to update twice.
-            return
-
-        child = self.add_child(name, is_dir)
-        self.tree.on_update(child)
+            self.tree.on_update(self)
+        else:
+            child = self.add_child(name, is_dir)
+            self.tree.on_update(child)
 
     def on_create(self, name, is_dir=False):
         child = self.add_child(name, is_dir)
