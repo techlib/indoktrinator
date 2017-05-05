@@ -51,6 +51,10 @@ if __name__ == '__main__':
 
     def get_type(filename):
         stdout = check_output(['file', '-b', '--mime-type', filename])
+        # ffprobe identifies plain text as video,
+        # so it needs to be sanitized here
+        if 'text/plain' in stdout.decode('utf-8'):
+            return 'unsupported'
         if 'image' in stdout.decode('utf-8').split('/')[0]:
             return 'image'
         else:
