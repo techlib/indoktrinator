@@ -187,7 +187,10 @@ class Harvester (Tree):
                 return
 
             if 'error' in info:
-                log.msg('Probe error: {error}\nfilename: {filename}\ndetail: {message}'.format(**info))
+                log.msg('Probe error: {}\nfilename: {}\ndetail: {}'
+                        .format(info.get('error'),
+                                info.get('filename'),
+                                info.get('message')))
                 return
 
             self.update_item_with_info(playlist, item, node, info)
