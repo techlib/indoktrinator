@@ -11,38 +11,34 @@ doc: html pdf
 html: ${htmls}
 pdf: ${pdfs}
 
-build: 
-	npm install
-	npm
-	node_modules/webpack/bin/webpack.js --progress --colors -p --config webpack/prod.js
+build: yarn
+	yarn run build
 
-dev: 
-	npm install
-	npm
-	node_modules/webpack/bin/webpack.js --progress --colors --watch --display-error-details --config webpack/dev.js
+watch: yarn
+	yarn run watch
+
+lint: yarn
+	yarn run lint
+
+yarn:
+	yarn
 
 lang:
 	mkdir -p scripts/tmp
 	node scripts/extract-lang.js
 	rm -rf scripts/tmp
 
-lint:
-	node_modules/eslint/bin/eslint.js --ext .js,.jsx indoktrinator/static/js/src/ -c .eslintrc.json
-
 pep:
-	@python3-pep8 --show-source --ignore=E221,E712 ${pys}
-
-npm:
-	npm update
+	python3-pep8 --show-source --ignore=E221,E712 ${pys}
 
 clean:
-	rm -rf node_modules
-	rm -rf indoktrinator/static/dist/app.bundle.js
 	rm -rf doc/*.html doc/*.pdf doc/*.png doc/*.cache doc/.asciidoctor
-	rm indoktrinator/static/dist/app.bundle.js
-	rm indoktrinator/static/fonts/*
-	rm indoktrinator/static/css/patternfly*
-	rm indoktrinator/static/js/patternfly*
+	rm -rf node_modules
+	rm -rf indoktrinator/static/dist/*
+	rm -f indoktrinator/static/fonts/*
+	rm -f indoktrinator/static/css/patternfly*
+	rm -f indoktrinator/static/js/patternfly*
+	rm -f indoktrinator/static/img/spinner*
 
 
 %.html: %.adoc
@@ -52,6 +48,6 @@ clean:
 	asciidoctor-pdf -r asciidoctor-diagram -o $@ $<
 
 
-.PHONY: dev build npm default lint
+.PHONY: all doc html pdf build watch lint yarn lang pep clean
 
 # EOF

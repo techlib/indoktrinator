@@ -6,14 +6,11 @@ __pycache__
 
 /build/
 /dist/
-*/static/vendor/
-*/static/dist/*
+/*/static/dist/*
+/*/static/fonts/*
+/*/static/css/patternfly*
+/*/static/js/patternfly*
+/*/static/img/spinner*
+
+/node_modules/
 /config/indoktrinator.local.ini
-*/static/dist/*
-*/static/fonts/*
-*/static/css/patternfly*
-*/static/js/patternfly*
-*/static/img/spinner*
-
-
-node_modules
