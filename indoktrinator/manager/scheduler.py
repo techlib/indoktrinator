@@ -142,7 +142,9 @@ def make_plan(store, base_url, uuid,
                     'start': begin,
                     'end': end,
                     'type': file['type'],
-                    'url': base_url + '/' + file['path'],
+                    'url': base_url + '/' + file['path'] \
+                           if file['stream_url'] is None \
+                           else file['stream_url'],
                 })
 
             # Update our current position.

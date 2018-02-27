@@ -9,6 +9,8 @@ from subprocess import STDOUT, Popen, check_output
 from simplejson import loads, dump
 from base64 import b64encode
 
+from urllib.parse import urlparse
+
 import re
 import os
 
@@ -43,6 +45,13 @@ if __name__ == '__main__':
                 'preview': create_video_preview(filename, duration),
             })
 
+        if type == 'stream':
+            duration = get_stream_duration(filename)
+            return dump_json({
+                'type': 'stream',
+                'duration': duration,
+            })
+
         return dump_json({
             'error': 'unusable file type',
             'filename': filename,
@@ -51,10 +60,16 @@ if __name__ == '__main__':
 
     def get_type(filename):
         stdout = check_output(['file', '-b', '--mime-type', filename])
-        # ffprobe identifies plain text as video,
-        # so it needs to be sanitized here
         if 'text/plain' in stdout.decode('utf-8'):
-            return 'unsupported'
+            with open(filename,'r') as text:
+                lines = text.readlines()
+                try:
+                    urlparse(lines[0])
+                except :
+                    return 'unsupported'
+            return 'stream'
+
+
         if 'image' in stdout.decode('utf-8').split('/')[0]:
             return 'image'
         else:
@@ -72,6 +87,15 @@ if __name__ == '__main__':
                 return 'video'
             else:
                 return 'unsupported'
+
+
+    def get_stream_duration(filename):
+        find = re.search(r'\((\d+)s\)|\[(\d+)s\]', filename)
+
+        if find:
+            return float(find.group(1) or find.group(2))
+        else:
+            return float(86400)
 
     def get_image_duration(filename):
         find = re.search(r'\((\d+)s\)|\[(\d+)s\]', filename)

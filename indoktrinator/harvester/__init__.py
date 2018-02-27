@@ -27,7 +27,6 @@ class Harvester (Tree):
 
     def __init__(self, db, path, reactor=reactor):
         super().__init__(path, reactor=reactor)
-
         self.db = db
         self.playlists = {}
 
@@ -210,18 +209,29 @@ class Harvester (Tree):
             log.msg('Node {!r} disappeared, aborting.'.format(path))
             return
 
+
         file = self.db.file.filter_by(path=path).one_or_none()
 
         if file is None:
             log.msg('Create file {!r} (preview={})...'
                     .format(path, 'preview' in info))
-
-            file = self.db.file.insert(**{
-                'path': path,
-                'token': token,
-                'duration': info['duration'],
-                'type': info['type'],
-            })
+            if info['type'] == 'stream':
+                with open('{0}/{1}'.format(self.path, path),'r') as text:
+                    content = text.readlines()[0].strip()
+                file = self.db.file.insert(**{
+                    'path': path,
+                    'token': token,
+                    'duration': info['duration'],
+                    'type': info['type'],
+                    'stream_url': content,
+                })
+            else:
+                file = self.db.file.insert(**{
+                    'path': path,
+                    'token': token,
+                    'duration': info['duration'],
+                    'type': info['type'],
+                })
 
             self.db.flush()
 
@@ -237,8 +247,16 @@ class Harvester (Tree):
             log.msg('Update file {!r} (preview={})...'
                     .format(path, 'preview' in info))
 
-            file.duration = info['duration']
-            file.type = info['type']
+            if info['type'] == 'stream':
+                with open('{0}/{1}'.format(self.path, path), 'r') as text:
+                    content = text.readlines()[0].strip()
+                    file.stream_url = content
+                    file.duration = info['duration']
+                    file.type = info['type']
+            
+            else:            
+                file.duration = info['duration']
+                file.type = info['type']
 
             self.db.flush()
 
