@@ -11,10 +11,14 @@ doc: html pdf
 html: ${htmls}
 pdf: ${pdfs}
 
-build: npm
+build: 
+	npm install
+	npm
 	node_modules/webpack/bin/webpack.js --progress --colors -p --config webpack/prod.js
 
-dev: npm
+dev: 
+	npm install
+	npm
 	node_modules/webpack/bin/webpack.js --progress --colors --watch --display-error-details --config webpack/dev.js
 
 lang:

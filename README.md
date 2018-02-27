@@ -83,7 +83,7 @@ ALTER SCHEMA public OWNER TO indoktrinator;
 You should just read the file in:
 
 ```sh
-psql -U indoktrinator indoktrinator <sql/schema.sql
+psql -U postgres indoktrinator <sql/schema.sql
 ```
 
 And that's it.
