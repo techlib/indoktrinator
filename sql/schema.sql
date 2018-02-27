@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.6.2
--- Dumped by pg_dump version 9.6.2
+-- Dumped from database version 10.2
+-- Dumped by pg_dump version 10.2
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -79,7 +79,8 @@ SET search_path = public, pg_catalog;
 CREATE TYPE file_type AS ENUM (
     'video',
     'image',
-    'website'
+    'website',
+    'stream'
 );
 
 
@@ -358,7 +359,8 @@ CREATE TABLE file (
     path character varying(1023) NOT NULL,
     token character varying(63) NOT NULL,
     duration real NOT NULL,
-    type file_type DEFAULT 'video'::file_type NOT NULL
+    type file_type DEFAULT 'video'::file_type NOT NULL,
+    stream_url character varying
 );
 
 
@@ -937,9 +939,12 @@ ALTER TABLE ONLY segment
 
 
 --
--- Name: public; Type: ACL; Schema: -; Owner: indoktrinator
+-- Name: SCHEMA public; Type: ACL; Schema: -; Owner: indoktrinator
 --
 
+REVOKE ALL ON SCHEMA public FROM postgres;
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+GRANT ALL ON SCHEMA public TO indoktrinator;
 GRANT ALL ON SCHEMA public TO PUBLIC;
 
 
