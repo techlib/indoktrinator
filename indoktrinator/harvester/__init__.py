@@ -312,16 +312,6 @@ def probe_file(filepath):
     d.addCallbacks(decode_preview, probe_failed)
     return d
 
-
-def get_image_duration(filename):
-    find = re.search(r'\((\d+)s\)|\[(\d+)s\]', filename)
-
-    if find:
-        return float(find.group(1) or find.group(2))
-    else:
-        return float(10)
-
-
 def decode_preview(data):
     data = loads(data.decode('utf-8'))
 
