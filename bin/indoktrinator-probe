@@ -90,18 +90,18 @@ if __name__ == '__main__':
 
 
     def get_stream_duration(filename):
-        find = re.search(r'\((\d+)s\)|\[(\d+)s\]', filename)
+        times = re.findall(r'\((\d+)s\)|\[(\d+)s\]', filename)
 
-        if find:
-            return float(find.group(1) or find.group(2))
+        if times:
+            return float(times[-1][0] or times[-1][1])
         else:
             return float(86400)
 
     def get_image_duration(filename):
-        find = re.search(r'\((\d+)s\)|\[(\d+)s\]', filename)
-
-        if find:
-            return float(find.group(1) or find.group(2))
+        times = re.findall(r'\((\d+)s\)|\[(\d+)s\]', filename)
+        
+        if times:
+            return float(times[-1][0] or times[-1][1])
         else:
             return float(10)
 
