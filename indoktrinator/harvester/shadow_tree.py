@@ -89,12 +89,14 @@ class Node:
 
         for base, dirs, files in walk(self.path):
             for dname in dirs:
-                missing.discard(dname)
-                self.add_child(dname, True)
+                if not is_hidden(dname):
+                    missing.discard(dname)
+                    self.add_child(dname, True)
 
             for fname in files:
-                missing.discard(fname)
-                self.add_child(fname, False)
+                if not is_hidden(fname):
+                    missing.discard(fname)
+                    self.add_child(fname, False)
 
             for child in missing:
                 child = self.children.pop(missing)
@@ -140,13 +142,14 @@ class Node:
     def on_close_write(self, name=None, is_dir=False):
         if name is None:
             self.tree.on_update(self)
-        else:
+        elif not is_hidden(name):
             child = self.add_child(name, is_dir)
             self.tree.on_update(child)
 
     def on_create(self, name, is_dir=False):
-        child = self.add_child(name, is_dir)
-        self.tree.on_update(child)
+        if not is_hidden(name):
+            child = self.add_child(name, is_dir)
+            self.tree.on_update(child)
 
     def on_delete(self, name, is_dir=False):
         if name in self.children:
@@ -167,6 +170,10 @@ class Node:
 
     def on_ignored(self):
         pass
+
+
+def is_hidden(dname):
+    return dname[:1] in ('.', '_')
 
 
 if __name__ == '__main__':
