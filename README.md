@@ -32,7 +32,7 @@ pip3 install -r requirements.txt
 
 You might want to consider creating a sandbox (so-called [virtualenv][]) to hold these dependencies so that you do not clobber your system packages.
 
-Next, you need to download the client code dependencies. This has been automated, but still requires `make` and `npm`:
+Next, you need to download the client code dependencies. This has been automated, but still requires `make` and `yarn`:
 
 ```sh
 make
@@ -102,7 +102,7 @@ If you feel like it, create an [unit file][] to start the application automatica
 
 ## Authentication
 
-The application does not perform any kind of authentication. You need to ensure that it receives a single HTTP header called `X-Roles` that includes roles of the current user. These roles are mapped to privileges using the rules in the `acl` section of the configuration file. Individual roles are extracted from the `X-Roles` header using the `\w+` regular expression. Valid formats include `omnipotent dictator` or `sysadmin;director`.
+The application does not perform any kind of authentication. You need to ensure that it receives a single HTTP header called `X-Roles` that includes roles of the current user. These roles are mapped to privileges using the rules in the `acl` section of the configuration file. Individual roles are extracted from the `X-Roles` header using the `\w+` regular expression. Valid formats include `omnipotent dictator` and `sysadmin;director`.
 
 There is only one privilege level:
 
