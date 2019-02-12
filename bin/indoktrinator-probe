@@ -59,6 +59,9 @@ if __name__ == '__main__':
         })
 
     def get_type(filename):
+        if os.path.basename(filename).lower() == 'thumbs.db':
+            return 'unsupported'
+
         stdout = check_output(['file', '-b', '--mime-type', filename])
         if 'text/plain' in stdout.decode('utf-8'):
             with open(filename,'r') as text:
@@ -99,7 +102,7 @@ if __name__ == '__main__':
 
     def get_image_duration(filename):
         times = re.findall(r'\((\d+)s\)|\[(\d+)s\]', filename)
-        
+
         if times:
             return float(times[-1][0] or times[-1][1])
         else:
