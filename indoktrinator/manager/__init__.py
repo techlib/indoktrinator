@@ -130,7 +130,7 @@ class Manager:
 
         # Apply what we have if no changes happen for at least one second.
         if self.change_application.active():
-            self.change_application.delay(0.1)
+            self.change_application.reset(1)
         else:
             self.change_application = reactor.callLater(1, self.apply_changes)
 
