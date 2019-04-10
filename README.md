@@ -8,7 +8,7 @@ This is the management component of an information screen control solution for l
 
 Apart from simple management of connected devices running the [Telescreen][] application, it allows all properly authorized users to create and modify programs.
 
-Programs comprise of segments -- playlists scheduled for certain hours in an idealized week. Most playlists are automatically detected from the file system, but synthetic ones can be created freely.
+Programs comprise of segments -- playlists scheduled for certain hours in an ideal week. Most playlists are automatically detected from the file system, but synthetic ones can be created freely.
 
 The solution does not support multicast streaming or web-based content uploading. We expect that the files are made accessible using a Samba or NFS share. Content is transmitted using HTTP and use of a reverse proxy is highly recommended.
 
