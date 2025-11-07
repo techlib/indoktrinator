@@ -10,49 +10,63 @@ from sqlalchemy.types import UserDefinedType
 from sqlalchemy.dialects.postgresql.base import ischema_names
 
 
-__all__ = ['with_session', 'with_db_session']
+__all__ = ["with_session", "with_db_session"]
 
+
+def _sess(s):
+    # scoped_session je volatelná → vrať aktuální Session
+    return s() if callable(s) and hasattr(s, "remove") else s
 
 def with_db_session(db):
     def decorate(fn):
         @wraps(fn)
         def wrapper(*args, **kwargs):
-            with db.session.begin(subtransactions=True):
-                return fn(*args, **kwargs)
+            sess = _sess(db.session)
+            if sess.get_transaction() is None:
+                with sess.begin():
+                    return fn(*args, **kwargs)
+            # už běží transakce → jen zavolat bez dalšího begin()
+            return fn(*args, **kwargs)
         return wrapper
     return decorate
-
 
 def with_session(fn):
     @wraps(fn)
     def wrapper(self, *args, **kwargs):
-        with self.db.session.begin(subtransactions=True):
-            return fn(self, *args, **kwargs)
+        sess = _sess(self.db.session)
+        if sess.get_transaction() is None:
+            with sess.begin():
+                return fn(self, *args, **kwargs)
+        return fn(self, *args, **kwargs)
     return wrapper
 
-
-class Int4RangeType (UserDefinedType):
+class Int4RangeType(UserDefinedType):
     def __init__(self):
-        self.caster = RangeCaster('int4range', 'Int4Range', None, None)
+        self.caster = RangeCaster("int4range", "Int4Range", None, None)
 
     def get_col_spec(self):
-        return 'INT4RANGE'
+        return "INT4RANGE"
 
     def bind_processor(self, dialect):
         def process(value):
-            if value:
-                return AsIs(self.caster.range(value[0], value[1], '[)'))
+            if value is None:
+                return None
+            lo, hi = value  # očekáváš tuple (lo, hi)
+            # POZOR: bez mezer a bez AsIs, Postgres si text přetypuje:
+            return f"[{int(lo)},{int(hi)})"
+
         return process
 
     def result_processor(self, dialect, coltype):
         def process(value):
             if value is not None:
                 return (value.lower, value.upper)
+
         return process
 
 
-register_type(new_type((1082,), 'DATE', STRING))
+register_type(new_type((1082,), "DATE", STRING))
 
-ischema_names['int4range'] = Int4RangeType
+ischema_names["int4range"] = Int4RangeType
 
 # vim:set sw=4 ts=4 et:

@@ -9,7 +9,8 @@ __all__ = ['schema']
 
 
 with open(join(dirname(__file__), 'schema.yaml')) as fp:
-    schema = load(fp)
+    from yaml import SafeLoader
+    schema = load(fp, Loader=SafeLoader)
 
 
 # vim:set sw=4 ts=4 et:

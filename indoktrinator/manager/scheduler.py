@@ -4,7 +4,6 @@
 from twisted.python import log
 
 from itertools import cycle
-from collections import Mapping
 from intervaltree import IntervalTree, Interval
 
 from datetime import datetime, timedelta, time

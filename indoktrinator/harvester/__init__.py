@@ -166,6 +166,7 @@ class Harvester (Tree):
             log.msg('Delete playlist {!r}...'.format(playlist))
             self.db.delete(plst)
 
+    @with_session
     def update_item(self, playlist, item, node):
         token = node.token
         path = relpath(node.path, self.path)

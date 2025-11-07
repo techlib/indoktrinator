@@ -6,7 +6,7 @@ from getopt import gnu_getopt
 from sys import argv, stderr, stdout
 
 from subprocess import STDOUT, Popen, check_output
-from simplejson import loads, dump
+from json import loads, dump
 from base64 import b64encode
 
 from urllib.parse import urlparse
@@ -76,16 +76,19 @@ if __name__ == '__main__':
         if 'image' in stdout.decode('utf-8').split('/')[0]:
             return 'image'
         else:
-            args = [
-                'ffprobe',
-                '-v', 'quiet',
-                '-select_streams', 'v:0',
-                '-show_entries', 'stream=codec_type',
-                '-of', 'default=nokey=1:noprint_wrappers=1',
-                filename,
-            ]
+            try:
+                args = [
+                    'ffprobe',
+                    '-v', 'quiet',
+                    '-select_streams', 'v:0',
+                    '-show_entries', 'stream=codec_type',
+                    '-of', 'default=nokey=1:noprint_wrappers=1',
+                    filename,
+                ]
 
-            stdout = check_output(args)
+                stdout = check_output(args)
+            except:
+                return 'unsupported'
             if 'video' in stdout.decode('utf-8'):
                 return 'video'
             else:
@@ -129,13 +132,12 @@ if __name__ == '__main__':
 
     def create_image_preview(filename):
         outfd, infd = os.pipe()
+        vf = r'scale=-1:90,crop=min(160\,iw):90:(iw-ow)/2:0,pad=160:90:(ow-ih)/2:(oh-ih)/2'
         args = [
             'ffmpeg',
             '-noaccurate_seek', '-y',
             '-i', filename,
-            '-vf', 'scale=-1:90,'
-                   'crop=min(160\,iw):90:(iw-ow)/2:0,'
-                   'pad=160:90:(ow-iw)/2:(oh-ih)/2',
+            '-vf', vf,
             '-frames', '1', '-q:v', '1',
             '-f', 'mjpeg',
             '/dev/fd/{fd}'.format(fd=infd)
@@ -149,14 +151,13 @@ if __name__ == '__main__':
 
     def create_video_preview(filename, duration):
         outfd, infd = os.pipe()
+        vf = r'scale=-1:90,crop=min(160\,iw):90:(iw-ow)/2:0,pad=160:90:(ow-ih)/2:(oh-ih)/2'
         args = [
             'ffmpeg',
             '-ss', str(duration/3),
             '-noaccurate_seek', '-y',
             '-i', filename,
-            '-vf', 'scale=-1:90,'
-                   'crop=min(160\,iw):90:(iw-ow)/2:0,'
-                   'pad=160:90:(ow-iw)/2:(oh-ih)/2',
+            '-vf', vf,
             '-frames', '1', '-q:v', '1',
             '-f', 'mjpeg',
             '/dev/fd/{fd}'.format(fd=infd)

@@ -30,13 +30,6 @@ class Table:
             for column in self.model.TABLES[other_table].ORDER_BY:
                 ordering.append(getattr(entity, column))
 
-            # NOTE: The passive_deletes and passive_updates options make
-            #       SQLAlchemy leave the cascading to the database.
-            self.table.relate(key, entity,
-                              passive_deletes='all',
-                              passive_updates=True,
-                              order_by=ordering)
-
         # Fox the `dbdict` function.
         self.table._table.fixup = self.fixup
 
@@ -102,7 +95,7 @@ class Table:
             if self.PROTECTED_PKEY:
                 pkey = prev.get(self.PKEY) if prev is not None else None
 
-                if data.get(self.PKEY, pkey) != pkey:
+                if str(data.get(self.PKEY, pkey)) != str(pkey):
                     raise ValueError('key {!r} is protected'.format(self.PKEY))
 
     def fixup(self, data):
@@ -128,6 +121,7 @@ class Device(Table):
 
         data['custom_photo'] = (pc > 0)
         data['photo'] = urljoin('/api/preview-image/device/', data['id'])
+        data['device_photos'] = [] #TODO this should be hacked properly
 
         return data
 
@@ -143,7 +137,7 @@ class File(Table):
     ORDER_BY = ['path']
 
     def fixup(self, data):
-        data['preview'] = urljoin('/api/preview-image/file/', data['uuid'])
+        data['preview'] = urljoin('/api/preview-image/file/', str(data['uuid']))
         return data
 
     def verify(self, data=None, prev=None):

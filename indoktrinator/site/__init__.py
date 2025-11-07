@@ -5,8 +5,15 @@ from twisted.python import log
 
 from werkzeug.exceptions import Forbidden, NotFound
 from flask_cors import CORS
-from flask import Flask, Response, request, render_template, jsonify, \
-    send_file, send_from_directory
+from flask import (
+    Flask,
+    Response,
+    request,
+    render_template,
+    jsonify,
+    send_file,
+    send_from_directory,
+)
 
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from sqlalchemy import desc
@@ -18,7 +25,7 @@ from time import time
 from os import urandom
 from re import findall
 from io import BytesIO
-from imghdr import what
+from PIL import Image, UnidentifiedImageError
 
 from indoktrinator.site.util import internal_origin_only
 from indoktrinator.site.model import Model
@@ -33,9 +40,9 @@ DEFAULT_FILE_PREVIEW = join(dirname(__file__), '../static/img/video.png')
 
 
 def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
-    """
+    '''
     Create the WSGI site object using Flask.
-    """
+    '''
 
     app = Flask('.'.join(__name__.split('.')[:-1]))
     app.secret_key = urandom(16)
@@ -63,12 +70,15 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             uid = request.headers.get('X-User-Id', '0')
             username = request.headers.get('X-Full-Name', 'Someone')
 
-            kwargs.update({
-                'uid': int(uid),
-                'username': username.encode('latin1').decode('utf8'),
-            })
+            kwargs.update(
+                {
+                    'uid': int(uid),
+                    'username': username.encode('latin1').decode('utf8'),
+                }
+            )
 
             return fn(*args, **kwargs)
+
         return wrapper
 
     def pass_depth(fn):
@@ -76,6 +86,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
         def wrapper(*args, **kwargs):
             kwargs['depth'] = int(request.args.get('depth', '0'))
             return fn(*args, **kwargs)
+
         return wrapper
 
     def authorized_only(privilege='user'):
@@ -88,6 +99,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
                 return fn(*args, **kwargs)
 
             return wrapper
+
         return make_wrapper
 
     @app.errorhandler(Forbidden.code)
@@ -98,10 +110,12 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     def integrity_error(error):
         log.msg('IntegrityError: {}'.format(error))
 
-        response = jsonify({
-            'error': 'integrity',
-            'message': str(error.orig),
-        })
+        response = jsonify(
+            {
+                'error': 'integrity',
+                'message': str(error.orig),
+            }
+        )
 
         response.status_code = 400
         return response
@@ -110,10 +124,12 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     def sqlalchemy_error(error):
         log.msg('SQLAlchemyError: {}'.format(error))
 
-        response = jsonify({
-            'error': 'database',
-            'message': str(error.orig),
-        })
+        response = jsonify(
+            {
+                'error': 'database',
+                'message': str(error),
+            }
+        )
 
         response.status_code = 400
         return response
@@ -122,10 +138,12 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     def key_error(error):
         log.msg('KeyError: {}'.format(error))
 
-        response = jsonify({
-            'error': 'key',
-            'message': str(error),
-        })
+        response = jsonify(
+            {
+                'error': 'key',
+                'message': str(error),
+            }
+        )
 
         response.status_code = 404
         return response
@@ -134,10 +152,12 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     def value_error(error):
         log.msg('ValueError: {}'.format(error))
 
-        response = jsonify({
-            'error': 'value',
-            'message': str(error),
-        })
+        response = jsonify(
+            {
+                'error': 'value',
+                'message': str(error),
+            }
+        )
 
         response.status_code = 400
         return response
@@ -160,22 +180,29 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             for device in model.device.list(depth=depth):
                 persistent.add(device['id'])
                 status = manager.devices.get(device['id'], {})
-                devices.append(dict(device, **{
-                    'online': status.get('last_seen', 0) > time() - 300,
-                    'power': status.get('power', False),
-                    'hostname': status.get('hostname')
-                }))
+                devices.append(
+                    dict(
+                        device,
+                        **{
+                            'online': status.get('last_seen', 0) > time() - 300,
+                            'power': status.get('power', False),
+                            'hostname': status.get('hostname'),
+                        },
+                    )
+                )
 
             for devid, status in manager.devices.items():
                 if devid not in persistent:
-                    devices.insert(0, {
-                        'id': devid,
-                        'pending': True,
-                        'online': status.get('last_seen', 0) > time() - 300,
-                        'power': status.get('power', False),
-                        'hostname': status.get('hostname')
-                    })
-
+                    devices.insert(
+                        0,
+                        {
+                            'id': devid,
+                            'pending': True,
+                            'online': status.get('last_seen', 0) > time() - 300,
+                            'power': status.get('power', False),
+                            'hostname': status.get('hostname'),
+                        },
+                    )
             return jsonify(result=devices)
 
         if 'POST' == request.method:
@@ -196,10 +223,15 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
 
             status = manager.devices.get(id, {})
 
-            return jsonify(dict(device, **{
-                'online': status.get('last_seen', 0) > time() - 300,
-                'power': status.get('power', False),
-            }))
+            return jsonify(
+                dict(
+                    device,
+                    **{
+                        'online': status.get('last_seen', 0) > time() - 300,
+                        'power': status.get('power', False),
+                    },
+                )
+            )
 
         if 'DELETE' == request.method:
             try:
@@ -208,7 +240,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
                 pass
             finally:
                 if id not in manager.devices:
-                    raise KeyError('No device with id: {id}'.format(id=id))
+                    log.msg('No device with id: {id}'.format(id=id))
                 else:
                     del manager.devices[id]
                 return jsonify(deleted=id)
@@ -374,7 +406,8 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
 
             if segments is not None:
                 # Delete all current segments in that program.
-                model.segment.table.filter_by(program=uuid).delete()
+                for segment in model.segment.table.filter_by(program=uuid):
+                    model.segment.delete(segment.uuid)
 
                 # Insert all the new segments as usual.
                 for segment in segments:
@@ -439,11 +472,11 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
         # NOTE: This should never be used outside development.
         #       There should be an actual web server in front of the
         #       application that serves the /media directory faster.
-        return send_from_directory(manager.media_path, path,
-                                   mimetype='application/octet-stream')
+        return send_from_directory(
+            manager.media_path, path, mimetype='application/octet-stream'
+        )
 
-    @app.route('/api/preview-image/device/<id>',
-               methods=['GET', 'PUT', 'RESET'])
+    @app.route('/api/preview-image/device/<id>', methods=['GET', 'PUT', 'RESET'])
     @authorized_only('user')
     @with_db_session(db)
     def api_device_photo(id):
@@ -461,13 +494,19 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             if request.content_length > 10e20:
                 raise ValueError('image too large')
 
+            # Use Pillow to detect image format reliably from bytes.
             with BytesIO(request.data) as fp:
-                mime = what(fp)
+                try:
+                    fp.seek(0)
+                    with Image.open(fp) as img:
+                        fmt = (img.format or '').lower()
+                except (UnidentifiedImageError, OSError):
+                    fmt = None
 
-            if mime not in ('jpeg', 'png', 'gif'):
-                raise ValueError('image type {!r}'.format(mime))
+            if fmt not in ('jpeg', 'png', 'gif'):
+                raise ValueError('image type {!r}'.format(fmt))
 
-            mime = 'image/{}'.format(mime)
+            mime = f'image/{fmt}'
             photo = db.device_photo.filter_by(id=id).one_or_none()
 
             if photo is None:

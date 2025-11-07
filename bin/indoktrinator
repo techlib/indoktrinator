@@ -17,7 +17,7 @@ from twisted.python import log
 # Data are accessed through SQLSoup, using SQLAlchemy.
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy import create_engine
-from sqlsoup import SQLSoup
+from indoktrinator.sqlalchemy_db import SQLSoup
 
 # Command line arguments follow the GNU conventions.
 from getopt import gnu_getopt
@@ -60,7 +60,7 @@ if __name__ == '__main__':
 
         # Prepare database connection with table reflection.
         engine = create_engine(db_url)
-        session = scoped_session(sessionmaker(autocommit=True, autoflush=False))
+        session = scoped_session(sessionmaker())
         db = SQLSoup(engine, session=session)
 
         # Prepare a 0MQ router instance for communication with the
