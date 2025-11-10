@@ -150,7 +150,7 @@ class Manager:
 
         if program is not None:
             log.msg('Program {name!r} ({uuid}) changed.'.format(**program))
-            self.plans[uuid] = make_plan(self.store, self.url, uuid,
+            self.plans[str(uuid)] = make_plan(self.store, self.url, uuid,
                                          self.power_up_before,
                                          self.power_down_after,
                                          self.power_down_gap)
@@ -169,7 +169,7 @@ class Manager:
         """
 
         for uuid in self.store.program:
-            self.plans[uuid] = make_plan(self.store, self.url, uuid,
+            self.plans[str(uuid)] = make_plan(self.store, self.url, uuid,
                                          self.power_up_before,
                                          self.power_down_after,
                                          self.power_down_gap)
@@ -211,7 +211,7 @@ class Manager:
             return
 
         # Find plan for device program.
-        plan = self.plans[device['program']]
+        plan = self.plans[str(device['program'])]
 
         # Check that device plan is up to date.
         if status['plan'] != plan['id']:
