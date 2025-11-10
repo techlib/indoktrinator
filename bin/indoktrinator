@@ -32,6 +32,7 @@ from indoktrinator.site import make_site
 from indoktrinator.rbac import AccessModel
 from indoktrinator.notifier import Notifier
 from indoktrinator.tzmq import Router
+from indoktrinator.myoidc import setup_app_auth
 
 if __name__ == '__main__':
     def do_start(config):
@@ -51,6 +52,11 @@ if __name__ == '__main__':
         http_cors = config.getboolean('http', 'cors', fallback=False)
         endpoint = config.get('zmq', 'endpoint', fallback='tcp://0.0.0.0:5001')
         media_path = config.get('media', 'path', fallback='/var/lib/indoktrinator')
+        oidc_config = {
+            'client_id': config.get('oidc', 'client_id'),
+            'client_secret': config.get('oidc', 'client_secret'),
+            'metadata_url': config.get('oidc', 'metadata_url'),
+        }
 
         # Read role mappings.
         access_model = AccessModel(config.items('access'))
@@ -83,6 +89,7 @@ if __name__ == '__main__':
 
         # Prepare the website that will get exposed to the users.
         site = make_site(db, manager, access_model, auth=http_auth, debug=http_debug, cors=http_cors)
+        setup_app_auth(site, oidc_config)
 
         # Prepare WSGI site with a separate thread pool.
         # define reactor thread

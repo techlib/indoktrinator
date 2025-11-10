@@ -13,6 +13,7 @@ from flask import (
     jsonify,
     send_file,
     send_from_directory,
+    session
 )
 
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
@@ -55,20 +56,18 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     model = Model(db)
 
     def has_privilege(privilege):
-        roles = request.headers.get('X-Roles', '')
+        roles = session['user'].get('roles', [])
 
-        if not roles or '(null)' == roles:
+        if not roles or [] == roles:
             roles = ['impotent']
-        else:
-            roles = findall(r'\w+', roles)
 
         return access_model.have_privilege(privilege, roles)
 
     def pass_user_info(fn):
         @wraps(fn)
         def wrapper(*args, **kwargs):
-            uid = request.headers.get('X-User-Id', '0')
-            username = request.headers.get('X-Full-Name', 'Someone')
+            uid = session['user'].get('account_id', '0')
+            username = session['user'].get('name', 'Someone')
 
             kwargs.update(
                 {
