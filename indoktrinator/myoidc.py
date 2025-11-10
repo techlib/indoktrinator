@@ -105,5 +105,7 @@ def setup_app_auth(flask_app, config):
             'username': userinfo.get('username'),
             'account_id': userinfo.get('account_id'),
         }
-
-        return redirect(url_for('home'))
+        try:
+            return redirect(url_for('home'))
+        except:
+            return redirect(url_for('index'))

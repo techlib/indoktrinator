@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from twisted.python import log
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from werkzeug.exceptions import Forbidden, NotFound
 from flask_cors import CORS
@@ -537,6 +538,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
         resp.headers['Content-Type'] = file_preview.mime
         return resp
 
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1)
     return app
 
 
