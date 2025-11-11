@@ -73,7 +73,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             kwargs.update(
                 {
                     'uid': int(uid),
-                    'username': username.encode('latin1').decode('utf8'),
+                    'username': username,
                 }
             )
 
