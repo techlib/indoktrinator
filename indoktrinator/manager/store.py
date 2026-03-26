@@ -11,7 +11,7 @@ from datetime import datetime, timedelta, time
 from time import mktime
 
 from re import findall
-from uuid import uuid4
+from uuid import uuid4, UUID as _UUID
 
 
 __all__ = ['Store', 'Query']
@@ -102,16 +102,22 @@ class Table (Mapping):
     def init_from_table(self, table):
         """
         Clear and re-read all rows from the database.
+        UUID values are normalized to strings to match the format produced
+        by PostgreSQL row_to_json in NOTIFY payloads.
         """
 
         self.rows.clear()
 
         for row in table.all():
             pkey = getattr(row, self.PKEY)
+            if isinstance(pkey, _UUID):
+                pkey = str(pkey)
             self.rows[pkey] = {}
 
             for key, value in row.__dict__.items():
                 if not key.startswith('_'):
+                    if isinstance(value, _UUID):
+                        value = str(value)
                     self.rows[pkey][key] = value
 
         for pkey in self.rows:
