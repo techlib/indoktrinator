@@ -191,7 +191,8 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
                     )
                 )
 
-            for devid, status in manager.devices.items():
+            # Snapshot to avoid RuntimeError if reactor modifies devices concurrently.
+            for devid, status in manager.devices.copy().items():
                 if devid not in persistent:
                     devices.insert(
                         0,
@@ -218,8 +219,8 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             try:
                 device = model.device.get(id, depth=depth)
             except KeyError:
-                device = manager.devices.get(id)
-                device.update({'pending': True})
+                device = dict(manager.devices.get(id) or {})
+                device['pending'] = True
 
             status = manager.devices.get(id, {})
 
@@ -237,13 +238,10 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
             try:
                 return jsonify(deleted=model.device.delete(id))
             except KeyError:
-                pass
-            finally:
                 if id not in manager.devices:
                     log.msg('No device with id: {id}'.format(id=id))
-                else:
-                    del manager.devices[id]
                 return jsonify(deleted=id)
+            # Reactor cleans up manager.devices via on_device_change when NOTIFY arrives.
 
         if 'PATCH' == request.method:
             patch = request.get_json(force=True)

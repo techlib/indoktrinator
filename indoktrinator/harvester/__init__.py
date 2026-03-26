@@ -200,6 +200,7 @@ class Harvester (Tree):
 
         if d is not None:
             d.addCallback(probe_done)
+            d.addErrback(lambda f: log.err(f, 'Failed to process {!r}'.format(path)))
 
     @with_session
     def update_item_with_info(self, playlist, item, node, info):

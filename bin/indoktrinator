@@ -14,10 +14,8 @@ from twisted.web.server import Site
 from twisted.python.threadpool import ThreadPool
 from twisted.python import log
 
-# Data are accessed through SQLSoup, using SQLAlchemy.
-from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy import create_engine
-from indoktrinator.sqlalchemy_db import SQLSoup
+from indoktrinator.sqlalchemy_db import SQLAlchemyDB
 
 # Command line arguments follow the GNU conventions.
 from getopt import gnu_getopt
@@ -65,9 +63,7 @@ if __name__ == '__main__':
         notifier = Notifier(reactor, db_url)
 
         # Prepare database connection with table reflection.
-        engine = create_engine(db_url)
-        session = scoped_session(sessionmaker())
-        db = SQLSoup(engine, session=session)
+        db = SQLAlchemyDB(create_engine(db_url))
 
         # Prepare a 0MQ router instance for communication with the
         # leader that publishes our indoctrination schedule.
@@ -139,13 +135,9 @@ if __name__ == '__main__':
             config_path = v
 
     # Load the configuration from file.
-    if action not in (do_help, do_version):
-        config = ConfigParser()
-        config.read(config_path)
-
-    # Load the configuration from file.
     config = ConfigParser()
-    config.read(config_path)
+    if action not in (do_help, do_version):
+        config.read(config_path)
 
     # Perform the selected action.
     action(config=config)

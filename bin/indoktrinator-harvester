@@ -6,10 +6,8 @@ from twisted.internet import reactor
 from twisted.web.wsgi import WSGIResource
 from twisted.python import log
 
-# Data are accessed through SQLSoup, using SQLAlchemy.
-from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy import create_engine
-from indoktrinator.sqlalchemy_db import SQLSoup
+from indoktrinator.sqlalchemy_db import SQLAlchemyDB
 
 # Command line arguments follow the GNU conventions.
 from getopt import gnu_getopt
@@ -34,9 +32,7 @@ if __name__ == '__main__':
         path = config.get('media', 'path', fallback='/var/lib/indoktrinator')
 
         # Prepare database connection with table reflection.
-        engine = create_engine(db_url)
-        session = scoped_session(sessionmaker(autoflush=True))
-        db = SQLSoup(engine, session=session)
+        db = SQLAlchemyDB(create_engine(db_url))
 
         # Extract harvester options, sans the pool_size we handle here.
         harvester_opts = dict(config.items('harvester'))

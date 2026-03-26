@@ -7,6 +7,10 @@ from urllib.parse import urljoin
 
 __all__ = ['Model']
 
+# Maps SQLAlchemy mapped classes to their fixup function.
+# Populated by Table.__init__ so dbdict() needs no magic on the ORM objects.
+_fixup_registry: dict = {}
+
 
 class Table:
     NAME = None
@@ -23,15 +27,8 @@ class Table:
         self.db = db
         self.table = getattr(db, self.NAME)
 
-        for key, other_table in self.RELS:
-            entity = getattr(db, other_table)
-            ordering = []
-
-            for column in self.model.TABLES[other_table].ORDER_BY:
-                ordering.append(getattr(entity, column))
-
-        # Fox the `dbdict` function.
-        self.table._table.fixup = self.fixup
+        # Register this table's fixup so dbdict() can find it by mapped class.
+        _fixup_registry[self.table._cls] = self.fixup
 
     def get(self, key, depth=0):
         obj = self.table.get(key)
@@ -243,7 +240,7 @@ def dbdict(obj, depth=0):
     Convert an SQLAlchemy object to a dictionary.
     """
 
-    fixup = obj._table.fixup
+    fixup = _fixup_registry.get(type(obj), lambda x: x)
     mapper = class_mapper(obj.__class__)
     data = {col.key: getattr(obj, col.key) for col in mapper.columns}
 

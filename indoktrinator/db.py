@@ -5,7 +5,7 @@ from functools import wraps
 
 from psycopg2 import STRING
 from psycopg2.extras import RangeCaster
-from psycopg2.extensions import AsIs, register_type, new_type
+from psycopg2.extensions import register_type, new_type
 from sqlalchemy.types import UserDefinedType
 from sqlalchemy.dialects.postgresql.base import ischema_names
 

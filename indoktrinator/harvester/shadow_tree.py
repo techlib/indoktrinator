@@ -99,8 +99,7 @@ class Node:
                     self.add_child(fname, False)
 
             for child in missing:
-                child = self.children.pop(missing)
-                child.lost()
+                self.children.pop(child).lost()
 
             break
 

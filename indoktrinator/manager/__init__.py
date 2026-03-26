@@ -10,7 +10,6 @@ from simplejson import loads, dumps
 from uuid import uuid4
 from time import time
 
-from indoktrinator.db import with_session
 from indoktrinator.manager.schema import schema
 from indoktrinator.manager.scheduler import *
 from indoktrinator.manager.store import *
@@ -37,6 +36,7 @@ class Manager:
         self.power_down_gap = int(power_down_gap)
 
         # Collection of devices we have come into contact with.
+        # Written only from the reactor thread; HTTP threads read via dict.copy().
         self.devices = {}
 
         # Store for database objects received via notifications.
@@ -158,8 +158,9 @@ class Manager:
         else:
             log.msg('Program {} deleted.'.format(uuid))
 
-            if uuid in self.plans:
-                self.plans.pop(uuid)
+            str_uuid = str(uuid)
+            if str_uuid in self.plans:
+                del self.plans[str_uuid]
 
         self.sync_devices()
 
@@ -178,14 +179,18 @@ class Manager:
 
     def on_device_change(self, id, device):
         """Device has changed in the database."""
-        self.sync_device(id)
+        if device is None:
+            # Device deleted — remove runtime state.
+            self.devices.pop(id, None)
+        else:
+            self.sync_device(id)
 
     def sync_devices(self):
         """
         Synchronize all devices plans as needed.
         """
 
-        for id in self.devices:
+        for id in list(self.devices):
             self.sync_device(id)
 
     def sync_device(self, id):
@@ -211,7 +216,12 @@ class Manager:
             return
 
         # Find plan for device program.
-        plan = self.plans[str(device['program'])]
+        plan = self.plans.get(str(device['program']))
+
+        if plan is None:
+            # Plan not computed yet (e.g. during startup or after DB change).
+            self.send(id, 'plan', EMPTY_PLAN)
+            return
 
         # Check that device plan is up to date.
         if status['plan'] != plan['id']:
