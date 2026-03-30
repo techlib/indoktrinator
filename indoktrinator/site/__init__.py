@@ -49,6 +49,7 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     app = Flask('.'.join(__name__.split('.')[:-1]))
     app.secret_key = urandom(16)
     app.debug = debug
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
     if cors:
         CORS(app)
