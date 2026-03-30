@@ -25,6 +25,28 @@ class OIDCAuth:
         return res
 
 
+def setup_dev_auth(flask_app):
+    @flask_app.before_request
+    def inject_dev_user():
+        if 'user' not in session:
+            session['user'] = {
+                'id': '1',
+                'email': 'dev@localhost',
+                'name': 'Dev User',
+                'roles': ['admin'],
+                'status': None,
+                'ntk_email': None,
+                'category': None,
+                'personal_number': None,
+                'expires': None,
+                'preferred_username': 'dev',
+                'given_name': 'Dev',
+                'family_name': 'User',
+                'username': 'dev',
+                'account_id': '1',
+            }
+
+
 def setup_app_auth(flask_app, config):
     auth_app = OAuth(flask_app)
 

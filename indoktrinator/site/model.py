@@ -3,7 +3,7 @@
 
 from sqlalchemy.orm import class_mapper
 from urllib.parse import urljoin
-
+import uuid
 
 __all__ = ['Model']
 
@@ -98,10 +98,15 @@ class Table:
     def fixup(self, data):
         """
         Adjust value before it is returned from ``get()`` or ``list()``.
-        By default does nothing.
+        Converts uuid.UUID values to strings.
         """
 
-        return data
+        ret = {}
+        for key, value in data.items():
+            if isinstance(value, uuid.UUID):
+                value = str(value)
+            ret[key] = value
+        return ret
 
 
 class Device(Table):
@@ -114,6 +119,7 @@ class Device(Table):
     PROTECTED_PKEY = False
 
     def fixup(self, data):
+        data = super().fixup(data)
         pc = self.db.device_photo.filter_by(id=data['id']).count()
 
         data['custom_photo'] = (pc > 0)
@@ -134,6 +140,7 @@ class File(Table):
     ORDER_BY = ['path']
 
     def fixup(self, data):
+        data = super().fixup(data)
         data['preview'] = urljoin('/api/preview-image/file/', str(data['uuid']))
         return data
 
@@ -179,6 +186,7 @@ class Playlist(Table):
     ORDER_BY = ['path', 'name']
 
     def fixup(self, data):
+        data = super().fixup(data)
         data['system'] = data.get('token') is not None
         return data
 
