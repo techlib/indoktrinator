@@ -54,6 +54,10 @@ def make_site(db, manager, access_model, debug=False, auth=False, cors=False):
     if cors:
         CORS(app)
 
+    @app.teardown_request
+    def teardown_db_session(exc):
+        db.session.remove()
+
     # JSON-compatible database access layer for the endpoints below.
     model = Model(db)
 

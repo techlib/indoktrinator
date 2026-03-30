@@ -11,6 +11,8 @@ export var PlaylistStore = Reflux.createStore({
   data: {'playlist': [], 'list': [], 'errors': []},
 
   onRead(uuid) {
+    this.data.playlist = {items: [], system: true}
+    this.trigger(this.data)
     this.req('GET', `/api/playlist/${uuid}?depth=2`,
              {action: PlaylistActions.read, dest: 'playlist',
               modifyResponse: (data) => {
